@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
-import { Upload, Palette, Scaling } from 'lucide-react';
+import { Upload, Palette, Scaling, GlassWater } from 'lucide-react';
 import Image from 'next/image';
 
 export default function MonteSeuQuadro() {
@@ -18,6 +18,7 @@ export default function MonteSeuQuadro() {
   const [frameColor, setFrameColor] = useState('#000000');
   const [frameWidth, setFrameWidth] = useState([20]);
   const [frameStyle, setFrameStyle] = useState('moderna');
+  const [glassOption, setGlassOption] = useState('sem-vidro');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +77,17 @@ export default function MonteSeuQuadro() {
                                 padding: `${frameWidth[0] + 5}px`
                             }}
                         />
+                         {glassOption === 'com-vidro' && (
+                            <div 
+                                className="absolute inset-0 w-full h-full"
+                                style={{
+                                    backdropFilter: 'brightness(0.98)',
+                                    background: 'linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15))',
+                                    padding: `${frameWidth[0]}px`,
+                                    boxSizing: 'border-box',
+                                }}
+                            />
+                        )}
                      </div>
                 ) : (
                     <div className="text-center text-muted-foreground">
@@ -164,6 +176,24 @@ export default function MonteSeuQuadro() {
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="rustica" id="r3" />
                             <Label htmlFor="r3">Rústica</Label>
+                        </div>
+                    </RadioGroup>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><GlassWater className="h-5 w-5" />Acabamento</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <RadioGroup value={glassOption} onValueChange={setGlassOption}>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="com-vidro" id="g1" />
+                            <Label htmlFor="g1">Com Vidro</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="sem-vidro" id="g2" />
+                            <Label htmlFor="g2">Sem Vidro</Label>
                         </div>
                     </RadioGroup>
                 </CardContent>

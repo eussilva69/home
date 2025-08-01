@@ -15,6 +15,7 @@ const navLinks = [
 
 export default function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isCollectionsOpen, setCollectionsOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -24,28 +25,34 @@ export default function Header() {
           <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-           <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-1 transition-colors hover:text-primary">
-                Coleções <ChevronDown className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56">
-              <div className="grid gap-4">
-                <p className="font-medium">Nossas Coleções</p>
-                <div className="grid gap-2">
-                {collections.map((collection) => (
-                  <Link
-                    key={collection.name}
-                    href="#"
-                    className="block p-2 -m-2 rounded-md hover:bg-accent"
-                  >
-                    {collection.name}
-                  </Link>
-                ))}
+           <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
+            <div 
+              onMouseEnter={() => setCollectionsOpen(true)}
+              onMouseLeave={() => setCollectionsOpen(false)}
+              className="flex items-center"
+            >
+              <PopoverTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-1 transition-colors hover:text-primary">
+                  Coleções <ChevronDown className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56">
+                <div className="grid gap-4">
+                  <p className="font-medium">Nossas Coleções</p>
+                  <div className="grid gap-2">
+                  {collections.map((collection) => (
+                    <Link
+                      key={collection.name}
+                      href="#"
+                      className="block p-2 -m-2 rounded-md hover:bg-accent"
+                    >
+                      {collection.name}
+                    </Link>
+                  ))}
+                  </div>
                 </div>
-              </div>
-            </PopoverContent>
+              </PopoverContent>
+            </div>
           </Popover>
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className="transition-colors hover:text-primary">

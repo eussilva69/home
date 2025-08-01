@@ -7,6 +7,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Search, Heart, ShoppingCart, User, Brush, ChevronDown } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { collections } from '@/lib/mock-data';
+import Image from 'next/image';
+import { Separator } from '../ui/separator';
 
 const navLinks = [
   { href: '#bestsellers', label: 'Mais Vendidos' },
@@ -36,20 +38,28 @@ export default function Header() {
                   Coleções <ChevronDown className="h-4 w-4" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-56">
-                <div className="grid gap-4">
-                  <p className="font-medium">Nossas Coleções</p>
-                  <div className="grid gap-2">
-                  {collections.map((collection) => (
-                    <Link
-                      key={collection.name}
-                      href="#"
-                      className="block p-2 -m-2 rounded-md hover:bg-accent"
-                    >
-                      {collection.name}
-                    </Link>
-                  ))}
-                  </div>
+              <PopoverContent className="w-[30rem] p-0" align="start">
+                <div className="p-4">
+                   <p className="font-medium text-lg mb-4">Temas</p>
+                   <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                    {collections.map((collection) => (
+                      <Link
+                        key={collection.name}
+                        href="#"
+                        className="flex items-center gap-3 p-2 -m-2 rounded-md hover:bg-accent"
+                      >
+                         <Image
+                          src={collection.image}
+                          alt={collection.name}
+                          data-ai-hint={collection.hint}
+                          width={40}
+                          height={40}
+                          className="rounded-full object-cover"
+                        />
+                        <span className="text-sm">{collection.name}</span>
+                      </Link>
+                    ))}
+                   </div>
                 </div>
               </PopoverContent>
             </div>

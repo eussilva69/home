@@ -73,8 +73,16 @@ export const testimonials = [
 ];
 
 export const collections = [
-  { name: 'Abstrato', image: 'https://placehold.co/400x300.png', hint: 'abstract art' },
-  { name: 'Floral', image: 'https://placehold.co/400x300.png', hint: 'flower painting' },
-  { name: 'Geek', image: 'https://placehold.co/400x300.png', hint: 'video game poster' },
-  { name: 'Minimalista', image: 'https://placehold.co/400x300.png', hint: 'minimalist design' },
+  { name: 'Animais', image: 'https://placehold.co/40x40.png', hint: 'elephant' },
+  { name: 'Floral', image: 'https://placehold.co/40x40.png', hint: 'flower' },
+  { name: 'Abstrato', image: 'https://placehold.co/40x40.png', hint: 'abstract' },
+  { name: 'Frases/Tipografia', image: 'https://placehold.co/40x40.png', hint: 'typography' },
+  { name: 'Botânico', image: 'https://placehold.co/40x40.png', hint: 'botanical' },
+  { name: 'Geek', image: 'https://placehold.co/40x40.png', hint: 'game controller' },
+  { name: 'Fotografia', image: 'https://placehold.co/40x40.png', hint: 'camera' },
+  { name: 'Infantil', image: 'https://placehold.co/40x40.png', hint: 'hedgehog' },
+  { name: 'Fashion', image: 'https://placehold.co/40x40.png', hint: 'fashion' },
+  { name: 'Minimalista', image: 'https://placehold.co/40x40.png', hint: 'minimalism' },
+  { name: 'Femme', image: 'https://placehold.co/40x40.png', hint: 'woman face' },
+  { name: 'Religião', image: 'https://placehold.co/40x40.png', hint: 'religious symbol' },
 ];

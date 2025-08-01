@@ -12,7 +12,7 @@ import type { CreatePixPaymentInput, CreatePreferenceInput } from '@/lib/schemas
 
 // Adicione o Access Token do vendedor
 const MERCADO_PAGO_ACCESS_TOKEN = 'TEST-669430014263398-080114-6223aa7da057a138568fab88ea605ccd-1118229328';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9002';
+const SITE_URL = 'https://homesdes.netlify.app';
 
 const client = new MercadoPagoConfig({ 
     accessToken: MERCADO_PAGO_ACCESS_TOKEN,

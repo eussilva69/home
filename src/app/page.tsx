@@ -4,11 +4,8 @@ import FeaturedCollections from "@/components/home/featured-collections";
 import BestSellers from "@/components/home/best-sellers";
 import ReadyCompositions from "@/components/home/ready-compositions";
 import Testimonials from "@/components/home/testimonials";
-import ProductDescriptionGenerator from "@/components/features/product-description-generator";
-import CompositionSuggester from "@/components/features/composition-suggester";
+import FrameArrangements from "@/components/home/frame-arrangements";
 import Footer from "@/components/layout/footer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
   return (
@@ -19,6 +16,7 @@ export default function Home() {
         <FeaturedCollections />
         <BestSellers />
         <ReadyCompositions />
+        <FrameArrangements />
         <Testimonials />
       </main>
       <Footer />

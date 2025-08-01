@@ -55,7 +55,7 @@ export async function chatbotSupportAction(values: z.infer<typeof chatbotSchema>
     try {
         const validatedFields = chatbotSchema.safeParse(values);
         if (!validatedFields.success) {
-            return { error: "Invalid input." };
+            return { error: "Entrada inválida." };
         }
 
         const productCatalog = products.map(p => `${p.name} - ${p.category} - $${p.price}`).join('\n');
@@ -63,14 +63,14 @@ export async function chatbotSupportAction(values: z.infer<typeof chatbotSchema>
         const input: AiChatbotSupportInput = {
             query: validatedFields.data.query,
             productCatalog: productCatalog,
-            shippingInformation: "We ship worldwide. Standard shipping takes 5-7 business days. Express shipping takes 2-3 business days.",
-            sizeInformation: "Our prints are available in Small (8x10 in), Medium (12x16 in), and Large (18x24 in).",
+            shippingInformation: "Enviamos para todo o mundo. O envio padrão leva de 5 a 7 dias úteis. O envio expresso leva de 2 a 3 dias úteis.",
+            sizeInformation: "Nossas impressões estão disponíveis em Pequeno (20x25 cm), Médio (30x40 cm) e Grande (45x60 cm).",
         };
 
         const result = await aiChatbotSupport(input);
         return { success: result.response };
     } catch (error) {
         console.error(error);
-        return { error: 'I am having trouble connecting. Please try again later.' };
+        return { error: 'Estou com problemas de conexão. Por favor, tente novamente mais tarde.' };
     }
 }

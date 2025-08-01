@@ -25,7 +25,7 @@ type FormData = z.infer<typeof chatbotSchema>;
 export default function AiChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { sender: 'bot', text: "Hello! How can I help you today? Feel free to ask about products, shipping, or orders." }
+    { sender: 'bot', text: "Olá! Como posso ajudar hoje? Sinta-se à vontade para perguntar sobre produtos, envios ou pedidos." }
   ]);
   const [isPending, startTransition] = useTransition();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -44,7 +44,7 @@ export default function AiChatbot() {
       const response = await chatbotSupportAction(values);
       const botMessage: Message = {
         sender: 'bot',
-        text: response.success || response.error || "Sorry, I couldn't understand that.",
+        text: response.success || response.error || "Desculpe, não consegui entender.",
       };
       setMessages(prev => [...prev, botMessage]);
     });
@@ -64,13 +64,13 @@ export default function AiChatbot() {
       <SheetTrigger asChild>
         <Button className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg" size="icon">
           <MessageCircle className="h-8 w-8" />
-          <span className="sr-only">Open Chat</span>
+          <span className="sr-only">Abrir Chat</span>
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
         <SheetHeader className="p-6 pb-2">
           <SheetTitle className="font-headline flex items-center gap-2">
-            <Bot /> AI Assistant
+            <Bot /> Assistente Virtual
           </SheetTitle>
         </SheetHeader>
         <ScrollArea className="flex-grow p-6" ref={scrollAreaRef}>
@@ -117,7 +117,7 @@ export default function AiChatbot() {
                 render={({ field }) => (
                   <FormItem className="flex-grow">
                     <FormControl>
-                      <Input placeholder="Type a message..." {...field} disabled={isPending} autoComplete="off"/>
+                      <Input placeholder="Digite uma mensagem..." {...field} disabled={isPending} autoComplete="off"/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -125,7 +125,7 @@ export default function AiChatbot() {
               />
               <Button type="submit" size="icon" disabled={isPending}>
                 <Send className="h-4 w-4" />
-                <span className="sr-only">Send</span>
+                <span className="sr-only">Enviar</span>
               </Button>
             </form>
           </Form>

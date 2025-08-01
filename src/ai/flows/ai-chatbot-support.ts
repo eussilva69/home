@@ -12,27 +12,27 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AiChatbotSupportInputSchema = z.object({
-  query: z.string().describe('The user query or question.'),
+  query: z.string().describe('A consulta ou pergunta do usuário.'),
   orderInformation: z
     .string()
     .optional()
-    .describe('Information about the users order, if relevant.'),
+    .describe('Informações sobre o pedido do usuário, se relevante.'),
   shippingInformation: z
     .string()
     .optional()
-    .describe('Information about shipping policies and options.'),
+    .describe('Informações sobre políticas e opções de envio.'),
   sizeInformation: z
     .string()
     .optional()
-    .describe('Information about product sizes and availability.'),
+    .describe('Informações sobre tamanhos e disponibilidade de produtos.'),
   productCatalog: z
     .string()
-    .describe('A comprehensive catalog of available products.'),
+    .describe('Um catálogo abrangente de produtos disponíveis.'),
 });
 export type AiChatbotSupportInput = z.infer<typeof AiChatbotSupportInputSchema>;
 
 const AiChatbotSupportOutputSchema = z.object({
-  response: z.string().describe('The chatbot response to the user query.'),
+  response: z.string().describe('A resposta do chatbot para a consulta do usuário.'),
 });
 export type AiChatbotSupportOutput = z.infer<typeof AiChatbotSupportOutputSchema>;
 
@@ -44,31 +44,31 @@ const prompt = ai.definePrompt({
   name: 'aiChatbotSupportPrompt',
   input: {schema: AiChatbotSupportInputSchema},
   output: {schema: AiChatbotSupportOutputSchema},
-  prompt: `You are a customer support chatbot for an online art and decor store.
-  Your goal is to answer user questions about orders, shipping, sizes, and products.
-  Use the provided information to give accurate and helpful responses.
+  prompt: `Você é um chatbot de suporte ao cliente para uma loja online de arte e decoração.
+  Seu objetivo é responder às perguntas dos usuários sobre pedidos, envio, tamanhos e produtos em português.
+  Use as informações fornecidas para dar respostas precisas e úteis.
 
-  {% if orderInformation %}
-  Order Information:
-  {{orderInformation}}
-  {% endif %}
+  {{#if orderInformation}}
+  Informações do Pedido:
+  {{{orderInformation}}}
+  {{/if}}
 
-  {% if shippingInformation %}
-  Shipping Information:
-  {{shippingInformation}}
-  {% endif %}
+  {{#if shippingInformation}}
+  Informações de Envio:
+  {{{shippingInformation}}}
+  {{/if}}
 
-  {% if sizeInformation %}
-  Size Information:
-  {{sizeInformation}}
-  {% endif %}
+  {{#if sizeInformation}}
+  Informações de Tamanho:
+  {{{sizeInformation}}}
+  {{/if}}
 
-  Product Catalog:
-  {{productCatalog}}
+  Catálogo de Produtos:
+  {{{productCatalog}}}
 
-  User Query: {{query}}
+  Consulta do Usuário: {{{query}}}
 
-  Response:`,
+  Resposta:`,
 });
 
 const aiChatbotSupportFlow = ai.defineFlow(

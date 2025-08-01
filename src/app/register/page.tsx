@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { registerSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ export default function RegisterPage() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const router = useRouter();
 
   const form = useForm<FormData>({
     resolver: zodResolver(registerSchema),
@@ -42,9 +44,12 @@ export default function RegisterPage() {
       // Register action will be here
       console.log('Register attempt with:', values);
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setSuccess("Conta criada com sucesso! Você será redirecionado para o login.");
-      // In a real app, you would redirect to login or dashboard
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setSuccess("Conta criada com sucesso! Redirecionando para a página inicial...");
+      
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
     });
   };
 

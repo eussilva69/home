@@ -26,7 +26,12 @@ const firestore = getFirestore(app);
 let analytics;
 
 if (typeof window !== 'undefined') {
-  analytics = getAnalytics(app);
+  // To avoid errors during server-side rendering
+  try {
+    analytics = getAnalytics(app);
+  } catch (error) {
+    console.log('Firebase Analytics not available in this environment.');
+  }
 }
 
 export { app, auth, firestore, analytics };

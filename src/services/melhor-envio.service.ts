@@ -66,8 +66,14 @@ class MelhorEnvioService {
         throw new Error(data.message || 'Não foi possível calcular o frete.');
       }
       
-      // Filtra para não incluir opções com erro
-      return data.filter((option: any) => !option.error);
+      // Filtra para não incluir opções com erro e para incluir apenas Correios e Jadlog
+      const allowedCompanies = ['Correios', 'Jadlog'];
+      const filteredOptions = data.filter((option: any) => {
+        return !option.error && option.company && allowedCompanies.includes(option.company.name);
+      });
+
+      return filteredOptions;
+
 
     } catch (error) {
       console.error('Erro na chamada para Melhor Envio:', error);

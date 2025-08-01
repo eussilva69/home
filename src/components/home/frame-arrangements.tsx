@@ -2,10 +2,6 @@
 import {
   Square,
   RectangleHorizontal,
-  View,
-  GalleryVertical,
-  Grid3x3,
-  GalleryThumbnails,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -22,30 +18,6 @@ const arrangementTypes = [
     description:
       "Dois quadros lado a lado ou em espelho. Uma composição simétrica e elegante, perfeita para sofás ou camas.",
   },
-  {
-    icon: <View className="h-8 w-8 md:h-10 md:w-10 text-primary" />,
-    title: "Trio (3 em linha)",
-    description:
-      "Três quadros alinhados na horizontal ou vertical, criando uma narrativa visual coesa e impactante.",
-  },
-  {
-    icon: <Grid3x3 className="h-8 w-8 md:h-10 md:w-10 text-primary" />,
-    title: "Grid (Grade)",
-    description:
-      "Vários quadros organizados em linhas e colunas (como 2x2 ou 3x3), ideal para uma parede bem estruturada e moderna.",
-  },
-  {
-    icon: <GalleryThumbnails className="h-8 w-8 md:h-10 md:w-10 text-primary" />,
-    title: "Composição Livre / Galeria",
-    description:
-      'Uma mistura de tamanhos, formas e estilos em uma "gallery wall", refletindo personalidade e criatividade.',
-  },
-  {
-    icon: <GalleryVertical className="h-8 w-8 md:h-10 md:w-10 text-primary" />,
-    title: "Tríptico",
-    description:
-      "Uma única imagem dividida em três quadros contínuos, que juntos formam uma peça única e expansiva.",
-  },
 ];
 
 export default function FrameArrangements() {
@@ -60,7 +32,7 @@ export default function FrameArrangements() {
             Inspire-se com diferentes formas de exibir sua arte.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-8">
           {arrangementTypes.map((arrangement) => (
             <Card key={arrangement.title} className="text-center shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-1">
               <CardHeader>

@@ -83,10 +83,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     <div
                         className="absolute"
                         style={{
-                            top: '50px',
+                            top: '50%',
                             left: '50%',
-                            transform: 'translateX(-50%) rotate(-2deg)',
-                            width: 'min(50vw, 280px)',
+                            transform: 'translate(-50%, -50%) rotate(-2deg)',
+                            width: 'min(40vw, 250px)',
                             aspectRatio: '3/4',
                             backgroundColor: '#fff',
                             boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.35)',
@@ -112,7 +112,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         className="relative"
                         style={{
                             width: 'min(75vw, 320px)',
-                            aspectRatio: '3/4',
+                            aspectRatio: product.arrangement === 'Dupla' ? '8/5' : '3/4',
                             backgroundColor: '#fff',
                             boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
                             border: selectedFrame !== 'none' ? `10px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',

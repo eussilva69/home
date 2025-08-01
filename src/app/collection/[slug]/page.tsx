@@ -14,6 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Label } from '@/components/ui/label';
 
 const PRODUCTS_PER_PAGE = 20;
 
@@ -73,7 +74,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
 
   const hasMoreProducts = displayedProducts.length < filteredProducts.length;
 
-  const arrangementOptions = ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'];
+  const arrangementOptions = ['Solo', 'Dupla'];
 
 
   return (

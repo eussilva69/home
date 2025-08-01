@@ -76,10 +76,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <div
                     className="absolute"
                     style={{
-                        top: '60px',
-                        left: '340px',
-                        width: '120px',
-                        height: '160px',
+                        top: '50px',
+                        left: '320px',
+                        width: '180px',
+                        height: '240px',
                         backgroundColor: '#fff',
                         boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.3)',
                         transform: 'rotate(-2deg)',

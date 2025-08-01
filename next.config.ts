@@ -81,6 +81,18 @@ const nextConfig: NextConfig = {
         hostname: 'i.pinimg.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'a-static.mlcdn.com.br',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.11.vuzi.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

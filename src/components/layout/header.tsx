@@ -94,14 +94,12 @@ export default function Header() {
             <Search className="h-5 w-5" />
             <span className="sr-only">Pesquisar</span>
           </Button>
-          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
-            <Heart className="h-5 w-5" />
-            <span className="sr-only">Lista de Desejos</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="sr-only">Carrinho</span>
-          </Button>
+          <Link href="/cart" className="relative">
+            <Button variant="ghost" size="icon" className="hidden md:inline-flex">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="sr-only">Carrinho</span>
+            </Button>
+          </Link>
           <Link href={user ? "/dashboard" : "/login"}>
             <Button variant="ghost" size="icon" className="hidden md:inline-flex">
               <User className="h-5 w-5" />
@@ -122,6 +120,12 @@ export default function Header() {
               <span className="sr-only">Sair</span>
             </Button>
           )}
+           <Link href="/cart" className="relative">
+              <Button variant="ghost" size="icon">
+                  <ShoppingCart className="h-6 w-6" />
+                  <span className="sr-only">Carrinho</span>
+              </Button>
+            </Link>
           <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -180,15 +184,7 @@ export default function Header() {
                     <Search className="h-6 w-6" />
                     <span className="sr-only">Pesquisar</span>
                   </Button>
-                  <Button variant="ghost" size="icon">
-                    <Heart className="h-6 w-6" />
-                    <span className="sr-only">Lista de Desejos</span>
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <ShoppingCart className="h-6 w-6" />
-                    <span className="sr-only">Carrinho</span>
-                  </Button>
-                  <Link href={user ? "/dashboard" : "/login"} onClick={() => setMenuOpen(false)}>
+                   <Link href={user ? "/dashboard" : "/login"} onClick={() => setMenuOpen(false)}>
                     <Button variant="ghost" size="icon">
                       <User className="h-6 w-6" />
                       <span className="sr-only">Conta</span>

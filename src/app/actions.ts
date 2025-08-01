@@ -52,9 +52,14 @@ async function createPixPayment(input: CreatePixPaymentInput) {
 }
 
 async function createPreference(input: CreatePreferenceInput) {
+    const itemsWithCurrency = input.items.map(item => ({
+        ...item,
+        currency_id: 'BRL',
+    }));
+
     const preferenceData: PreferenceCreateData = {
         body: {
-            items: input.items,
+            items: itemsWithCurrency,
             payer: {
                 name: input.payer.name,
                 surname: input.payer.surname,

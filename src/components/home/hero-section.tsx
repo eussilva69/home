@@ -20,7 +20,7 @@ const slides = [
     description: "Descubra peças únicas que dão vida às suas paredes.",
   },
   {
-    image: "https://placehold.co/1600x800.png",
+    image: "https://cdnm.westwing.com.br/glossary/uploads/br/2015/06/04163943/sala-de-estar-com-piso-de-madeira-sofá-de-couro-caramelo-mesa-de-centro-de-madeira-plantas-e-parede-de-quadros_unsplash_c-a2350.jpg",
     hint: "modern living room",
     title: "Promoção de Verão: Até 40% Off",
     description: "Não perca nossas promoções sazonais. Redecore por menos.",
@@ -61,7 +61,7 @@ export default function HeroSection() {
                       fill
                       style={{ objectFit: 'cover' }}
                       className="brightness-50"
-                      unoptimized={slide.image.includes('jornalcruzeiro')}
+                      unoptimized={slide.image.includes('jornalcruzeiro') || slide.image.includes('westwing')}
                     />
                     <div className="relative z-10 text-center text-primary-foreground p-4">
                       <h2 className="text-3xl md:text-5xl font-headline font-bold drop-shadow-lg">

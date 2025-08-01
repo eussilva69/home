@@ -28,6 +28,7 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: '',
+      cpf: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -67,6 +68,19 @@ export default function RegisterPage() {
                         <FormLabel>Nome Completo</FormLabel>
                         <FormControl>
                           <Input type="text" placeholder="Seu nome" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="cpf"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CPF</FormLabel>
+                        <FormControl>
+                          <Input type="text" placeholder="000.000.000-00" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

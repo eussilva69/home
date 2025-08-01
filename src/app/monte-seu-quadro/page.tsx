@@ -15,25 +15,25 @@ import { cn } from '@/lib/utils';
 
 const pricingData = {
   "Solo": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 80.00, valor_com_vidro: 105.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 145.00, valor_com_vidro: 200.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 185.00, valor_com_vidro: 345.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 460.00, valor_com_vidro: 636.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 765.00, valor_com_vidro: 1075.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 85.00, valor_com_vidro: 110.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 150.00, valor_com_vidro: 205.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 190.00, valor_com_vidro: 350.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 465.00, valor_com_vidro: 641.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 770.00, valor_com_vidro: 1080.00 }
   ],
   "Dupla": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 180.00, valor_com_vidro: 275.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 265.00, valor_com_vidro: 385.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 355.00, valor_com_vidro: 635.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 845.00, valor_com_vidro: 1345.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 1375.00, valor_com_vidro: 2105.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 185.00, valor_com_vidro: 280.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 270.00, valor_com_vidro: 390.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 360.00, valor_com_vidro: 640.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 850.00, valor_com_vidro: 1350.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 1380.00, valor_com_vidro: 2110.00 }
   ],
   "Trio": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 265.00, valor_com_vidro: 415.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 385.00, valor_com_vidro: 535.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 500.00, valor_com_vidro: 765.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 1235.00, valor_com_vidro: 1725.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 2065.00, valor_com_vidro: 2875.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 270.00, valor_com_vidro: 420.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 390.00, valor_com_vidro: 540.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 505.00, valor_com_vidro: 770.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 1240.00, valor_com_vidro: 1730.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 2070.00, valor_com_vidro: 2880.00 }
   ]
 };
 
@@ -130,7 +130,17 @@ export default function MonteSeuQuadro() {
     };
   };
 
+  const getFrameDimensionsForPreview = (sizeString: string) => {
+    const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);
+    const scaleFactor = 0.5; 
+    return {
+      width: w_cm * scaleFactor,
+      height: h_cm * scaleFactor,
+    };
+  };
+
   const frameCount = arrangement === 'Trio' ? 3 : (arrangement === 'Dupla' ? 2 : 1);
+  const frameDimensions = getFrameDimensionsForPreview(selectedSize);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -167,17 +177,21 @@ export default function MonteSeuQuadro() {
               {imagePreview ? (
                 <div 
                   className={cn(
-                    "relative w-full h-full flex items-center justify-center gap-4 transition-all p-4 md:p-12",
-                    viewMode === 'environment' ? "w-1/2 h-1/2" : ""
+                    "relative flex items-center justify-center gap-4 transition-all p-4 md:p-12"
                   )}
+                  style={viewMode === 'environment' ? {
+                    width: `${frameDimensions.width * frameCount + (frameCount > 1 ? 8 * (frameCount -1) : 0)}px`,
+                    height: `${frameDimensions.height}px`,
+                  } : {
+                    width: '100%',
+                    height: '100%',
+                  }}
                 >
                   {[...Array(frameCount)].map((_, i) => (
                     <div 
                       key={i}
-                      className="relative"
+                      className="relative w-full h-full"
                       style={{
-                        width: '100%',
-                        height: '100%',
                         border: `${frameWidth}px ${frameStyles[frameStyle as keyof typeof frameStyles] || 'solid'} ${frameColor}`,
                         boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
                       }}

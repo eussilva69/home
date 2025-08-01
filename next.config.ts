@@ -57,6 +57,12 @@ const nextConfig: NextConfig = {
         hostname: 'img.panoramasistemas.com.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.papeleparede.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

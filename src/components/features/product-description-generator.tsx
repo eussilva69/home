@@ -13,7 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Lightbulb, Loader2 } from 'lucide-react';
-import { Textarea } from '../ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { products } from '@/lib/mock-data';
 
 type FormData = z.infer<typeof productDescriptionSchema>;
 
@@ -35,6 +36,22 @@ export default function ProductDescriptionGenerator() {
     },
   });
 
+  const handleProductSelect = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      form.reset({
+        productName: product.name,
+        productCategory: product.category,
+        keywords: product.hint,
+        style: product.arrangement,
+        colorPalette: 'Variada', // Placeholder, adjust as needed
+        material: 'Impressão Giclée em tela', // Placeholder
+        size: '60x90cm', // Placeholder
+      });
+    }
+  };
+
+
   const onSubmit = (values: FormData) => {
     setError(null);
     setResult(null);
@@ -50,6 +67,20 @@ export default function ProductDescriptionGenerator() {
 
   return (
     <div className="space-y-6">
+       <FormItem>
+        <FormLabel>Carregar dados de um produto existente</FormLabel>
+         <Select onValueChange={handleProductSelect}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione um produto..." />
+          </SelectTrigger>
+          <SelectContent>
+            {products.slice(0, 20).map(product => ( // Limiting for performance
+              <SelectItem key={product.id} value={product.id}>{product.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FormItem>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

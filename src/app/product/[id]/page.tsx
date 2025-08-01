@@ -9,7 +9,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Eye, Image as ImageIcon } from 'lucide-react';
 import ProductCard from '@/components/shared/product-card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -46,6 +46,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedSize, setSelectedSize] = useState(Object.keys(sizes)[1]);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
   const [selectedGlass, setSelectedGlass] = useState(Object.keys(glassOptions)[1]);
+  const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
 
 
   const finalPrice = product.price + sizes[selectedSize as keyof typeof sizes].price + frames[selectedFrame as keyof typeof frames].price + glassOptions[selectedGlass as keyof typeof glassOptions].price;
@@ -57,41 +58,76 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
-            <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
-                <Image
-                    src={product.image_alt}
-                    alt={`${product.name} em um ambiente`}
-                    data-ai-hint={product.hint_alt}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    className="brightness-75"
-                />
-                <div
-                    className="absolute"
-                    style={{
-                        top: '50px',
-                        left: '320px',
-                        width: '180px',
-                        height: '240px',
-                        backgroundColor: '#fff',
-                        boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.3)',
-                        transform: 'rotate(-2deg)',
-                        border: selectedFrame !== 'none' ? `6px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
-                    }}
-                    >
+             <div className="flex items-center justify-center gap-2 mb-4">
+                <Button variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
+                    <Eye className="mr-2" /> No Ambiente
+                </Button>
+                <Button variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
+                    <ImageIcon className="mr-2" /> Somente o Quadro
+                </Button>
+            </div>
+            {viewMode === 'environment' ? (
+                 <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
                     <Image
-                        src={product.image}
-                        alt={product.name}
-                        data-ai-hint={product.hint}
+                        src={product.image_alt}
+                        alt={`${product.name} em um ambiente`}
+                        data-ai-hint={product.hint_alt}
                         fill
                         style={{ objectFit: 'cover' }}
-                        className="p-1"
+                        className="brightness-75"
                     />
-                    {selectedGlass === 'with_glass' && (
-                        <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
-                    )}
+                    <div
+                        className="absolute"
+                        style={{
+                            top: '50px',
+                            left: '50%',
+                            transform: 'translateX(-50%) rotate(-2deg)',
+                            width: '240px',
+                            height: '320px',
+                            backgroundColor: '#fff',
+                            boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.3)',
+                            border: selectedFrame !== 'none' ? `8px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
+                        }}
+                        >
+                        <Image
+                            src={product.image}
+                            alt={product.name}
+                            data-ai-hint={product.hint}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            className="p-1.5"
+                        />
+                        {selectedGlass === 'with_glass' && (
+                            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
+                        )}
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <div className="relative aspect-square w-full flex items-center justify-center bg-secondary/30 rounded-lg shadow-lg p-8">
+                     <div
+                        className="relative"
+                        style={{
+                            width: '320px',
+                            height: '426px',
+                            backgroundColor: '#fff',
+                            boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
+                            border: selectedFrame !== 'none' ? `10px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
+                        }}
+                        >
+                        <Image
+                            src={product.image}
+                            alt={product.name}
+                            data-ai-hint={product.hint}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            className="p-2"
+                        />
+                        {selectedGlass === 'with_glass' && (
+                            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
+                        )}
+                    </div>
+                </div>
+            )}
           </div>
 
           {/* Product Details */}
@@ -219,3 +255,5 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
+    

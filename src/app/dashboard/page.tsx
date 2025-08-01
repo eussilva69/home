@@ -35,7 +35,7 @@ export default function DashboardPage() {
   }
 
   // Simple role check based on email
-  const isAdmin = user.email === 'adm@gmail.com';
+  const isAdmin = user.email === 'vvatassi@gmail.com';
   
   const adminLinks = [
       { href: '/dashboard', label: 'Início', icon: 'Home' },

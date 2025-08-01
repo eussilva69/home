@@ -74,7 +74,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
 
   const hasMoreProducts = displayedProducts.length < filteredProducts.length;
 
-  const arrangementOptions = ['Solo', 'Dupla'];
+  const arrangementOptions = ['Solo', 'Dupla', 'Trio'];
 
 
   return (

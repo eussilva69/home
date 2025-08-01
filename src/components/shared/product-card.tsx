@@ -59,7 +59,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="p-3 md:p-4 bg-background">
           <h3 className="font-headline text-base md:text-lg truncate">{product.name}</h3>
           <p className="text-sm md:text-md font-semibold text-primary">
-            A partir de R${product.price.toFixed(2).replace('.', ',')}
+            A partir de R$ {product.price.toFixed(2).replace('.', ',')}
           </p>
         </div>
       </CardContent>

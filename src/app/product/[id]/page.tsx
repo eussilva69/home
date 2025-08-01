@@ -72,7 +72,17 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     darkwood: { label: 'Madeira Escura', color: '#5C4033' },
   };
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+  const humanHeightPx = 120; // Represents 1.7m
+  const humanImage = "https://static.vecteezy.com/system/resources/thumbnails/051/685/597/small/black-silhouette-of-a-person-standing-with-their-hands-at-their-sides-the-person-is-wearing-a-long-sleeved-shirt-and-pants-the-background-is-white-png.png";
 
+  const getFrameDimensions = (sizeString: string) => {
+    const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);
+    const scaleFactor = humanHeightPx / 170; // px per cm
+    return {
+      width: w_cm * scaleFactor,
+      height: h_cm * scaleFactor
+    };
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -163,32 +173,50 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </p>
 
              {/* Size Selector */}
-             <div className="mb-6 md:mb-8">
-                <div className="flex items-center mb-3">
-                    <Ruler className="h-5 w-5 mr-2" />
-                    <Label className="text-base md:text-lg font-medium">Tamanho: <span className="font-bold">{selectedSize}</span></Label>
-                </div>
-                 <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
-                    <Info className="h-4 w-4"/> Entenda os tamanhos
-                </p>
+            <div className="mb-6 md:mb-8">
+              <div className="flex items-center mb-3">
+                  <Ruler className="h-5 w-5 mr-2" />
+                  <Label className="text-base md:text-lg font-medium">Tamanho: <span className="font-bold">{selectedSize}</span></Label>
+              </div>
+              <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
+                  <Info className="h-4 w-4"/> Escolha um tamanho para ver a escala real.
+              </p>
               <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex flex-wrap gap-2">
-                {availableSizes.map(({ tamanho }) => (
-                  <div key={tamanho}>
-                    <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
-                    <Label
-                      htmlFor={`size-${tamanho}`}
-                      className={cn(
-                        "flex flex-col items-center justify-center cursor-pointer rounded-lg border-2 p-2 text-center transition-all w-28 h-20 md:w-28 md:h-24",
-                        selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background'
-                      )}
-                    >
-                      <span className="font-semibold text-sm">{tamanho}</span>
-                      <span className="text-xs text-muted-foreground mt-1">
-                        {product.arrangement}
-                      </span>
-                    </Label>
-                  </div>
-                ))}
+                {availableSizes.map(({ tamanho }) => {
+                  const { width, height } = getFrameDimensions(tamanho);
+                  const frameCount = product.arrangement === 'Trio' ? 3 : (product.arrangement === 'Dupla' ? 2 : 1);
+                  const totalWidth = width * frameCount + (frameCount > 1 ? 8 * (frameCount - 1) : 0);
+
+                  return (
+                    <div key={tamanho}>
+                      <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
+                      <Label
+                        htmlFor={`size-${tamanho}`}
+                        className={cn(
+                          "flex flex-col items-center justify-between cursor-pointer rounded-lg border-2 p-2 text-center transition-all w-28 h-40",
+                          selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background'
+                        )}
+                      >
+                        <div className="w-full flex-grow flex items-end justify-center gap-2" style={{ transform: 'scale(0.8)' }}>
+                          <Image src={humanImage} alt="Silhueta humana" width={30} height={humanHeightPx} style={{height: `${humanHeightPx}px`}}/>
+                          <div className='flex items-center justify-center' style={{height: `${humanHeightPx}px`}}>
+                            <div className="flex items-center justify-center gap-1" style={{ width: `${totalWidth}px`, height: `${height}px` }}>
+                              {[...Array(frameCount)].map((_, i) => (
+                                <div key={i} className="bg-primary/50" style={{ width: `${width}px`, height: `${height}px`}} />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <div className='w-full text-center py-1'>
+                          <span className="font-semibold text-sm">{tamanho}</span>
+                          <span className="block text-xs text-muted-foreground">
+                            {product.arrangement}
+                          </span>
+                        </div>
+                      </Label>
+                    </div>
+                  );
+                })}
               </RadioGroup>
             </div>
 

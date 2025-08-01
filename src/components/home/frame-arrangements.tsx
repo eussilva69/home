@@ -2,6 +2,7 @@
 import {
   Square,
   RectangleHorizontal,
+  GalleryVertical,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -18,6 +19,12 @@ const arrangementTypes = [
     description:
       "Dois quadros lado a lado ou em espelho. Uma composição simétrica e elegante, perfeita para sofás ou camas.",
   },
+  {
+    icon: <GalleryVertical className="h-8 w-8 md:h-10 md:w-10 text-primary" />,
+    title: "Trio",
+    description:
+      "Três quadros alinhados horizontalmente, criando uma narrativa visual coesa e impactante.",
+  },
 ];
 
 export default function FrameArrangements() {
@@ -32,7 +39,7 @@ export default function FrameArrangements() {
             Inspire-se com diferentes formas de exibir sua arte.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {arrangementTypes.map((arrangement) => (
             <Card key={arrangement.title} className="text-center shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-1">
               <CardHeader>

@@ -1,33 +1,38 @@
 
 import { firestore } from '../lib/firebase';
 import { products } from '../lib/mock-data';
-import { collection, getDocs, addDoc, query } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, writeBatch } from 'firebase/firestore';
 
 async function seedDatabase() {
   const productsCollectionRef = collection(firestore, 'products');
 
   try {
-    // 1. Check if the collection is already populated
+    // 1. Check if the collection is already populated and delete existing documents
     const q = query(productsCollectionRef);
     const snapshot = await getDocs(q);
     
     if (!snapshot.empty) {
-      console.log('A coleção "products" já contém dados. O script não será executado para evitar duplicatas.');
-      return;
+      console.log('Coleção "products" já contém dados. Deletando dados antigos...');
+      const batch = writeBatch(firestore);
+      snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      console.log('Dados antigos deletados com sucesso.');
     }
 
-    console.log('A coleção "products" está vazia. Começando a popular...');
+    console.log('Começando a popular a coleção "products"...');
 
     // 2. Add each product to the collection
-    const promises = products.map((product) => {
-      // The hint_alt is only used for local images, not needed in Firestore.
+    const batch = writeBatch(firestore);
+    products.forEach((product) => {
       const { hint_alt, ...productData } = product; 
-      return addDoc(productsCollectionRef, productData).then(() => {
-          console.log(`Produto "${product.name}" adicionado com sucesso.`);
-      });
+      const newDocRef = collection(firestore, 'products').doc(); // Auto-generates an ID
+      batch.set(newDocRef, productData);
+      console.log(`Produto "${product.name}" adicionado ao batch.`);
     });
 
-    await Promise.all(promises);
+    await batch.commit();
 
     console.log('\n--------------------------------------------------');
     console.log('✨ Banco de dados populado com sucesso! ✨');
@@ -35,9 +40,6 @@ async function seedDatabase() {
 
   } catch (error) {
     console.error('Ocorreu um erro ao popular o banco de dados:', error);
-  } finally {
-    // The script should exit automatically. If it hangs, you can uncomment the line below.
-    // process.exit(0);
   }
 }
 

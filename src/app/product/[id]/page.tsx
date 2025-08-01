@@ -73,7 +73,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   };
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
   const humanHeightPx = 120; // Represents 1.7m
-  const humanImage = "https://static.vecteezy.com/system/resources/thumbnails/051/685/597/small/black-silhouette-of-a-person-standing-with-their-hands-at-their-sides-the-person-is-wearing-a-long-sleeved-shirt-and-pants-the-background-is-white-png.png";
+  const humanImage = "https://i.ibb.co/q3tBWm6C/pngwing-com.png";
 
   const getFrameDimensions = (sizeString: string) => {
     const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);

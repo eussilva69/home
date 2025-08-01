@@ -28,52 +28,54 @@ export default function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground print:hidden">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="md:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <Brush className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
+              <h1 className="text-xl md:text-2xl font-headline font-bold text-primary">Home Designer</h1>
             </Link>
             <p className="text-sm">Arte moderna e vibrante para o seu espaço. Feito à mão com paixão.</p>
           </div>
-          <div>
-            <h3 className="font-headline text-lg font-semibold mb-4">Links Rápidos</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="#" className="hover:text-primary">Sobre Nós</Link></li>
-              <li><Link href="#" className="hover:text-primary">Contato</Link></li>
-              <li><Link href="#" className="hover:text-primary">FAQ</Link></li>
-              <li><Link href="#" className="hover:text-primary">Envio e Devoluções</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-headline text-lg font-semibold mb-4">Contato</h3>
-            <ul className="space-y-3 text-sm">
-                <li className="flex items-start gap-2">
-                    <Phone className="h-4 w-4 mt-0.5" />
-                    <span>(34) 99722-2303</span>
-                </li>
-                <li className="flex items-start gap-2">
-                    <Mail className="h-4 w-4 mt-0.5" />
-                    <span className="break-all">homedecorinterioresplanejados@gmail.com</span>
-                </li>
-                <li className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 mt-0.5" />
-                    <span>Rua Virgílio Carrijo, 1045 - Bairro Minas Gerais, Uberlândia - MG</span>
-                </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-headline text-lg font-semibold mb-4">Newsletter</h3>
-            <p className="text-sm mb-4">Ganhe 10% de desconto no seu primeiro pedido. Inscreva-se agora!</p>
-            <form className="flex gap-2">
-              <Input type="email" placeholder="Seu email" className="bg-background/70" />
-              <Button type="submit" className="bg-primary hover:bg-primary/90">Inscrever</Button>
-            </form>
-            <div className="flex space-x-4 mt-6">
-              <Link href="#" aria-label="Instagram"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
-              <Link href="#" aria-label="Facebook"><Facebook className="h-6 w-6 hover:text-primary" /></Link>
-              <Link href="#" aria-label="Pinterest"><PinterestIcon className="h-6 w-6 hover:text-primary" /></Link>
-              <Link href="#" aria-label="Twitter"><Twitter className="h-6 w-6 hover:text-primary" /></Link>
+          <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div>
+              <h3 className="font-headline text-lg font-semibold mb-4">Links Rápidos</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="#" className="hover:text-primary">Sobre Nós</Link></li>
+                <li><Link href="#" className="hover:text-primary">Contato</Link></li>
+                <li><Link href="#" className="hover:text-primary">FAQ</Link></li>
+                <li><Link href="#" className="hover:text-primary">Envio e Devoluções</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-headline text-lg font-semibold mb-4">Contato</h3>
+              <ul className="space-y-3 text-sm">
+                  <li className="flex items-start gap-2">
+                      <Phone className="h-4 w-4 mt-1 flex-shrink-0" />
+                      <span>(34) 99722-2303</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                      <Mail className="h-4 w-4 mt-1 flex-shrink-0" />
+                      <span className="break-all">homedecorinterioresplanejados@gmail.com</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
+                      <span>Rua Virgílio Carrijo, 1045 - Bairro Minas Gerais, Uberlândia - MG</span>
+                  </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-headline text-lg font-semibold mb-4">Newsletter</h3>
+              <p className="text-sm mb-4">Ganhe 10% de desconto no seu primeiro pedido. Inscreva-se agora!</p>
+              <form className="flex flex-col sm:flex-row gap-2">
+                <Input type="email" placeholder="Seu email" className="bg-background/70" />
+                <Button type="submit" className="bg-primary hover:bg-primary/90 flex-shrink-0">Inscrever</Button>
+              </form>
+              <div className="flex space-x-4 mt-6">
+                <Link href="#" aria-label="Instagram"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
+                <Link href="#" aria-label="Facebook"><Facebook className="h-6 w-6 hover:text-primary" /></Link>
+                <Link href="#" aria-label="Pinterest"><PinterestIcon className="h-6 w-6 hover:text-primary" /></Link>
+                <Link href="#" aria-label="Twitter"><Twitter className="h-6 w-6 hover:text-primary" /></Link>
+              </div>
             </div>
           </div>
         </div>

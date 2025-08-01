@@ -57,15 +57,15 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
              {product.arrangement === 'Solo' && (
                 <div className="flex items-center justify-center gap-2 mb-4">
-                    <Button variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
+                    <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
                         <Eye className="mr-2" /> No Ambiente
                     </Button>
-                    <Button variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
+                    <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
                         <ImageIcon className="mr-2" /> Somente o Quadro
                     </Button>
                 </div>
@@ -86,8 +86,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             top: '40px',
                             left: '50%',
                             transform: 'translateX(-50%) rotate(-2deg)',
-                            width: '300px',
-                            height: '400px',
+                            width: 'min(70vw, 380px)',
+                            aspectRatio: '3/4',
                             backgroundColor: '#fff',
                             boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.35)',
                             border: selectedFrame !== 'none' ? `10px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
@@ -107,12 +107,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     </div>
                 </div>
             ) : (
-                <div className="relative aspect-square w-full flex items-center justify-center bg-secondary/30 rounded-lg shadow-lg p-8">
+                <div className="relative aspect-square w-full flex items-center justify-center bg-secondary/30 rounded-lg shadow-lg p-4 md:p-8">
                      <div
                         className="relative"
                         style={{
-                            width: '320px',
-                            height: '426px',
+                            width: 'min(75vw, 320px)',
+                            aspectRatio: '3/4',
                             backgroundColor: '#fff',
                             boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
                             border: selectedFrame !== 'none' ? `10px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
@@ -136,14 +136,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
           {/* Product Details */}
           <div>
-            <h1 className="text-4xl font-headline text-primary mb-2">{product.name}</h1>
-            <p className="text-2xl font-semibold mb-6">R$ {finalPrice.toFixed(2).replace('.', ',')}</p>
+            <h1 className="text-3xl md:text-4xl font-headline text-primary mb-2">{product.name}</h1>
+            <p className="text-xl md:text-2xl font-semibold mb-6">R$ {finalPrice.toFixed(2).replace('.', ',')}</p>
 
              {/* Size Selector */}
-             <div className="mb-8">
+             <div className="mb-6 md:mb-8">
                 <div className="flex items-center mb-3">
                     <Ruler className="h-5 w-5 mr-2" />
-                    <Label className="text-lg font-medium">Tamanho: <span className="font-bold">{sizes[selectedSize as keyof typeof sizes].label} ({sizes[selectedSize as keyof typeof sizes].dimensions})</span></Label>
+                    <Label className="text-base md:text-lg font-medium">Tamanho: <span className="font-bold">{sizes[selectedSize as keyof typeof sizes].label} ({sizes[selectedSize as keyof typeof sizes].dimensions})</span></Label>
                 </div>
                  <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
                     <Info className="h-4 w-4"/> Entenda os tamanhos
@@ -155,12 +155,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     <Label
                       htmlFor={`size-${key}`}
                       className={cn(
-                        "flex flex-col items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center transition-all w-24 h-24",
+                        "flex flex-col items-center justify-center cursor-pointer rounded-lg border-2 p-2 text-center transition-all w-20 h-20 md:w-24 md:h-24",
                         selectedSize === key ? 'border-primary bg-primary/5' : 'border-border bg-background'
                       )}
                     >
-                      <div className="relative flex items-end justify-center h-12">
-                          <Image src="https://images.icon-icons.com/1458/PNG/512/personavatar_99746.png" alt="Pessoa" width={40} height={40} className="object-contain h-10 w-10 opacity-70" />
+                      <div className="relative flex items-end justify-center h-10 md:h-12">
+                          <Image src="https://images.icon-icons.com/1458/PNG/512/personavatar_99746.png" alt="Pessoa" width={40} height={40} className="object-contain h-8 w-8 md:h-10 md:w-10 opacity-70" />
                           <div className="absolute bottom-0 right-0 border border-foreground/50 bg-white" style={{ width: `${scale * 12}px`, height: `${scale*16}px`}} />
                       </div>
                       <span className="text-xs text-muted-foreground mt-1">{dimensions}</span>
@@ -171,14 +171,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Frame Selector */}
-            <div className="mb-8">
-                <Label className="text-lg font-medium mb-3 block">Cor da Moldura: <span className="font-bold">{frames[selectedFrame as keyof typeof frames].label}</span></Label>
+            <div className="mb-6 md:mb-8">
+                <Label className="text-base md:text-lg font-medium mb-3 block">Cor da Moldura: <span className="font-bold">{frames[selectedFrame as keyof typeof frames].label}</span></Label>
                 <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-2">
                     {Object.entries(frames).map(([key, { color }]) => (
                         <div key={key}>
                             <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
                             <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-md border-2 p-1 transition-all", selectedFrame === key ? 'border-primary' : 'border-transparent')}>
-                                <div className="w-16 h-16 rounded-md overflow-hidden border">
+                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-md overflow-hidden border">
                                     <div className="w-full h-full relative">
                                         <div style={{ backgroundColor: color, width: '50%', height: '15px', position: 'absolute', top: 0, left: 0 }} />
                                         <div style={{ backgroundColor: color, width: '15px', height: '50%', position: 'absolute', top: 0, left: 0 }} />
@@ -192,13 +192,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Glass Selector */}
-            <div className="mb-8">
-                <Label className="text-lg font-medium mb-3 block">Vidro: <span className="font-bold">{glassOptions[selectedGlass as keyof typeof glassOptions].label}</span></Label>
+            <div className="mb-6 md:mb-8">
+                <Label className="text-base md:text-lg font-medium mb-3 block">Vidro: <span className="font-bold">{glassOptions[selectedGlass as keyof typeof glassOptions].label}</span></Label>
                 <RadioGroup value={selectedGlass} onValueChange={setSelectedGlass} className="grid grid-cols-2 gap-4">
                      {Object.entries(glassOptions).map(([key, { label }]) => (
                          <div key={key}>
                              <RadioGroupItem value={key} id={`glass-${key}`} className="sr-only" />
-                             <Label htmlFor={`glass-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-20", selectedGlass === key ? 'border-primary bg-primary/5' : 'border-border')}>
+                             <Label htmlFor={`glass-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", selectedGlass === key ? 'border-primary bg-primary/5' : 'border-border')}>
                                  {label}
                              </Label>
                          </div>
@@ -208,11 +208,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
 
             {/* Action Buttons */}
-            <div className="flex gap-4 mb-8">
-              <Button size="lg" className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <Button size="lg" className="flex-1 text-base">
                 <ShoppingCart className="mr-2" /> Adicionar ao Carrinho
               </Button>
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" className="px-4">
                 <Heart />
               </Button>
             </div>
@@ -222,20 +222,20 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <AccordionItem value="description">
                 <AccordionTrigger>Descrição do Produto</AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Eleve sua decoração com esta peça de arte vibrante. Impressa em materiais de alta qualidade com tintas resistentes ao desbotamento, esta obra é projetada para durar. Perfeita para salas de estar, quartos ou escritórios que precisam de um toque de cor e personalidade.
                   </p>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="shipping">
                 <AccordionTrigger>Envio e Devoluções</AccordionTrigger>
-                <AccordionContent className="space-y-2 text-muted-foreground">
+                <AccordionContent className="space-y-2 text-muted-foreground text-sm">
                    <div className="flex items-start gap-2">
-                        <Package className="h-5 w-5 mt-0.5" />
+                        <Package className="h-5 w-5 mt-0.5 flex-shrink-0" />
                         <p>Envio seguro para todo o Brasil. O prazo de entrega é de 5 a 10 dias úteis.</p>
                    </div>
                    <div className="flex items-start gap-2">
-                        <ShieldCheck className="h-5 w-5 mt-0.5" />
+                        <ShieldCheck className="h-5 w-5 mt-0.5 flex-shrink-0" />
                         <p>Satisfação garantida. Devoluções gratuitas em até 7 dias após o recebimento.</p>
                    </div>
                 </AccordionContent>
@@ -245,9 +245,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Related Products */}
-        <div className="mt-24">
-            <h2 className="text-3xl font-headline text-center mb-12">Você também pode gostar</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mt-16 md:mt-24">
+            <h2 className="text-2xl md:text-3xl font-headline text-center mb-8 md:mb-12">Você também pode gostar</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {relatedProducts.map(relatedProduct => (
                     <ProductCard key={relatedProduct.id} product={relatedProduct} />
                 ))}
@@ -259,5 +259,3 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-
-    

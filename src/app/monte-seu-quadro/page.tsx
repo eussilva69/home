@@ -45,10 +45,10 @@ export default function MonteSeuQuadro() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-headline text-primary">Monte seu Quadro</h1>
-          <p className="text-lg text-muted-foreground mt-2">Personalize sua arte, do seu jeito.</p>
+      <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
+        <div className="text-center mb-10 md:mb-12">
+          <h1 className="text-3xl md:text-5xl font-headline text-primary">Monte seu Quadro</h1>
+          <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">Personalize sua arte, do seu jeito.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -56,7 +56,7 @@ export default function MonteSeuQuadro() {
             <Card className="w-full aspect-square relative flex items-center justify-center bg-secondary/50 border-2 border-dashed">
                 {imagePreview ? (
                      <div 
-                        className="relative w-full h-full p-12 transition-all"
+                        className="relative w-full h-full p-4 md:p-12 transition-all"
                      >
                         <div 
                             className="absolute inset-0 m-auto transition-all"
@@ -72,7 +72,7 @@ export default function MonteSeuQuadro() {
                             alt="Prévia da imagem"
                             layout="fill"
                             objectFit="contain"
-                            className="p-4"
+                            className="p-2"
                             style={{
                                 padding: `${frameWidth[0] + 5}px`
                             }}
@@ -90,10 +90,10 @@ export default function MonteSeuQuadro() {
                         )}
                      </div>
                 ) : (
-                    <div className="text-center text-muted-foreground">
-                        <Upload className="mx-auto h-12 w-12 mb-4" />
-                        <h3 className="text-lg font-semibold">Sua arte começa aqui</h3>
-                        <p>Faça o upload de uma imagem para começar a personalizar.</p>
+                    <div className="text-center text-muted-foreground p-4">
+                        <Upload className="mx-auto h-10 w-10 md:h-12 md:w-12 mb-4" />
+                        <h3 className="text-base md:text-lg font-semibold">Sua arte começa aqui</h3>
+                        <p className="text-sm md:text-base">Faça o upload de uma imagem para começar a personalizar.</p>
                          <Button onClick={handleUploadClick} className="mt-4">
                             <Upload className="mr-2" /> Enviar Imagem
                         </Button>
@@ -102,10 +102,10 @@ export default function MonteSeuQuadro() {
             </Card>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Upload className="h-5 w-5" />Opções de Upload</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg"><Upload className="h-5 w-5" />Opções de Upload</CardTitle>
               </CardHeader>
               <CardContent>
                 <Input
@@ -124,7 +124,7 @@ export default function MonteSeuQuadro() {
             
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" />Cor da Moldura</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg"><Palette className="h-5 w-5" />Cor da Moldura</CardTitle>
               </CardHeader>
               <CardContent className="flex items-center gap-4">
                  <Input 
@@ -142,7 +142,7 @@ export default function MonteSeuQuadro() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Scaling className="h-5 w-5" />Espessura da Moldura</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg"><Scaling className="h-5 w-5" />Espessura da Moldura</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-between items-center mb-2">
@@ -161,10 +161,10 @@ export default function MonteSeuQuadro() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" />Estilo da Moldura</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg"><Palette className="h-5 w-5" />Estilo da Moldura</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <RadioGroup value={frameStyle} onValueChange={setFrameStyle}>
+                    <RadioGroup value={frameStyle} onValueChange={setFrameStyle} className="space-y-2">
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="moderna" id="r1" />
                             <Label htmlFor="r1">Moderna</Label>
@@ -183,10 +183,10 @@ export default function MonteSeuQuadro() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><GlassWater className="h-5 w-5" />Acabamento</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg"><GlassWater className="h-5 w-5" />Acabamento</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <RadioGroup value={glassOption} onValueChange={setGlassOption}>
+                    <RadioGroup value={glassOption} onValueChange={setGlassOption} className="space-y-2">
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="com-vidro" id="g1" />
                             <Label htmlFor="g1">Com Vidro</Label>
@@ -199,7 +199,7 @@ export default function MonteSeuQuadro() {
                 </CardContent>
             </Card>
 
-            <Button size="lg" className="w-full font-headline text-xl">
+            <Button size="lg" className="w-full font-headline text-lg md:text-xl">
               Finalizar e Comprar
             </Button>
           </div>

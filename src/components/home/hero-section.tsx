@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -53,7 +54,7 @@ export default function HeroSection() {
             {slides.map((slide, index) => (
               <CarouselItem key={index}>
                 <Card className="border-none shadow-none">
-                  <CardContent className="relative flex items-center justify-center p-0 h-[300px] md:h-[400px] lg:h-[500px] rounded-lg overflow-hidden">
+                  <CardContent className="relative flex items-center justify-center p-0 h-[400px] md:h-[500px] rounded-lg overflow-hidden">
                     <Image
                       src={slide.image}
                       alt={slide.title}
@@ -64,13 +65,13 @@ export default function HeroSection() {
                       unoptimized={slide.image.includes('jornalcruzeiro') || slide.image.includes('westwing')}
                     />
                     <div className="relative z-10 text-center text-primary-foreground p-4">
-                      <h2 className="text-3xl md:text-5xl font-headline font-bold drop-shadow-lg">
+                      <h2 className="text-2xl md:text-5xl font-headline font-bold drop-shadow-lg">
                         {slide.title}
                       </h2>
-                      <p className="mt-2 text-lg md:text-xl max-w-2xl mx-auto drop-shadow-md">
+                      <p className="mt-2 text-base md:text-xl max-w-2xl mx-auto drop-shadow-md">
                         {slide.description}
                       </p>
-                      <Button size="lg" className="mt-6 bg-primary hover:bg-accent hover:text-accent-foreground text-primary-foreground">
+                      <Button size="lg" className="mt-6 bg-primary hover:bg-accent hover:text-accent-foreground text-primary-foreground text-sm md:text-base">
                         Compre Agora
                       </Button>
                     </div>

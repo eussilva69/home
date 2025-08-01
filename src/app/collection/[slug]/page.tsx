@@ -22,13 +22,13 @@ export default function CollectionPage({ params }: { params: { slug: string } })
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-headline text-primary">Coleção {collection.name}</h1>
-            <p className="text-lg text-muted-foreground mt-2">Explore nossa seleção de arte {collection.name.toLowerCase()}.</p>
+            <h1 className="text-3xl md:text-5xl font-headline text-primary">Coleção {collection.name}</h1>
+            <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Explore nossa seleção de arte {collection.name.toLowerCase()}.</p>
         </div>
         <Separator className="my-8" />
 
         {collectionProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
                 {collectionProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                 ))}

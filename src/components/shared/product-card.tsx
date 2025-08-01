@@ -13,6 +13,7 @@ type ProductCardProps = {
     price: number;
     image: string;
     image_alt: string;
+    artwork_image: string;
     hint: string;
     hint_alt: string;
     arrangement: string;

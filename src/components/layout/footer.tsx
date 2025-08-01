@@ -26,7 +26,7 @@ const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground">
+    <footer className="bg-secondary/80 backdrop-blur-sm text-secondary-foreground">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
@@ -66,7 +66,7 @@ export default function Footer() {
             <h3 className="font-headline text-lg font-semibold mb-4">Newsletter</h3>
             <p className="text-sm mb-4">Ganhe 10% de desconto no seu primeiro pedido. Inscreva-se agora!</p>
             <form className="flex gap-2">
-              <Input type="email" placeholder="Seu email" className="bg-background" />
+              <Input type="email" placeholder="Seu email" className="bg-background/70" />
               <Button type="submit" className="bg-primary hover:bg-primary/90">Inscrever</Button>
             </form>
             <div className="flex space-x-4 mt-6">

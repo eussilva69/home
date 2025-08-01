@@ -44,88 +44,100 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary/30">
+    <div className="relative flex flex-col min-h-screen">
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <iframe
+          className="absolute top-1/2 left-1/2 w-full h-full object-cover transform -translate-x-1/2 -translate-y-1/2"
+          src="https://www.youtube.com/embed/UQBDo9L_amU?autoplay=1&mute=1&loop=1&playlist=UQBDo9L_amU&controls=0&showinfo=0&autohide=1&modestbranding=1"
+          frameBorder="0"
+          allow="autoplay; encrypted-media"
+          allowFullScreen
+        ></iframe>
+        <div className="absolute top-0 left-0 w-full h-full bg-black/50"></div>
+      </div>
+
+      <div className="relative z-10 flex flex-col min-h-screen bg-transparent">
         <Header />
         <main className="flex-grow flex items-center justify-center p-4">
-            <Card className="w-full max-w-md shadow-xl">
+          <Card className="w-full max-w-md shadow-xl bg-background/80 backdrop-blur-sm">
             <CardHeader className="text-center">
-                <CardTitle className="text-3xl font-headline">Bem-vindo de volta!</CardTitle>
-                <CardDescription>Acesse sua conta para continuar.</CardDescription>
+              <CardTitle className="text-3xl font-headline">Bem-vindo de volta!</CardTitle>
+              <CardDescription>Acesse sua conta para continuar.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Form {...form}>
+              <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
+                  <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                        <FormItem>
+                      <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                            <Input type="email" placeholder="seu@email.com" {...field} />
+                          <Input type="email" placeholder="seu@email.com" {...field} className="bg-background/70"/>
                         </FormControl>
                         <FormMessage />
-                        </FormItem>
+                      </FormItem>
                     )}
-                    />
-                    <FormField
+                  />
+                  <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                        <FormItem>
-                         <div className="flex justify-between items-center">
-                            <FormLabel>Senha</FormLabel>
-                            <Link href="#" className="text-sm text-primary hover:underline">
-                                Esqueceu a senha?
-                            </Link>
+                      <FormItem>
+                        <div className="flex justify-between items-center">
+                          <FormLabel>Senha</FormLabel>
+                          <Link href="#" className="text-sm text-primary hover:underline">
+                            Esqueceu a senha?
+                          </Link>
                         </div>
                         <FormControl>
-                            <Input type="password" placeholder="********" {...field} />
+                          <Input type="password" placeholder="********" {...field} className="bg-background/70"/>
                         </FormControl>
                         <FormMessage />
-                        </FormItem>
+                      </FormItem>
                     )}
-                    />
-                    
-                    {error && (
+                  />
+                  
+                  {error && (
                     <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Erro de Autenticação</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Erro de Autenticação</AlertTitle>
+                      <AlertDescription>{error}</AlertDescription>
                     </Alert>
-                    )}
+                  )}
 
-                    <Button type="submit" disabled={isPending} className="w-full text-lg">
+                  <Button type="submit" disabled={isPending} className="w-full text-lg">
                     {isPending ? <Loader2 className="animate-spin" /> : <LogIn className="mr-2"/>}
                     Entrar
-                    </Button>
+                  </Button>
                 </form>
-                </Form>
-                <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Ou continue com</span>
-                    </div>
+              </Form>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
                 </div>
-
-                 <Button variant="outline" className="w-full text-lg">
-                    <Image src="/google.svg" width={20} height={20} alt="Google logo" className="mr-2" />
-                    Google
-                </Button>
-
-                <div className="mt-6 text-center text-sm">
-                    Não tem uma conta?{' '}
-                    <Link href="#" className="font-bold text-primary hover:underline">
-                        Cadastre-se
-                    </Link>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background/80 backdrop-blur-sm px-2 text-muted-foreground">Ou continue com</span>
                 </div>
+              </div>
+
+              <Button variant="outline" className="w-full text-lg bg-background/70">
+                <Image src="/google.svg" width={20} height={20} alt="Google logo" className="mr-2" />
+                Google
+              </Button>
+
+              <div className="mt-6 text-center text-sm">
+                Não tem uma conta?{' '}
+                <Link href="#" className="font-bold text-primary hover:underline">
+                  Cadastre-se
+                </Link>
+              </div>
             </CardContent>
-            </Card>
+          </Card>
         </main>
         <Footer />
+      </div>
     </div>
   );
 }
-

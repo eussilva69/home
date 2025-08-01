@@ -84,7 +84,6 @@ export default function MercadoPagoCheckout({ items, shippingCost }: MercadoPago
 
   const customization = {
     paymentMethods: {
-      ticket: "all" as const,
       bankTransfer: "all" as const,
       creditCard: "all" as const,
       debitCard: "all" as const,

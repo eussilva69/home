@@ -37,30 +37,34 @@ export default function DashboardPage() {
   // Simple role check based on email
   const isAdmin = user.email === 'adm@gmail.com';
   
-  const dashboardLinks = isAdmin 
-  ? [
+  const adminLinks = [
       { href: '/dashboard', label: 'Início', icon: 'Home' },
       { href: '#', label: 'Pedidos', icon: 'Package' },
       { href: '#', label: 'Produtos', icon: 'Box' },
       { href: '/admin/tools', label: 'Ferramentas IA', icon: 'Wand2' },
       { href: '#', label: 'Clientes', icon: 'Users' },
-    ]
-  : [
-      { href: '/dashboard', label: 'Início', icon: 'Home' },
-      { href: '#', label: 'Meus Pedidos', icon: 'Package' },
-      { href: '#', label: 'Meus Dados', icon: 'User' },
-      { href: '#', label: 'Endereços', icon: 'MapPin' },
     ];
+
+  const customerLinks = [
+    { href: '/dashboard', label: 'Dados pessoais', icon: 'User' },
+    { href: '#', label: 'Endereços', icon: 'Home' },
+    { href: '#', label: 'Pedidos', icon: 'Package' },
+    { href: '#', label: 'Cartões', icon: 'CreditCard' },
+    { href: '#', label: 'Autenticação', icon: 'Heart' },
+    { href: '#', label: 'Trocas e devoluções', icon: 'ArrowLeftRight' },
+  ];
 
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-secondary/50">
       <Header />
-      <div className="flex-grow flex">
-        <DashboardSidebar links={dashboardLinks} />
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-          {isAdmin ? <AdminDashboard user={user} /> : <CustomerDashboard user={user} />}
-        </main>
+      <div className="flex-grow container mx-auto p-4 md:p-8">
+        <div className="flex flex-col md:flex-row gap-8">
+          <DashboardSidebar links={isAdmin ? adminLinks : customerLinks} isAdmin={isAdmin} />
+          <main className="flex-1">
+            {isAdmin ? <AdminDashboard user={user} /> : <CustomerDashboard user={user} />}
+          </main>
+        </div>
       </div>
       <Footer />
     </div>

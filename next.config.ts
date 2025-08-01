@@ -100,7 +100,19 @@ const nextConfig: NextConfig = {
         hostname: 'cdn6.campograndenews.com.br',
         port: '',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'medias.artmajeur.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.freepik.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

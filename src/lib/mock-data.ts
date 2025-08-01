@@ -475,7 +475,7 @@ export const testimonials = [
 
 export const collections = [
   { slug: 'animais', name: 'Animais', image: 'https://cdn6.campograndenews.com.br/uploads/noticias/2023/01/20/691c73dd24a60411b5bc65d4329035a56bba629e.jpeg', hint: 'elephant' },
-  { slug: 'floral', name: 'Floral', image: 'https://placehold.co/40x40.png', hint: 'flower' },
+  { slug: 'floral', name: 'Floral', image: 'https://img.freepik.com/vetores-gratis/padrao-floral-abstrato-plano-organico_23-2148923571.jpg?semt=ais_hybrid&w=740', hint: 'flower' },
   { slug: 'abstrato', name: 'Abstrato', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS667S4SsyCpYH6HuZ_ysVwnzFHV4_nHbdkcA&s', hint: 'abstract' },
   { slug: 'frases-tipografia', name: 'Frases/Tipografia', image: 'https://placehold.co/40x40.png', hint: 'typography' },
   { slug: 'botanico', name: 'Botânico', image: 'https://i.pinimg.com/236x/93/30/12/933012248c7da55d48e93e14ee8134f9.jpg', hint: 'botanical' },
@@ -484,6 +484,6 @@ export const collections = [
   { slug: 'infantil', name: 'Infantil', image: 'https://placehold.co/40x40.png', hint: 'hedgehog' },
   { slug: 'fashion', name: 'Fashion', image: 'https://cdn.11.vuzi.com.br/goquadros/product/404401.webp', hint: 'fashion' },
   { slug: 'minimalista', name: 'Minimalista', image: 'https://placehold.co/40x40.png', hint: 'minimalism' },
-  { slug: 'femme', name: 'Femme', image: 'https://placehold.co/40x40.png', hint: 'woman face' },
+  { slug: 'femme', name: 'Femme', image: 'https://medias.artmajeur.com/home/14141927_17c76aac-e019-48f9-af9d-a05a7a6aa5c1.jpg?v=1739181916', hint: 'woman face' },
   { slug: 'religiao', name: 'Religião', image: 'https://placehold.co/40x40.png', hint: 'religious symbol' },
 ];

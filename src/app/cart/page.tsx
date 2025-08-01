@@ -30,7 +30,7 @@ type ShippingOption = {
 };
 
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeItem } = useCart();
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [cep, setCep] = useState('');
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
@@ -46,7 +46,7 @@ export default function CartPage() {
   };
 
   const handleRemoveItem = (id: string) => {
-    removeItem(id);
+    removeFromCart(id);
     setSelectedShipping(null);
     setShippingOptions([]);
   };

@@ -78,7 +78,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         id: `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
         name: product.name,
         price: finalPrice,
-        quantity: 1,
         image: product.image,
         options: `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
         weight: selectedPriceInfo.weight,

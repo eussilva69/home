@@ -19,7 +19,7 @@ export type CartItemType = {
 
 type CartContextType = {
   cartItems: CartItemType[];
-  addToCart: (item: CartItemType) => void;
+  addToCart: (item: Omit<CartItemType, 'quantity'>) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -51,7 +51,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [cartItems]);
 
-  const addToCart = (itemToAdd: CartItemType) => {
+  const addToCart = (itemToAdd: Omit<CartItemType, 'quantity'>) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === itemToAdd.id);
       if (existingItem) {
@@ -77,10 +77,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       description: `O item foi removido do seu carrinho.`,
     });
   };
+  
+  const removeItem = (id: string) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+  };
+
 
   const updateQuantity = (id: string, quantity: number) => {
     if (quantity < 1) {
-        removeFromCart(id);
+        removeItem(id);
         return;
     };
     setCartItems(prevItems =>

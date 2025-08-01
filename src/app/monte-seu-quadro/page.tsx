@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, ChangeEvent, useRef, DragEvent } from 'react';
+import { useState, ChangeEvent, useRef, DragEvent, useEffect } from 'react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
@@ -15,25 +15,25 @@ import { cn } from '@/lib/utils';
 
 const pricingData = {
   "Solo": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 90.00, valor_com_vidro: 115.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 155.00, valor_com_vidro: 210.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 195.00, valor_com_vidro: 355.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 470.00, valor_com_vidro: 646.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 775.00, valor_com_vidro: 1085.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 95.00, valor_com_vidro: 120.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 160.00, valor_com_vidro: 215.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 200.00, valor_com_vidro: 360.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 475.00, valor_com_vidro: 651.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 780.00, valor_com_vidro: 1090.00 }
   ],
   "Dupla": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 190.00, valor_com_vidro: 285.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 275.00, valor_com_vidro: 395.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 365.00, valor_com_vidro: 645.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 855.00, valor_com_vidro: 1355.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 1385.00, valor_com_vidro: 2115.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 195.00, valor_com_vidro: 290.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 280.00, valor_com_vidro: 400.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 370.00, valor_com_vidro: 650.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 860.00, valor_com_vidro: 1360.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 1390.00, valor_com_vidro: 2120.00 }
   ],
   "Trio": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 275.00, valor_com_vidro: 425.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 395.00, valor_com_vidro: 545.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 510.00, valor_com_vidro: 775.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 1245.00, valor_com_vidro: 1735.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 2075.00, valor_com_vidro: 2885.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 280.00, valor_com_vidro: 430.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 400.00, valor_com_vidro: 550.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 515.00, valor_com_vidro: 780.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 1250.00, valor_com_vidro: 1740.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 2080.00, valor_com_vidro: 2890.00 }
   ]
 };
 
@@ -54,6 +54,16 @@ export default function MonteSeuQuadro() {
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
   const finalPrice = glassOption === 'com-vidro' ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
   
+  const [isPriceVisible, setIsPriceVisible] = useState(true);
+
+  useEffect(() => {
+    setIsPriceVisible(false);
+    const timer = setTimeout(() => {
+        setIsPriceVisible(true);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [finalPrice]);
+
   const frames = {
     black: { label: 'Preta', color: '#000000' },
     white: { label: 'Branca', color: '#FFFFFF' },
@@ -130,13 +140,6 @@ export default function MonteSeuQuadro() {
     };
   };
 
-  const getFrameAspectRatio = (sizeString: string) => {
-    const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);
-    const frameCount = arrangement === 'Trio' ? 3 : (arrangement === 'Dupla' ? 2 : 1);
-    const totalWidthCm = w_cm * frameCount;
-    return `${totalWidthCm}/${h_cm}`;
-  }
-
   const frameCount = arrangement === 'Trio' ? 3 : (arrangement === 'Dupla' ? 2 : 1);
 
   return (
@@ -177,12 +180,12 @@ export default function MonteSeuQuadro() {
                     "flex items-center justify-center gap-4 transition-all",
                      viewMode === 'environment' ? "absolute" : "relative p-4 md:p-12 w-full h-full"
                   )}
-                  style={viewMode === 'environment' ? {
+                   style={viewMode === 'environment' ? {
                      top: '30%',
                      left: '50%',
                      transform: 'translate(-50%, -50%) rotate(-2deg)',
                      width: `min(30vw, ${200 * frameCount}px)`,
-                     aspectRatio: getFrameAspectRatio(selectedSize),
+                     aspectRatio: '3/4',
                   } : {}}
                 >
                   <div 
@@ -240,10 +243,10 @@ export default function MonteSeuQuadro() {
           </div>
 
           <div className="space-y-6">
-             <div className="text-center">
-                <p className="text-2xl md:text-3xl font-bold text-primary mb-2">
+             <div className="text-center h-10 flex items-center justify-center">
+                 <p className={cn("text-2xl md:text-3xl font-bold text-primary transition-opacity duration-300", isPriceVisible ? 'opacity-100' : 'opacity-0')}>
                     {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione as opções'}
-                </p>
+                 </p>
              </div>
 
             <Card>
@@ -341,3 +344,5 @@ export default function MonteSeuQuadro() {
     </div>
   );
 }
+
+    

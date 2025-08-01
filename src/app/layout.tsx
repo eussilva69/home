@@ -5,7 +5,7 @@ import ExitIntentPopup from "@/components/ui/exit-intent-popup";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ToquePop AI",
+  title: "Home Designer",
   description: "Modern and vibrant art for your space.",
 };
 

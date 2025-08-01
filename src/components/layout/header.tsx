@@ -21,7 +21,7 @@ export default function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <Brush className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-headline font-bold text-primary">ToquePop AI</h1>
+          <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           {navLinks.map((link) => (
@@ -61,7 +61,7 @@ export default function Header() {
                 <div className="p-6">
                   <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
                     <Brush className="h-8 w-8 text-primary" />
-                    <h1 className="text-2xl font-headline font-bold text-primary">ToquePop AI</h1>
+                    <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
                   </Link>
                 </div>
                 <nav className="flex flex-col p-6 gap-4 text-lg">

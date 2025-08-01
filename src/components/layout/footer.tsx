@@ -30,7 +30,7 @@ export default function Footer() {
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <Brush className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-headline font-bold text-primary">ToquePop AI</h1>
+              <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
             </Link>
             <p className="text-sm">Modern and vibrant art for your space. Handcrafted with passion.</p>
           </div>
@@ -66,7 +66,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} ToquePop AI. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Home Designer. All rights reserved.</p>
         </div>
       </div>
     </footer>

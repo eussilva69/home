@@ -132,7 +132,8 @@ export default function MonteSeuQuadro() {
 
   const getFrameDimensionsForPreview = (sizeString: string) => {
     const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);
-    const scaleFactor = 0.5; 
+    // Adjusted scale factor for better visualization in the environment
+    const scaleFactor = 0.8; 
     return {
       width: w_cm * scaleFactor,
       height: h_cm * scaleFactor,
@@ -177,15 +178,13 @@ export default function MonteSeuQuadro() {
               {imagePreview ? (
                 <div 
                   className={cn(
-                    "relative flex items-center justify-center gap-4 transition-all p-4 md:p-12"
+                    "flex items-center justify-center gap-4 transition-all",
+                    viewMode === 'frame_only' ? "relative p-4 md:p-12 w-full h-full" : "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
                   )}
                   style={viewMode === 'environment' ? {
                     width: `${frameDimensions.width * frameCount + (frameCount > 1 ? 8 * (frameCount -1) : 0)}px`,
                     height: `${frameDimensions.height}px`,
-                  } : {
-                    width: '100%',
-                    height: '100%',
-                  }}
+                  } : {}}
                 >
                   {[...Array(frameCount)].map((_, i) => (
                     <div 

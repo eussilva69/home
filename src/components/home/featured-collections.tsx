@@ -4,6 +4,7 @@ import { collections } from '@/lib/mock-data';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function FeaturedCollections() {
+  const featuredCollections = collections.slice(0, 4);
   return (
     <section id="collections" className="py-12 md:py-24 bg-secondary/50">
       <div className="container mx-auto px-4">
@@ -12,7 +13,7 @@ export default function FeaturedCollections() {
           <p className="text-lg text-muted-foreground mt-2">Explore nossas coleções selecionadas para todos os estilos.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {collections.map((collection) => (
+          {featuredCollections.map((collection) => (
             <Link href="#" key={collection.name}>
                 <Card className="overflow-hidden group relative rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <CardContent className="p-0 aspect-[4/3]">

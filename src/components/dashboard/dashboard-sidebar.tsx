@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, Package, Box, Wand2, Users, User, MapPin, Heart, CreditCard, ArrowLeftRight, LogOut } from 'lucide-react';
+import { Home, Package, Box, Wand2, Users, User, MapPin, Heart, ArrowLeftRight, LogOut } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
@@ -21,7 +21,6 @@ const iconMap = {
   User,
   MapPin,
   Heart,
-  CreditCard,
   ArrowLeftRight
 };
 

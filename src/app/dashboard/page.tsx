@@ -49,7 +49,6 @@ export default function DashboardPage() {
     { href: '/dashboard', label: 'Dados pessoais', icon: 'User' },
     { href: '#', label: 'Endereços', icon: 'Home' },
     { href: '#', label: 'Pedidos', icon: 'Package' },
-    { href: '#', label: 'Cartões', icon: 'CreditCard' },
     { href: '#', label: 'Autenticação', icon: 'Heart' },
     { href: '#', label: 'Trocas e devoluções', icon: 'ArrowLeftRight' },
   ];

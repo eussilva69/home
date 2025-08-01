@@ -83,14 +83,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     <div
                         className="absolute"
                         style={{
-                            top: '50px',
+                            top: '40px',
                             left: '50%',
                             transform: 'translateX(-50%) rotate(-2deg)',
-                            width: '240px',
-                            height: '320px',
+                            width: '300px',
+                            height: '400px',
                             backgroundColor: '#fff',
-                            boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.3)',
-                            border: selectedFrame !== 'none' ? `8px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
+                            boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.35)',
+                            border: selectedFrame !== 'none' ? `10px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
                         }}
                         >
                         <Image

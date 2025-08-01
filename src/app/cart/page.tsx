@@ -8,10 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Minus, Plus, Trash2, ShoppingCart, AlertTriangle } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart, AlertTriangle, Loader2, Truck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import MercadoPagoCheckout from '@/components/checkout/mercado-pago-checkout';
+import { calculateShipping } from '@/app/actions';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const initialCartItems = [
   {
@@ -20,7 +23,11 @@ const initialCartItems = [
     price: 95.00,
     quantity: 1,
     image: 'https://placehold.co/400x500.png',
-    options: '30x42 cm, Preta, Com Vidro'
+    options: '30x42 cm, Preta, Com Vidro',
+    weight: 1.2, // kg
+    width: 33, // cm
+    height: 45, // cm
+    length: 3, // cm
   },
   {
     id: 'FL-T1',
@@ -28,27 +35,79 @@ const initialCartItems = [
     price: 280.00,
     quantity: 1,
     image: 'https://placehold.co/1200x500.png',
-    options: '30x42 cm, Carvalho Avelã, Sem Vidro'
+    options: '30x42 cm, Carvalho Avelã, Sem Vidro',
+    weight: 3.0,
+    width: 45,
+    height: 96,
+    length: 3,
   },
 ];
 
 type CartItem = typeof initialCartItems[0];
+type ShippingOption = {
+  id: number;
+  name: string;
+  price: string;
+  custom_delivery_time: number;
+  company: {
+      id: number;
+      name: string;
+      picture: string;
+  };
+};
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [cep, setCep] = useState('');
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [shippingError, setShippingError] = useState<string | null>(null);
 
   const updateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     setCartItems(cartItems.map(item => item.id === id ? { ...item, quantity: newQuantity } : item));
+    // Reset shipping when cart changes
+    setSelectedShipping(null);
+    setShippingOptions([]);
   };
 
   const removeItem = (id: string) => {
     setCartItems(cartItems.filter(item => item.id !== id));
+     // Reset shipping when cart changes
+    setSelectedShipping(null);
+    setShippingOptions([]);
   };
   
+  const handleCalculateShipping = async () => {
+    if (!cep || cartItems.length === 0) return;
+    setIsCalculating(true);
+    setShippingError(null);
+    setSelectedShipping(null);
+    setShippingOptions([]);
+
+    const shippingItems = cartItems.map(item => ({
+        id: item.id,
+        width: item.width,
+        height: item.height,
+        length: item.length,
+        weight: item.weight,
+        quantity: item.quantity,
+    }));
+
+    const result = await calculateShipping(cep, shippingItems);
+    
+    if (result.error) {
+        setShippingError(result.error);
+    } else if (result.shippingOptions) {
+        setShippingOptions(result.shippingOptions);
+    }
+    setIsCalculating(false);
+  };
+
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingCost = subtotal > 0 ? 15.00 : 0; // Exemplo de frete fixo
+  const shippingCost = selectedShipping ? parseFloat(selectedShipping.price) : 0;
   const total = subtotal + shippingCost;
 
 
@@ -60,7 +119,7 @@ export default function CartPage() {
       unit_price: item.price,
       picture_url: item.image,
     }));
-    return <MercadoPagoCheckout items={checkoutItems} />;
+    return <MercadoPagoCheckout items={checkoutItems} shippingCost={shippingCost} />;
   }
 
   return (
@@ -73,9 +132,12 @@ export default function CartPage() {
 
         {cartItems.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Itens do Carrinho */}
-            <div className="lg:col-span-2">
+            {/* Itens do Carrinho e Frete */}
+            <div className="lg:col-span-2 space-y-6">
               <Card className="shadow-md">
+                <CardHeader>
+                    <CardTitle>Itens</CardTitle>
+                </CardHeader>
                 <CardContent className="p-0">
                   <ul className="divide-y">
                     {cartItems.map(item => (
@@ -108,6 +170,60 @@ export default function CartPage() {
                   </ul>
                 </CardContent>
               </Card>
+              
+               <Card className="shadow-md">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Truck className="h-6 w-6"/> Calcular Frete</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-col sm:flex-row gap-2 max-w-sm">
+                            <Input
+                                type="text"
+                                placeholder="Digite seu CEP"
+                                value={cep}
+                                onChange={(e) => setCep(e.target.value)}
+                                maxLength={9}
+                            />
+                            <Button onClick={handleCalculateShipping} disabled={isCalculating || !cep}>
+                                {isCalculating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Calcular'}
+                            </Button>
+                        </div>
+                        {shippingError && <p className="text-red-500 text-sm mt-2">{shippingError}</p>}
+                        
+                        {isCalculating && (
+                             <div className="mt-4 p-4 text-center bg-secondary/50 rounded-md">
+                                <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
+                             </div>
+                        )}
+
+                        {shippingOptions.length > 0 && !isCalculating && (
+                            <div className="mt-4">
+                                <RadioGroup onValueChange={(id) => setSelectedShipping(shippingOptions.find(opt => opt.id.toString() === id) || null)}>
+                                    <div className="space-y-2">
+                                        {shippingOptions.map((option) => (
+                                            <Label key={option.id} htmlFor={String(option.id)} className="flex items-center p-3 border rounded-md cursor-pointer hover:bg-accent has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                                                <RadioGroupItem value={String(option.id)} id={String(option.id)} className="mr-3" />
+                                                <div className="flex-grow grid grid-cols-3 items-center gap-2 text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        {option.company.picture && <Image src={option.company.picture} alt={option.company.name} width={20} height={20} />}
+                                                        <span>{option.name}</span>
+                                                    </div>
+                                                    <span className="font-semibold text-center">
+                                                        R$ {parseFloat(option.price).toFixed(2).replace('.', ',')}
+                                                    </span>
+                                                    <span className="text-muted-foreground text-right">
+                                                        {option.custom_delivery_time} dias úteis
+                                                    </span>
+                                                </div>
+                                            </Label>
+                                        ))}
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
             </div>
             {/* Resumo do Pedido */}
             <aside className="lg:col-span-1">
@@ -122,7 +238,9 @@ export default function CartPage() {
                   </div>
                    <div className="flex justify-between">
                     <span className="text-muted-foreground">Frete</span>
-                    <span className="font-semibold">R$ {shippingCost.toFixed(2).replace('.', ',')}</span>
+                    <span className="font-semibold">
+                      {selectedShipping ? `R$ ${shippingCost.toFixed(2).replace('.', ',')}` : 'A calcular'}
+                    </span>
                   </div>
                   <Separator />
                    <div className="flex justify-between text-xl font-bold">
@@ -131,9 +249,17 @@ export default function CartPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
-                   <Button size="lg" className="w-full text-lg" onClick={() => setIsCheckingOut(true)}>
+                   <Button 
+                     size="lg" 
+                     className="w-full text-lg" 
+                     onClick={() => setIsCheckingOut(true)}
+                     disabled={!selectedShipping}
+                    >
                      Finalizar Compra
                    </Button>
+                   {!selectedShipping && (
+                       <p className="text-xs text-muted-foreground text-center">Calcule o frete para continuar</p>
+                   )}
                    <Button variant="link" asChild>
                      <Link href="/">Continuar comprando</Link>
                    </Button>

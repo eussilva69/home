@@ -47,7 +47,7 @@ type CartItem = {
   picture_url: string;
 }
 
-export async function createPaymentPreference(cartItems: CartItem[]) {
+export async function createPaymentPreference(cartItems: CartItem[], shippingCost: number) {
   try {
     const preference = new Preference(client);
 
@@ -60,6 +60,10 @@ export async function createPaymentPreference(cartItems: CartItem[]) {
           unit_price: item.unit_price,
           picture_url: item.picture_url,
         })),
+        shipments: {
+            cost: shippingCost,
+            mode: "not_specified",
+        },
         back_urls: {
             success: "https://seusite.com/sucesso",
             failure: "https://seusite.com/falha",
@@ -74,4 +78,67 @@ export async function createPaymentPreference(cartItems: CartItem[]) {
     console.error('Error creating payment preference:', error.cause?.message || error.message);
     return { error: 'Falha ao criar preferência de pagamento.' };
   }
+}
+
+type ShippingItem = {
+  id: string;
+  width: number;
+  height: number;
+  length: number;
+  weight: number;
+  quantity: number;
+}
+
+export async function calculateShipping(cep: string, items: ShippingItem[]) {
+    const token = process.env.MELHOR_ENVIO_API_TOKEN;
+
+    if (!token) {
+        return { error: 'API de frete não configurada.' };
+    }
+
+    const body = {
+        from: {
+            postal_code: "38400-000", // CEP de origem (loja)
+        },
+        to: {
+            postal_code: cep.replace(/\D/g, ''),
+        },
+        products: items.map(item => ({
+            id: item.id,
+            width: item.width,
+            height: item.height,
+            length: item.length,
+            weight: item.weight,
+            quantity: item.quantity,
+        })),
+    };
+
+    try {
+        const response = await fetch('https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'User-Agent': 'Aplicação vvatassi@gmail.com'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Melhor Envio API Error:', errorData);
+            return { error: `Erro ao calcular o frete: ${errorData.message || 'Verifique o CEP e tente novamente.'}` };
+        }
+
+        const data = await response.json();
+        
+        // Filtrar apenas opções válidas sem erro
+        const validOptions = data.filter((option: any) => !option.error);
+
+        return { shippingOptions: validOptions };
+    } catch (error: any) {
+        console.error('Error calculating shipping:', error);
+        return { error: 'Falha na comunicação com a API de frete.' };
+    }
 }

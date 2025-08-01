@@ -19,21 +19,25 @@ type MercadoPagoCheckoutProps = {
     unit_price: number;
     picture_url: string;
   }[];
+  shippingCost: number;
 };
 
-export default function MercadoPagoCheckout({ items }: MercadoPagoCheckoutProps) {
+export default function MercadoPagoCheckout({ items, shippingCost }: MercadoPagoCheckoutProps) {
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isScriptReady, setIsScriptReady] = useState(false);
   const [isBrickRendered, setIsBrickRendered] = useState(false);
+  
+  const totalAmount = items.reduce((acc, item) => acc + item.unit_price * item.quantity, 0) + shippingCost;
+
 
   useEffect(() => {
     async function getPreference() {
       setIsLoading(true);
       setError(null);
       try {
-        const result = await createPaymentPreference(items);
+        const result = await createPaymentPreference(items, shippingCost);
         if (result.error) {
           throw new Error(result.error);
         }
@@ -50,18 +54,20 @@ export default function MercadoPagoCheckout({ items }: MercadoPagoCheckoutProps)
       }
     }
     getPreference();
-  }, [items]);
+  }, [items, shippingCost]);
 
   useEffect(() => {
     if (isScriptReady && preferenceId && !isBrickRendered) {
       const renderPaymentBrick = async () => {
         // @ts-ignore
-        const mp = new window.MercadoPago(MERCADO_PAGO_PUBLIC_KEY);
+        const mp = new window.MercadoPago(MERCADO_PAGO_PUBLIC_KEY, {
+            locale: 'pt-BR'
+        });
         const bricksBuilder = mp.bricks();
 
         const settings = {
           initialization: {
-            amount: items.reduce((acc, item) => acc + item.unit_price * item.quantity, 0) + 15, // Total + Frete
+            amount: totalAmount,
             preferenceId: preferenceId,
           },
           customization: {
@@ -92,17 +98,26 @@ export default function MercadoPagoCheckout({ items }: MercadoPagoCheckoutProps)
         };
         
         try {
-            await bricksBuilder.create('payment', 'payment-brick-container', settings);
-            setIsBrickRendered(true);
+            // A div container deve estar visível para o Brick renderizar
+            const container = document.getElementById('payment-brick-container');
+            if (container && container.offsetParent !== null) {
+               await bricksBuilder.create('payment', 'payment-brick-container', settings);
+               setIsBrickRendered(true);
+            }
         } catch(e) {
             console.error("Erro ao renderizar o Brick", e);
             setError("Não foi possível carregar a área de pagamento. Tente recarregar a página.");
         }
       };
-      setIsLoading(true);
-      renderPaymentBrick();
+      
+      // Pequeno delay para garantir que o contêiner está no DOM e visível
+      setTimeout(() => {
+        setIsLoading(true);
+        renderPaymentBrick();
+      }, 100);
+
     }
-  }, [isScriptReady, preferenceId, isBrickRendered, items]);
+  }, [isScriptReady, preferenceId, isBrickRendered, totalAmount]);
 
 
   return (
@@ -110,6 +125,7 @@ export default function MercadoPagoCheckout({ items }: MercadoPagoCheckoutProps)
       <Script
         src="https://sdk.mercadopago.com/js/v2"
         onLoad={() => setIsScriptReady(true)}
+        strategy="lazyOnload"
       />
       <div className="flex flex-col min-h-screen">
         <Header />
@@ -122,8 +138,8 @@ export default function MercadoPagoCheckout({ items }: MercadoPagoCheckoutProps)
                 </p>
              </div>
             
-            {isLoading && (
-              <div className="flex flex-col items-center justify-center p-12 bg-secondary/50 rounded-lg">
+            {(isLoading || !isBrickRendered) && !error && (
+              <div className="flex flex-col items-center justify-center p-12 bg-secondary/50 rounded-lg min-h-[300px]">
                 <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
                 <p className="text-muted-foreground">Preparando seu checkout seguro...</p>
               </div>

@@ -27,7 +27,7 @@ export default function CartPage() {
   };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingCost = 0;
+  const shippingCost = 0; // Temporariamente desativado
   const total = subtotal + shippingCost;
   const totalWithCardFee = total * 1.05; // 5% de taxa do cartão
   const pixDiscount = totalWithCardFee - total;
@@ -97,20 +97,22 @@ export default function CartPage() {
                   </div>
                    <div className="flex justify-between">
                     <span className="text-muted-foreground">Frete</span>
-                    <span className="font-semibold">R$ 0,00</span>
+                    <span className="font-semibold">A calcular</span>
                   </div>
                   <Separator />
-                   <div className="flex justify-between text-lg font-bold">
-                    <span>Total (sem taxas)</span>
-                    <span>R$ {total.toFixed(2).replace('.', ',')}</span>
+                  <div className="space-y-2">
+                     <div className="flex justify-between items-center text-lg">
+                       <span className="font-semibold">Total no Cartão:</span>
+                       <span className="font-bold text-lg">R$ {totalWithCardFee.toFixed(2).replace('.', ',')}</span>
+                     </div>
+                      <div className="flex justify-between items-center text-lg text-green-600">
+                       <span className="font-semibold">Total no Pix:</span>
+                       <span className="font-bold text-lg">R$ {total.toFixed(2).replace('.', ',')}</span>
+                     </div>
                   </div>
                   <Card className="bg-primary/5 border-primary/20 p-3 text-sm">
-                      <p>
-                          Pague com <span className="font-bold">Cartão de Crédito</span> por <span className="font-bold">R$ {totalWithCardFee.toFixed(2).replace('.', ',')}</span> (incluso 5% de taxa).
-                      </p>
-                      <Separator className="my-2" />
                       <p className="text-green-600 font-semibold">
-                          Ou pague com <span className="font-bold">Pix</span> e ganhe <span className="font-bold">R$ {pixDiscount.toFixed(2).replace('.', ',')} de desconto</span>, pagando apenas <span className="font-bold">R$ {total.toFixed(2).replace('.', ',')}</span>!
+                          Pague com <span className="font-bold">Pix</span> e ganhe <span className="font-bold">R$ {pixDiscount.toFixed(2).replace('.', ',')} de desconto</span>!
                       </p>
                   </Card>
                 </CardContent>

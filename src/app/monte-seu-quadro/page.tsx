@@ -15,11 +15,20 @@ import { cn } from '@/lib/utils';
 
 export default function MonteSeuQuadro() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [frameColor, setFrameColor] = useState('#000000');
   const [frameStyle, setFrameStyle] = useState('moderna');
   const [glassOption, setGlassOption] = useState('sem-vidro');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  const frames = {
+    black: { label: 'Preta', color: '#000000' },
+    white: { label: 'Branca', color: '#FFFFFF' },
+    hazel_oak: { label: 'Carvalho Avelã', color: '#C19A6B' },
+    ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
+  };
+
+  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+  const frameColor = frames[selectedFrame as keyof typeof frames].color;
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -174,20 +183,27 @@ export default function MonteSeuQuadro() {
             </Card>
             
             <Card>
-              <CardHeader>
+               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base md:text-lg"><Palette className="h-5 w-5" />Cor da Moldura</CardTitle>
               </CardHeader>
-              <CardContent className="flex items-center gap-4">
-                 <Input 
-                    type="color" 
-                    value={frameColor} 
-                    onChange={(e) => setFrameColor(e.target.value)} 
-                    className="w-16 h-10 p-1"
-                />
-                <div className="flex-grow space-y-2">
-                    <Label htmlFor="frame-color-hex">Hex</Label>
-                    <Input id="frame-color-hex" value={frameColor} onChange={(e) => setFrameColor(e.target.value)} />
-                </div>
+              <CardContent>
+                <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-2">
+                    {Object.entries(frames).map(([key, { label, color }]) => (
+                        <div key={key}>
+                            <RadioGroupItem value={key} id={`frame-color-${key}`} className="sr-only" />
+                            <Label 
+                              htmlFor={`frame-color-${key}`} 
+                              className={cn(
+                                "block cursor-pointer rounded-md border-2 p-1 transition-all", 
+                                selectedFrame === key ? 'border-primary' : 'border-transparent'
+                              )}
+                              title={label}
+                            >
+                                <div className="w-12 h-12 md:w-14 md:h-14 rounded-md border" style={{ backgroundColor: color }} />
+                            </Label>
+                        </div>
+                    ))}
+                </RadioGroup>
               </CardContent>
             </Card>
 
@@ -240,4 +256,5 @@ export default function MonteSeuQuadro() {
       <Footer />
     </div>
   );
-}
+
+    

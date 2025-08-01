@@ -2,6 +2,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brush, Instagram, Facebook, Twitter, Phone, Mail, MapPin } from 'lucide-react';
@@ -77,7 +78,14 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Home Designer. Todos os direitos reservados.</p>
+          <p className="mb-2">&copy; {new Date().getFullYear()} Home Designer. Todos os direitos reservados.</p>
+          <div className="flex justify-center items-center gap-2">
+            <span>Desenvolvido por</span>
+            <a href="https://glcoding.online" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-primary">
+              <Image src="https://iili.io/FMvMmva.png" alt="GL Coding Logo" width={24} height={24} />
+              <span>GL Coding</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>

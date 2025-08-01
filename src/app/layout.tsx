@@ -5,7 +5,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ToquePop AI",
+  title: "Home Designer",
   description: "Arte moderna e vibrante para o seu espaço.",
 };
 

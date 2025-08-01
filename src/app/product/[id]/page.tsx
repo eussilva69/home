@@ -46,11 +46,12 @@ const pricingData = {
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
-  const relatedProducts = products.filter((p) => p.category === product?.category && p.id !== product?.id).slice(0, 4);
-
+  
   if (!product) {
     notFound();
   }
+
+  const relatedProducts = products.filter((p) => p.category === product?.category && p.id !== product?.id).slice(0, 4);
 
   const arrangementKey = product.arrangement as keyof typeof pricingData;
   const availableSizes = pricingData[arrangementKey];

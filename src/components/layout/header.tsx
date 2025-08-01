@@ -65,8 +65,9 @@ export default function Header() {
                     {collections.map((collection) => (
                       <Link
                         key={collection.name}
-                        href="#"
+                        href={`/collection/${collection.slug}`}
                         className="flex items-center gap-3 p-2 -m-2 rounded-md hover:bg-accent"
+                        onClick={() => setCollectionsOpen(false)}
                       >
                          <Image
                           src={collection.image}

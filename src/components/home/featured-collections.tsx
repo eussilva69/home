@@ -14,7 +14,7 @@ export default function FeaturedCollections() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredCollections.map((collection) => (
-            <Link href="#" key={collection.name}>
+            <Link href={`/collection/${collection.slug}`} key={collection.name}>
                 <Card className="overflow-hidden group relative rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <CardContent className="p-0 aspect-[4/3]">
                         <Image

@@ -64,7 +64,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
-             <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
+            <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
                     src={product.image_alt}
                     alt={`${product.name} em um ambiente`}
@@ -73,23 +73,30 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     style={{ objectFit: 'cover' }}
                     className="brightness-75"
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative w-[45%] h-[45%] shadow-2xl">
-                        <Image
-                            src={product.image}
-                            alt={product.name}
-                            data-ai-hint={product.hint}
-                            fill
-                            style={{ 
-                              objectFit: 'cover',
-                              border: selectedFrame !== 'none' ? `12px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
-                            }}
-                            className="rounded-sm"
-                        />
-                         {selectedGlass === 'with_glass' && (
-                            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
-                        )}
-                    </div>
+                <div
+                    className="absolute"
+                    style={{
+                        top: '60px',
+                        left: '340px',
+                        width: '120px',
+                        height: '160px',
+                        backgroundColor: '#fff',
+                        boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.3)',
+                        transform: 'rotate(-2deg)',
+                        border: selectedFrame !== 'none' ? `6px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
+                    }}
+                    >
+                    <Image
+                        src={product.image}
+                        alt={product.name}
+                        data-ai-hint={product.hint}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        className="p-1"
+                    />
+                    {selectedGlass === 'with_glass' && (
+                        <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
+                    )}
                 </div>
             </div>
           </div>

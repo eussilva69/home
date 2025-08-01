@@ -9,14 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Slider } from '@/components/ui/slider';
-import { Upload, Palette, Scaling, GlassWater } from 'lucide-react';
+import { Upload, Palette, GlassWater } from 'lucide-react';
 import Image from 'next/image';
 
 export default function MonteSeuQuadro() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [frameColor, setFrameColor] = useState('#000000');
-  const [frameWidth, setFrameWidth] = useState([20]);
   const [frameStyle, setFrameStyle] = useState('moderna');
   const [glassOption, setGlassOption] = useState('sem-vidro');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,6 +40,8 @@ export default function MonteSeuQuadro() {
     rustica: 'groove',
   };
 
+  const frameWidth = 15; // Fixed frame width
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -61,10 +61,10 @@ export default function MonteSeuQuadro() {
                         <div 
                             className="absolute inset-0 m-auto transition-all"
                             style={{
-                                border: `${frameWidth[0]}px ${frameStyles[frameStyle as keyof typeof frameStyles] || 'solid'} ${frameColor}`,
+                                border: `${frameWidth}px ${frameStyles[frameStyle as keyof typeof frameStyles] || 'solid'} ${frameColor}`,
                                 boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                                width: `calc(100% - ${frameWidth[0] * 2}px)`,
-                                height: `calc(100% - ${frameWidth[0] * 2}px)`,
+                                width: `calc(100% - ${frameWidth * 2}px)`,
+                                height: `calc(100% - ${frameWidth * 2}px)`,
                             }}
                         />
                         <Image
@@ -74,7 +74,7 @@ export default function MonteSeuQuadro() {
                             objectFit="contain"
                             className="p-2"
                             style={{
-                                padding: `${frameWidth[0] + 5}px`
+                                padding: `${frameWidth + 5}px`
                             }}
                         />
                          {glassOption === 'com-vidro' && (
@@ -83,7 +83,7 @@ export default function MonteSeuQuadro() {
                                 style={{
                                     backdropFilter: 'brightness(0.98)',
                                     background: 'linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15))',
-                                    padding: `${frameWidth[0]}px`,
+                                    padding: `${frameWidth}px`,
                                     boxSizing: 'border-box',
                                 }}
                             />
@@ -137,25 +137,6 @@ export default function MonteSeuQuadro() {
                     <Label htmlFor="frame-color-hex">Hex</Label>
                     <Input id="frame-color-hex" value={frameColor} onChange={(e) => setFrameColor(e.target.value)} />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base md:text-lg"><Scaling className="h-5 w-5" />Espessura da Moldura</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center mb-2">
-                    <Label>Espessura</Label>
-                    <span className="text-sm font-semibold">{frameWidth[0]}px</span>
-                </div>
-                <Slider
-                  defaultValue={[20]}
-                  max={50}
-                  min={5}
-                  step={1}
-                  onValueChange={setFrameWidth}
-                />
               </CardContent>
             </Card>
 

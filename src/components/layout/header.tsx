@@ -10,7 +10,6 @@ const navLinks = [
   { href: '#collections', label: 'Collections' },
   { href: '#bestsellers', label: 'Best Sellers' },
   { href: '#compositions', label: 'Compositions' },
-  { href: '#ai-features', label: 'AI Tools' },
 ];
 
 export default function Header() {

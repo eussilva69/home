@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 import { redirect } from 'next/navigation';
 
-const ACCESS_TOKEN = "TEST-669430014263398-080114-6223aa7da057a138568fab88ea605ccd-1118229328";
+const ACCESS_TOKEN = "APP_USR-669430014263398-080114-d9ae331ae39f4d3412d982254159a3ac-1118229328";
 
 const client = new MercadoPagoConfig({ accessToken: ACCESS_TOKEN });
 const payment = new Payment(client);

@@ -12,7 +12,7 @@ import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 
 // Adicione o Access Token do vendedor
-const MERCADO_PAGO_ACCESS_TOKEN = 'TEST-669430014263398-080114-6223aa7da057a138568fab88ea605ccd-1118229328';
+const MERCADO_PAGO_ACCESS_TOKEN = 'APP_USR-669430014263398-080114-d9ae331ae39f4d3412d982254159a3ac-1118229328';
 const SITE_URL = 'https://homesdes.netlify.app';
 
 const client = new MercadoPagoConfig({ 

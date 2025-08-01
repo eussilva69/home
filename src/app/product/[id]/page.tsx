@@ -17,7 +17,6 @@ import ProductCard from '@/components/shared/product-card';
 export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedSize, setSelectedSize] = useState('medium');
   const [selectedFrame, setSelectedFrame] = useState('black');
-  const [showInRoom, setShowInRoom] = useState(false);
 
   const product = products.find((p) => p.id === params.id);
   const relatedProducts = products.filter((p) => p.category === product?.category && p.id !== product?.id).slice(0, 4);
@@ -48,29 +47,30 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
-             <div 
-                className="relative aspect-[4/5] w-full overflow-hidden rounded-lg shadow-lg group"
-                onMouseEnter={() => setShowInRoom(true)}
-                onMouseLeave={() => setShowInRoom(false)}
-            >
-                <Image
-                    src={product.image}
-                    alt={product.name}
-                    data-ai-hint={product.hint}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    className={`transition-opacity duration-300 ${showInRoom ? 'opacity-0' : 'opacity-100'}`}
-                />
+             <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
                     src={product.image_alt}
                     alt={`${product.name} em um ambiente`}
                     data-ai-hint={product.hint_alt}
                     fill
                     style={{ objectFit: 'cover' }}
-                    className={`transition-opacity duration-300 ${showInRoom ? 'opacity-100' : 'opacity-0'}`}
+                    className="brightness-90"
                 />
-                 <div className="absolute bottom-4 right-4 bg-background/80 text-foreground text-xs p-2 rounded-md backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    {showInRoom ? "Visualizando no ambiente" : "Passe o mouse para ver no ambiente"}
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="relative w-[45%] h-[45%] shadow-2xl">
+                        <Image
+                            src={product.image}
+                            alt={product.name}
+                            data-ai-hint={product.hint}
+                            fill
+                            style={{ 
+                              objectFit: 'cover',
+                              border: selectedFrame !== 'none' ? `12px solid ${selectedFrame}` : 'none',
+                              borderColor: selectedFrame === 'wood' ? '#854d0e' : selectedFrame,
+                            }}
+                            className="rounded-sm"
+                        />
+                    </div>
                 </div>
             </div>
           </div>
@@ -102,14 +102,17 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Frame Selector */}
             <div className="mb-8">
                 <Label className="text-lg font-medium mb-3 block">Moldura</Label>
-                <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex gap-4">
+                <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-4">
                     {Object.entries(frames).map(([key, { label }]) => (
-                    <div key={key}>
+                    <div key={key} className="flex items-center">
                         <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
                         <Label
                         htmlFor={`frame-${key}`}
-                        className={`block cursor-pointer rounded-lg border-2 px-6 py-3 text-center transition-all ${selectedFrame === key ? 'border-primary bg-primary/5' : 'border-border'}`}
+                        className={`flex items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center transition-all ${selectedFrame === key ? 'border-primary bg-primary/5' : 'border-border'}`}
                         >
+                        {key !== 'none' && (
+                            <div className="h-6 w-6 rounded-full mr-2 border" style={{ backgroundColor: key === 'wood' ? '#854d0e' : key }}></div>
+                        )}
                         {label}
                         </Label>
                     </div>

@@ -71,9 +71,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     data-ai-hint={product.hint_alt}
                     fill
                     style={{ objectFit: 'cover' }}
-                    className="brightness-90"
+                    className="brightness-75"
                 />
-                <div className="absolute inset-0 flex items-center justify-center pb-24">
+                <div className="absolute inset-0 flex items-center justify-center">
                     <div className="relative w-[45%] h-[45%] shadow-2xl">
                         <Image
                             src={product.image}

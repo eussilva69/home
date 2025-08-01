@@ -474,11 +474,11 @@ export const testimonials = [
 ];
 
 export const collections = [
-  { slug: 'animais', name: 'Animais', image: 'https://placehold.co/40x40.png', hint: 'elephant' },
+  { slug: 'animais', name: 'Animais', image: 'https://static.vecteezy.com/ti/fotos-gratis/t2/42730459-leao-perigo-animal-animais-selvagens-natureza-floresta-foto.jpg', hint: 'elephant' },
   { slug: 'floral', name: 'Floral', image: 'https://placehold.co/40x40.png', hint: 'flower' },
-  { slug: 'abstrato', name: 'Abstrato', image: 'https://placehold.co/40x40.png', hint: 'abstract' },
+  { slug: 'abstrato', name: 'Abstrato', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS667S4SsyCpYH6HuZ_ysVwnzFHV4_nHbdkcA&s', hint: 'abstract' },
   { slug: 'frases-tipografia', name: 'Frases/Tipografia', image: 'https://placehold.co/40x40.png', hint: 'typography' },
-  { slug: 'botanico', name: 'Botânico', image: 'https://placehold.co/40x40.png', hint: 'botanical' },
+  { slug: 'botanico', name: 'Botânico', image: 'https://i.pinimg.com/236x/93/30/12/933012248c7da55d48e9314ee8134f9.jpg', hint: 'botanical' },
   { slug: 'geek', name: 'Geek', image: 'https://placehold.co/40x40.png', hint: 'game controller' },
   { slug: 'fotografia', name: 'Fotografia', image: 'https://placehold.co/40x40.png', hint: 'camera' },
   { slug: 'infantil', name: 'Infantil', image: 'https://placehold.co/40x40.png', hint: 'hedgehog' },

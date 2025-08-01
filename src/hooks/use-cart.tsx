@@ -35,20 +35,19 @@ const CartContext = createContext<CartContextType>({
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
-  const [cartItems, setCartItems] = useState<CartItemType[]>(() => {
-    // Load cart from localStorage on initial render
-    if (typeof window !== 'undefined') {
-        const savedCart = localStorage.getItem('cart');
-        return savedCart ? JSON.parse(savedCart) : [];
+  const [cartItems, setCartItems] = useState<CartItemType[]>([]);
+
+  useEffect(() => {
+    // Load cart from localStorage on initial render on the client
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCartItems(JSON.parse(savedCart));
     }
-    return [];
-  });
+  }, []);
 
   useEffect(() => {
     // Save cart to localStorage whenever it changes
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('cart', JSON.stringify(cartItems));
-    }
+    localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
   const addToCart = (itemToAdd: Omit<CartItemType, 'quantity'>) => {

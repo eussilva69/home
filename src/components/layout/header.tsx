@@ -17,6 +17,7 @@ import { useCart } from '@/hooks/use-cart';
 import { logoutAction } from '@/app/actions';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
+import { useClientOnly } from '@/hooks/use-client-only';
 
 const navLinks = [
   { href: '/monte-seu-quadro', label: 'Monte seu quadro' },
@@ -30,6 +31,7 @@ export default function Header() {
   const { user } = useAuth();
   const { cartItems } = useCart();
   const router = useRouter();
+  const isClient = useClientOnly();
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -101,7 +103,7 @@ export default function Header() {
           <Link href="/cart" className="relative">
             <Button variant="ghost" size="icon" className="hidden md:inline-flex">
               <ShoppingCart className="h-5 w-5" />
-               {totalItems > 0 && (
+               {isClient && totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                   {totalItems}
                 </span>
@@ -132,7 +134,7 @@ export default function Header() {
            <Link href="/cart" className="relative">
               <Button variant="ghost" size="icon">
                   <ShoppingCart className="h-6 w-6" />
-                  {totalItems > 0 && (
+                  {isClient && totalItems > 0 && (
                     <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                       {totalItems}
                     </span>

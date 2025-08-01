@@ -15,3 +15,58 @@ export const registerSchema = z.object({
   message: "As senhas não correspondem.",
   path: ["confirmPassword"],
 });
+
+
+// Tipos para as ações do Mercado Pago
+const PayerIdentificationSchema = z.object({
+  type: z.string(),
+  number: z.string(),
+});
+
+const PayerSchema = z.object({
+  email: z.string().email(),
+  first_name: z.string(),
+  last_name: z.string(),
+  identification: PayerIdentificationSchema,
+});
+
+export const CreatePixPaymentInputSchema = z.object({
+  transaction_amount: z.number(),
+  description: z.string(),
+  payer: PayerSchema,
+});
+export type CreatePixPaymentInput = z.infer<typeof CreatePixPaymentInputSchema>;
+
+
+const ItemSchema = z.object({
+    id: z.string().optional(),
+    title: z.string(),
+    description: z.string().optional(),
+    picture_url: z.string().optional(),
+    category_id: z.string().optional(),
+    quantity: z.number(),
+    unit_price: z.number(),
+    currency_id: z.string(),
+});
+
+const PayerPreferenceSchema = z.object({
+    name: z.string(),
+    surname: z.string(),
+    email: z.string().email(),
+    identification: PayerIdentificationSchema
+});
+
+
+export const CreatePreferenceInputSchema = z.object({
+  items: z.array(ItemSchema),
+  payer: PayerPreferenceSchema
+});
+export type CreatePreferenceInput = z.infer<typeof CreatePreferenceInputSchema>;
+
+
+export const CreatePaymentOutputSchema = z.object({
+    success: z.boolean(),
+    paymentId: z.number().optional(),
+    message: z.string().optional(),
+});
+export type CreatePaymentOutput = z.infer<typeof CreatePaymentOutputSchema>;

@@ -135,8 +135,7 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
   const [error, setError] = useState<string | null>(null);
   const [paymentResult, setPaymentResult] = useState<PaymentResultType | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'creditCard'>('pix');
-  const [payerInfo, setPayerInfo] = useState({});
-
+  
   const methods = useForm<CheckoutFormValues>({ 
       resolver: zodResolver(checkoutSchema),
       defaultValues: {
@@ -225,7 +224,6 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
 
   const initialization = {
     amount: finalAmount,
-    payer: payerInfo,
   };
 
   const customization = {
@@ -235,6 +233,7 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
       pix: "all" as const,
       bankTransfer: [] as const,
       mercadoPago: [] as const,
+      ticket: [] as const,
     },
   };
   
@@ -319,21 +318,12 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
                      )}
                     <div id="payment-brick_container">
                         <Payment
-                            key={paymentMethod} // Re-mount the component when method changes
+                            key={paymentMethod}
                             initialization={{
                               ...initialization,
                               amount: finalAmount,
                             }}
-                            customization={{
-                                ...customization,
-                                paymentMethods: {
-                                    creditCard: paymentMethod === 'creditCard' ? 'all' : [],
-                                    debitCard: [],
-                                    pix: paymentMethod === 'pix' ? 'all' : [],
-                                    bankTransfer: [],
-                                    mercadoPago: [],
-                                }
-                            }}
+                            customization={customization}
                             onSubmit={handlePayment}
                             onError={(err) => setError("Ocorreu um erro no formulário de pagamento. Verifique os dados e tente novamente.")}
                         />
@@ -358,5 +348,3 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
     </div>
   );
 }
-
-    

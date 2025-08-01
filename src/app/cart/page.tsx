@@ -27,6 +27,8 @@ export default function CartPage() {
   };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const cardFee = 0.0499; // 4.99%
+  const totalCard = subtotal * (1 + cardFee);
   
   const handleCheckout = () => {
       router.push('/checkout');
@@ -90,14 +92,20 @@ export default function CartPage() {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-semibold">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
                   </div>
-                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Frete</span>
-                    <span className="font-semibold">Grátis</span>
-                  </div>
                   <Separator />
-                  <div className="flex justify-between items-center text-lg">
-                    <span className="font-bold">Total</span>
-                    <span className="font-bold text-lg text-primary">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
+                  <div className="space-y-2 text-sm">
+                      <p className="text-green-600 font-semibold">Pagando com PIX você economiza!</p>
+                      <div className="flex justify-between items-center">
+                          <span>Total no Pix (10% OFF):</span>
+                          <span className="font-bold text-lg text-primary">R$ {(subtotal * 0.9).toFixed(2).replace('.', ',')}</span>
+                      </div>
+                  </div>
+                   <div className="space-y-2 text-sm">
+                      <div className="flex justify-between items-center">
+                          <span>Total no Cartão:</span>
+                          <span className="font-bold text-lg text-primary">R$ {totalCard.toFixed(2).replace('.', ',')}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground text-right">(Inclui taxa de serviço de {(cardFee * 100).toFixed(2)}%)</p>
                   </div>
                 </CardContent>
                 <CardFooter className="flex-col gap-3">
@@ -107,7 +115,7 @@ export default function CartPage() {
                      onClick={handleCheckout}
                      disabled={cartItems.length === 0}
                     >
-                     <ShoppingCart className="mr-2" /> Finalizar Compra
+                     <ShoppingCart className="mr-2" /> Ir para o Pagamento
                    </Button>
                    <Button variant="link" asChild>
                      <Link href="/">Continuar comprando</Link>

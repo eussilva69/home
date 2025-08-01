@@ -10,17 +10,18 @@ import { Loader2 } from 'lucide-react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 
-export default function CardCheckoutPage() {
+export default function CheckoutPage() {
   const { cartItems } = useCart();
   const isClient = useClientOnly();
   const router = useRouter();
 
   useEffect(() => {
-    // Se o carrinho estiver vazio no cliente, redireciona de volta
     if (isClient && cartItems.length === 0) {
       router.replace('/cart');
     }
   }, [isClient, cartItems, router]);
+  
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   if (!isClient || cartItems.length === 0) {
     return (
@@ -33,14 +34,14 @@ export default function CardCheckoutPage() {
       </div>
     );
   }
-  
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const totalWithCardFee = subtotal * 1.05;
 
   return (
-      <MercadoPagoCheckout 
-          totalAmount={totalWithCardFee}
-          paymentMethods="credit_card"
-      />
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow container mx-auto px-4 py-8 md:py-12 flex justify-center items-start">
+        <MercadoPagoCheckout totalAmount={subtotal} />
+      </main>
+      <Footer />
+    </div>
   );
 }

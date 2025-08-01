@@ -7,14 +7,14 @@ import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Minus, Plus, Trash2, ShoppingCart, CreditCard, Droplet } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/use-cart';
 
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
   const router = useRouter();
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
@@ -27,14 +27,9 @@ export default function CartPage() {
   };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingCost = 0; // Temporariamente desativado
-  const total = subtotal + shippingCost;
-  const totalWithCardFee = total * 1.05; // 5% de taxa do cartão
-  const pixDiscount = totalWithCardFee - total;
-
-  const handleCheckout = (method: 'card' | 'pix') => {
-      const checkoutUrl = method === 'card' ? '/checkout/card' : '/checkout/pix';
-      router.push(checkoutUrl);
+  
+  const handleCheckout = () => {
+      router.push('/checkout');
   };
 
   return (
@@ -97,41 +92,22 @@ export default function CartPage() {
                   </div>
                    <div className="flex justify-between">
                     <span className="text-muted-foreground">Frete</span>
-                    <span className="font-semibold">A calcular</span>
+                    <span className="font-semibold">Grátis</span>
                   </div>
                   <Separator />
-                  <div className="space-y-2">
-                     <div className="flex justify-between items-center text-lg">
-                       <span className="font-semibold">Total no Cartão:</span>
-                       <span className="font-bold text-lg">R$ {totalWithCardFee.toFixed(2).replace('.', ',')}</span>
-                     </div>
-                      <div className="flex justify-between items-center text-lg text-green-600">
-                       <span className="font-semibold">Total no Pix:</span>
-                       <span className="font-bold text-lg">R$ {total.toFixed(2).replace('.', ',')}</span>
-                     </div>
+                  <div className="flex justify-between items-center text-lg">
+                    <span className="font-bold">Total</span>
+                    <span className="font-bold text-lg text-primary">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
                   </div>
-                  <Card className="bg-primary/5 border-primary/20 p-3 text-sm">
-                      <p className="text-green-600 font-semibold">
-                          Pague com <span className="font-bold">Pix</span> e ganhe <span className="font-bold">R$ {pixDiscount.toFixed(2).replace('.', ',')} de desconto</span>!
-                      </p>
-                  </Card>
                 </CardContent>
                 <CardFooter className="flex-col gap-3">
                    <Button 
                      size="lg" 
-                     className="w-full text-lg bg-green-600 hover:bg-green-700 text-white" 
-                     onClick={() => handleCheckout('pix')}
-                     disabled={cartItems.length === 0}
-                    >
-                     <Droplet className="mr-2" /> Pagar com Pix
-                   </Button>
-                   <Button 
-                     size="lg" 
                      className="w-full text-lg" 
-                     onClick={() => handleCheckout('card')}
+                     onClick={handleCheckout}
                      disabled={cartItems.length === 0}
                     >
-                     <CreditCard className="mr-2" /> Pagar com Cartão
+                     <ShoppingCart className="mr-2" /> Finalizar Compra
                    </Button>
                    <Button variant="link" asChild>
                      <Link href="/">Continuar comprando</Link>

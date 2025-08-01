@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { Badge } from '@/components/ui/badge';
-import { Package, Users, Wand2, DollarSign, ArrowUpRight } from 'lucide-react';
+import { Package, Users, DollarSign } from 'lucide-react';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 const salesData = [
@@ -46,7 +46,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
         <p className="text-muted-foreground">Bem-vindo, {user.email}. Gerencie a loja aqui.</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Vendas Totais</CardTitle>
@@ -75,20 +75,6 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
           <CardContent>
             <div className="text-2xl font-bold">+23</div>
             <p className="text-xs text-muted-foreground">+5% esta semana</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Ferramentas de IA</CardTitle>
-            <Wand2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Otimize seu fluxo de trabalho.</p>
-            <Link href="/admin/tools" passHref>
-              <Button variant="outline" size="sm" className="mt-2">
-                Acessar <ArrowUpRight className="h-4 w-4 ml-2" />
-              </Button>
-            </Link>
           </CardContent>
         </Card>
       </div>

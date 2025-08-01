@@ -1,53 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import {
-  generateProductDescription,
-  GenerateProductDescriptionInput,
-} from '@/ai/flows/generate-product-descriptions';
-import {
-  suggestFrameCompositions,
-  SuggestFrameCompositionsInput,
-} from '@/ai/flows/suggest-frame-compositions';
-import { productDescriptionSchema, compositionSuggesterSchema, loginSchema } from '@/lib/schemas';
-import { products } from '@/lib/mock-data';
-import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-
-export async function generateDescriptionAction(values: z.infer<typeof productDescriptionSchema>) {
-  try {
-    const validatedFields = productDescriptionSchema.safeParse(values);
-
-    if (!validatedFields.success) {
-      return { error: 'Invalid input.' };
-    }
-
-    const input: GenerateProductDescriptionInput = validatedFields.data;
-    const result = await generateProductDescription(input);
-
-    return { success: result.productDescription };
-  } catch (error) {
-    console.error(error);
-    return { error: 'Failed to generate description. Please try again.' };
-  }
-}
-
-export async function suggestCompositionsAction(values: z.infer<typeof compositionSuggesterSchema>) {
-    try {
-        const validatedFields = compositionSuggesterSchema.safeParse(values);
-        if (!validatedFields.success) {
-            return { error: "Invalid input." };
-        }
-        
-        const input: SuggestFrameCompositionsInput = validatedFields.data;
-        const result = await suggestFrameCompositions(input);
-
-        return { success: { compositions: result.suggestedCompositions, reasoning: result.reasoning } };
-    } catch (error) {
-        console.error(error);
-        return { error: 'Failed to suggest compositions. Please try again.' };
-    }
-}
+import { loginSchema } from '@/lib/schemas';
 
 export async function loginAction(values: z.infer<typeof loginSchema>) {
   try {

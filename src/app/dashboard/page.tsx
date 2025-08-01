@@ -42,7 +42,6 @@ export default function DashboardPage() {
       { href: '/dashboard', label: 'Início', icon: 'Home' },
       { href: '#', label: 'Pedidos', icon: 'Package' },
       { href: '#', label: 'Produtos', icon: 'Box' },
-      { href: '/admin/tools', label: 'Ferramentas IA', icon: 'Wand2' },
       { href: '#', label: 'Clientes', icon: 'Users' },
     ];
 

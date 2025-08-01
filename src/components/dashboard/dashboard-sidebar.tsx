@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, Package, Box, Wand2, Users, User, MapPin, Heart, ArrowLeftRight, LogOut } from 'lucide-react';
+import { Home, Package, Box, Users, User, MapPin, Heart, ArrowLeftRight, LogOut } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
@@ -16,7 +16,6 @@ const iconMap = {
   Home,
   Package,
   Box,
-  Wand2,
   Users,
   User,
   MapPin,
@@ -55,7 +54,7 @@ export default function DashboardSidebar({ links, isAdmin }: DashboardSidebarPro
       )}
       <nav className="flex flex-col gap-2 flex-grow">
         {links.map((link) => {
-          const Icon = iconMap[link.icon];
+          const Icon = iconMap[link.icon as keyof typeof iconMap] || Home;
           const isActive = pathname === link.href;
           return (
             <Link

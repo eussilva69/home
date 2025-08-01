@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from 'react';
@@ -102,10 +103,12 @@ export default function Header() {
             <ShoppingCart className="h-5 w-5" />
             <span className="sr-only">Carrinho</span>
           </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-            <span className="sr-only">Conta</span>
-          </Button>
+          <Link href="/login">
+            <Button variant="ghost" size="icon">
+              <User className="h-5 w-5" />
+              <span className="sr-only">Conta</span>
+            </Button>
+          </Link>
         </div>
         <div className="md:hidden">
           <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
@@ -146,10 +149,12 @@ export default function Header() {
                     <ShoppingCart className="h-6 w-6" />
                     <span className="sr-only">Carrinho</span>
                   </Button>
-                  <Button variant="ghost" size="icon">
-                    <User className="h-6 w-6" />
-                    <span className="sr-only">Conta</span>
-                  </Button>
+                  <Link href="/login">
+                    <Button variant="ghost" size="icon">
+                      <User className="h-6 w-6" />
+                      <span className="sr-only">Conta</span>
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </SheetContent>

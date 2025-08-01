@@ -47,7 +47,7 @@ export default function LoginPage() {
     <div className="relative flex flex-col min-h-screen">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
         <iframe
-          className="absolute top-1/2 left-1/2 w-full h-full object-cover transform -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 w-screen h-screen object-cover transform -translate-x-1/2 -translate-y-1/2"
           src="https://www.youtube.com/embed/UQBDo9L_amU?autoplay=1&mute=1&loop=1&playlist=UQBDo9L_amU&controls=0&showinfo=0&autohide=1&modestbranding=1"
           frameBorder="0"
           allow="autoplay; encrypted-media"

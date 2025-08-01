@@ -51,6 +51,12 @@ const nextConfig: NextConfig = {
         hostname: 'images.icon-icons.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.panoramasistemas.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

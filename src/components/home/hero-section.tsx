@@ -26,7 +26,7 @@ const slides = [
     description: "Não perca nossas promoções sazonais. Redecore por menos.",
   },
   {
-    image: "https://i0.wp.com/aldescubierto.org/wp-content/uploads/2022/02/Portada_GranDictador_web.jpg?fit=1076%2C684&ssl=1",
+    image: "https://img.panoramasistemas.com.br/img.panorama/blog/545048/introducao.jpg",
     hint: "minimalist decor",
     title: "A Edição Minimalista",
     description: "Explore arte selecionada para uma estética limpa e moderna.",

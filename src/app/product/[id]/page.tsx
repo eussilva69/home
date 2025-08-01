@@ -51,7 +51,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     notFound();
   }
 
-  const relatedProducts = products.filter((p) => p.category === product?.category && p.id !== product?.id).slice(0, 4);
+  const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
 
   const arrangementKey = product.arrangement as keyof typeof pricingData;
   const availableSizes = pricingData[arrangementKey];

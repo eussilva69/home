@@ -44,7 +44,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen">
+    <div className="relative flex flex-col min-h-screen bg-black">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
         <iframe
           className="absolute top-1/2 left-1/2 w-screen h-screen object-cover transform -translate-x-1/2 -translate-y-1/2"
@@ -56,7 +56,7 @@ export default function LoginPage() {
         <div className="absolute top-0 left-0 w-full h-full bg-black/50"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col min-h-screen bg-transparent">
+      <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow flex items-center justify-center p-4">
           <Card className="w-full max-w-md shadow-xl bg-background/80 backdrop-blur-sm">

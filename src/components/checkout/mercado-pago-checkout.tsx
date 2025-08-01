@@ -16,6 +16,7 @@ import { useCart } from '@/hooks/use-cart';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { FormControl, FormField, FormItem, FormMessage } from '../ui/form';
 
 const MERCADO_PAGO_PUBLIC_KEY = "TEST-df7a6d8f-8512-4202-acb2-a54cd6d22d59";
 initMercadoPago(MERCADO_PAGO_PUBLIC_KEY, { locale: 'pt-BR' });
@@ -37,21 +38,8 @@ type PaymentResultType = {
   qr_code_base64?: string;
 };
 
-const PayerForm = ({ setPayerInfo }: { setPayerInfo: (info: any) => void }) => {
-    const { register, handleSubmit, watch, formState: { errors } } = useFormContext<CheckoutFormValues>();
-    const formData = watch();
-
-    useEffect(() => {
-        setPayerInfo({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            identification: {
-                type: formData.docType,
-                number: formData.docNumber,
-            },
-        });
-    }, [formData, setPayerInfo]);
+const PayerForm = () => {
+    const { control } = useFormContext<CheckoutFormValues>();
 
     return (
         <Card className="mb-8">
@@ -60,37 +48,79 @@ const PayerForm = ({ setPayerInfo }: { setPayerInfo: (info: any) => void }) => {
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <Label htmlFor="firstName">Nome</Label>
-                        <Input id="firstName" {...register('firstName')} placeholder="Seu nome" />
-                        {errors.firstName && <p className="text-destructive text-sm mt-1">{errors.firstName.message}</p>}
-                    </div>
-                    <div>
-                        <Label htmlFor="lastName">Sobrenome</Label>
-                        <Input id="lastName" {...register('lastName')} placeholder="Seu sobrenome" />
-                        {errors.lastName && <p className="text-destructive text-sm mt-1">{errors.lastName.message}</p>}
-                    </div>
+                     <FormField
+                        control={control}
+                        name="firstName"
+                        render={({ field }) => (
+                            <FormItem>
+                                <Label htmlFor="firstName">Nome</Label>
+                                <FormControl>
+                                    <Input id="firstName" {...field} placeholder="Seu nome" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                     <FormField
+                        control={control}
+                        name="lastName"
+                        render={({ field }) => (
+                             <FormItem>
+                                <Label htmlFor="lastName">Sobrenome</Label>
+                                <FormControl>
+                                    <Input id="lastName" {...field} placeholder="Seu sobrenome" />
+                                </FormControl>
+                                <FormMessage />
+                             </FormItem>
+                        )}
+                        />
                     <div className="md:col-span-2">
-                        <Label htmlFor="email">E-mail</Label>
-                        <Input id="email" type="email" {...register('email')} placeholder="seu@email.com" />
-                        {errors.email && <p className="text-destructive text-sm mt-1">{errors.email.message}</p>}
+                         <FormField
+                            control={control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Label htmlFor="email">E-mail</Label>
+                                    <FormControl>
+                                        <Input id="email" type="email" {...field} placeholder="seu@email.com" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                            />
                     </div>
-                    <div>
-                        <Label htmlFor="docType">Tipo de Documento</Label>
-                         <Select onValueChange={(value) => register('docType').onChange({ target: { value } })} name="docType">
-                            <SelectTrigger id="docType"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="CPF">CPF</SelectItem>
-                                <SelectItem value="CNPJ">CNPJ</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors.docType && <p className="text-destructive text-sm mt-1">{errors.docType.message}</p>}
-                    </div>
-                    <div>
-                        <Label htmlFor="docNumber">Número do Documento</Label>
-                        <Input id="docNumber" {...register('docNumber')} placeholder="000.000.000-00" />
-                        {errors.docNumber && <p className="text-destructive text-sm mt-1">{errors.docNumber.message}</p>}
-                    </div>
+                     <FormField
+                        control={control}
+                        name="docType"
+                        render={({ field }) => (
+                            <FormItem>
+                                <Label htmlFor="docType">Tipo de Documento</Label>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger id="docType"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="CPF">CPF</SelectItem>
+                                        <SelectItem value="CNPJ">CNPJ</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                     <FormField
+                        control={control}
+                        name="docNumber"
+                        render={({ field }) => (
+                            <FormItem>
+                                <Label htmlFor="docNumber">Número do Documento</Label>
+                                <FormControl>
+                                    <Input id="docNumber" {...field} placeholder="000.000.000-00" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
                 </div>
             </CardContent>
         </Card>
@@ -107,8 +137,16 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'creditCard'>('pix');
   const [payerInfo, setPayerInfo] = useState({});
 
-  const methods = useForm<CheckoutFormValues>({ resolver: zodResolver(checkoutSchema) });
-  const { trigger, getValues } = methods;
+  const methods = useForm<CheckoutFormValues>({ 
+      resolver: zodResolver(checkoutSchema),
+      defaultValues: {
+            firstName: '',
+            lastName: '',
+            email: '',
+            docType: '',
+            docNumber: '',
+      }
+    });
   
   const totalWithFee = totalAmount * 1.05;
   const finalAmount = paymentMethod === 'creditCard' ? totalWithFee : totalAmount;
@@ -123,14 +161,23 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
     setError(null);
     setPaymentResult(null);
 
-    const isPayerFormValid = await trigger();
+    const isPayerFormValid = await methods.trigger();
     if (!isPayerFormValid) {
         setIsLoading(false);
         setError("Por favor, preencha suas informações pessoais corretamente.");
         return;
     }
     
-    const allFormData = { ...formData, payer: { ...getValues(), identification: { type: getValues().docType, number: getValues().docNumber.replace(/\D/g, '') } } };
+    const payerValues = methods.getValues();
+    const allFormData = { ...formData, payer: { 
+        firstName: payerValues.firstName,
+        lastName: payerValues.lastName,
+        email: payerValues.email,
+        identification: { 
+            type: payerValues.docType, 
+            number: payerValues.docNumber.replace(/\D/g, '') 
+        } 
+    }};
 
     try {
       const response = await fetch('/api/process-payment', {
@@ -249,55 +296,52 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
     }
 
     return (
-      <>
-        <FormProvider {...methods}>
-            <form onSubmit={(e) => e.preventDefault()}>
-                <PayerForm setPayerInfo={setPayerInfo}/>
-            </form>
-        </FormProvider>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><CreditCard /> Pagamento</CardTitle>
-            </CardHeader>
-            <CardContent>
-                 <div className="grid grid-cols-2 gap-2 mb-4">
-                    <Button onClick={() => setPaymentMethod('pix')} variant={paymentMethod === 'pix' ? 'default' : 'outline'} className="h-12 text-base">
-                        <QrCode className="mr-2" /> Pix
-                    </Button>
-                    <Button onClick={() => setPaymentMethod('creditCard')} variant={paymentMethod === 'creditCard' ? 'default' : 'outline'} className="h-12 text-base">
-                        <CreditCard className="mr-2" /> Cartão
-                    </Button>
-                 </div>
-                 {paymentMethod === 'pix' && pixDiscount > 0 && (
-                     <p className="text-sm text-center text-green-600 font-semibold mb-4">
-                         Você economiza R$ {pixDiscount.toFixed(2).replace('.',',')} pagando com Pix!
-                     </p>
-                 )}
-                <div id="payment-brick_container">
-                    <Payment
-                        key={paymentMethod} // Re-mount the component when method changes
-                        initialization={{
-                          ...initialization,
-                          amount: finalAmount,
-                        }}
-                        customization={{
-                            ...customization,
-                            paymentMethods: {
-                                creditCard: paymentMethod === 'creditCard' ? 'all' : [],
-                                debitCard: [],
-                                pix: paymentMethod === 'pix' ? 'all' : [],
-                                bankTransfer: [],
-                                mercadoPago: [],
-                            }
-                        }}
-                        onSubmit={handlePayment}
-                        onError={(err) => setError("Ocorreu um erro no formulário de pagamento. Verifique os dados e tente novamente.")}
-                    />
-                </div>
-            </CardContent>
-        </Card>
-      </>
+      <FormProvider {...methods}>
+        <form onSubmit={(e) => e.preventDefault()}>
+            <PayerForm />
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><CreditCard /> Pagamento</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <div className="grid grid-cols-2 gap-2 mb-4">
+                        <Button onClick={() => setPaymentMethod('pix')} variant={paymentMethod === 'pix' ? 'default' : 'outline'} className="h-12 text-base">
+                            <QrCode className="mr-2" /> Pix
+                        </Button>
+                        <Button onClick={() => setPaymentMethod('creditCard')} variant={paymentMethod === 'creditCard' ? 'default' : 'outline'} className="h-12 text-base">
+                            <CreditCard className="mr-2" /> Cartão
+                        </Button>
+                     </div>
+                     {paymentMethod === 'pix' && pixDiscount > 0 && (
+                         <p className="text-sm text-center text-green-600 font-semibold mb-4">
+                             Você economiza R$ {pixDiscount.toFixed(2).replace('.',',')} pagando com Pix!
+                         </p>
+                     )}
+                    <div id="payment-brick_container">
+                        <Payment
+                            key={paymentMethod} // Re-mount the component when method changes
+                            initialization={{
+                              ...initialization,
+                              amount: finalAmount,
+                            }}
+                            customization={{
+                                ...customization,
+                                paymentMethods: {
+                                    creditCard: paymentMethod === 'creditCard' ? 'all' : [],
+                                    debitCard: [],
+                                    pix: paymentMethod === 'pix' ? 'all' : [],
+                                    bankTransfer: [],
+                                    mercadoPago: [],
+                                }
+                            }}
+                            onSubmit={handlePayment}
+                            onError={(err) => setError("Ocorreu um erro no formulário de pagamento. Verifique os dados e tente novamente.")}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+        </form>
+      </FormProvider>
     );
   };
 
@@ -314,3 +358,5 @@ export default function MercadoPagoCheckout({ totalAmount }: {totalAmount: numbe
     </div>
   );
 }
+
+    

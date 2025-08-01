@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -100,6 +99,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
                             step={10}
                             minStepsBetweenThumbs={1}
                             onValueChange={setPriceRange}
+                            thumbs={2}
                         />
                         <div className="flex justify-between text-sm text-muted-foreground mt-2">
                             <span>R$ {priceRange[0]}</span>
@@ -137,7 +137,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
                            <CardContent className="p-4 space-y-4">
                                 <div>
                                     <Label className="flex items-center gap-2 font-semibold mb-2"><SlidersHorizontal /> Preço</Label>
-                                    <Slider defaultValue={[0, 500]} max={500} step={10} onValueChange={setPriceRange} />
+                                    <Slider defaultValue={[0, 500]} max={500} step={10} onValueChange={setPriceRange} thumbs={2} />
                                     <div className="flex justify-between text-sm text-muted-foreground mt-2">
                                         <span>R$ {priceRange[0]}</span>
                                         <span>R$ {priceRange[1]}</span>

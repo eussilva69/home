@@ -8,42 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Minus, Plus, Trash2, ShoppingCart, AlertTriangle, Loader2, Truck } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart, Loader2, Truck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import MercadoPagoCheckout from '@/components/checkout/mercado-pago-checkout';
 import { calculateShipping } from '@/app/actions';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useCart } from '@/hooks/use-cart';
 
-const initialCartItems = [
-  {
-    id: 'AN-S1',
-    name: 'Leão Majestoso',
-    price: 95.00,
-    quantity: 1,
-    image: 'https://placehold.co/400x500.png',
-    options: '30x42 cm, Preta, Com Vidro',
-    weight: 1.2, // kg
-    width: 33, // cm
-    height: 45, // cm
-    length: 3, // cm
-  },
-  {
-    id: 'FL-T1',
-    name: 'Jardim Secreto',
-    price: 280.00,
-    quantity: 1,
-    image: 'https://placehold.co/1200x500.png',
-    options: '30x42 cm, Carvalho Avelã, Sem Vidro',
-    weight: 3.0,
-    width: 45,
-    height: 96,
-    length: 3,
-  },
-];
-
-type CartItem = typeof initialCartItems[0];
 type ShippingOption = {
   id: number;
   name: string;
@@ -57,7 +30,7 @@ type ShippingOption = {
 };
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const { cartItems, updateQuantity, removeItem } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [cep, setCep] = useState('');
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
@@ -65,17 +38,15 @@ export default function CartPage() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  const handleUpdateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    setCartItems(cartItems.map(item => item.id === id ? { ...item, quantity: newQuantity } : item));
-    // Reset shipping when cart changes
+    updateQuantity(id, newQuantity);
     setSelectedShipping(null);
     setShippingOptions([]);
   };
 
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-     // Reset shipping when cart changes
+  const handleRemoveItem = (id: string) => {
+    removeItem(id);
     setSelectedShipping(null);
     setShippingOptions([]);
   };
@@ -132,7 +103,6 @@ export default function CartPage() {
 
         {cartItems.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Itens do Carrinho e Frete */}
             <div className="lg:col-span-2 space-y-6">
               <Card className="shadow-md">
                 <CardHeader>
@@ -154,14 +124,14 @@ export default function CartPage() {
                         </div>
                         <div className="flex items-center gap-4">
                            <div className="flex items-center border rounded-md">
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
                             <span className="px-3 text-sm font-medium">{item.quantity}</span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
                            </div>
                            <p className="hidden sm:block w-24 text-center text-lg font-bold text-primary">
                              R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}
                            </p>
-                           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
+                           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => handleRemoveItem(item.id)}>
                             <Trash2 className="h-5 w-5" />
                            </Button>
                         </div>
@@ -225,7 +195,6 @@ export default function CartPage() {
                 </Card>
 
             </div>
-            {/* Resumo do Pedido */}
             <aside className="lg:col-span-1">
               <Card className="shadow-md sticky top-24">
                 <CardHeader>

@@ -14,34 +14,37 @@ import ProductCard from '@/components/shared/product-card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-
-
-const parsePrice = (priceString: string) => {
-    return parseFloat(priceString.replace('R$ ', '').replace('.', '').replace(',', '.'));
-}
+import { useCart } from '@/hooks/use-cart';
 
 const pricingData = {
   "Solo": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 75.00, valor_com_vidro: 100.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 140.00, valor_com_vidro: 195.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 180.00, valor_com_vidro: 340.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 455.00, valor_com_vidro: 631.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 760.00, valor_com_vidro: 1070.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 75.00, valor_com_vidro: 100.00, weight: 1.2, width: 33, height: 45, length: 3 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 140.00, valor_com_vidro: 195.00, weight: 1.8, width: 45, height: 63, length: 3 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 180.00, valor_com_vidro: 340.00, weight: 2.5, width: 53, height: 73, length: 3 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 455.00, valor_com_vidro: 631.00, weight: 3.5, width: 63, height: 87, length: 3 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 760.00, valor_com_vidro: 1070.00, weight: 5.0, width: 87, height: 123, length: 3 },
   ],
   "Dupla": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 175.00, valor_com_vidro: 270.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 260.00, valor_com_vidro: 380.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 350.00, valor_com_vidro: 630.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 840.00, valor_com_vidro: 1340.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 1370.00, valor_com_vidro: 2100.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 175.00, valor_com_vidro: 270.00, weight: 2.4, width: 68, height: 45, length: 3 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 260.00, valor_com_vidro: 380.00, weight: 3.6, width: 92, height: 63, length: 3 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 350.00, valor_com_vidro: 630.00, weight: 5.0, width: 108, height: 73, length: 3 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 840.00, valor_com_vidro: 1340.00, weight: 7.0, width: 128, height: 87, length: 3 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 1370.00, valor_com_vidro: 2100.00, weight: 10.0, width: 176, height: 123, length: 3 },
   ],
   "Trio": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 260.00, valor_com_vidro: 410.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 380.00, valor_com_vidro: 530.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 495.00, valor_com_vidro: 760.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 1230.00, valor_com_vidro: 1720.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 2060.00, valor_com_vidro: 2870.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 260.00, valor_com_vidro: 410.00, weight: 3.6, width: 103, height: 45, length: 3 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 380.00, valor_com_vidro: 530.00, weight: 5.4, width: 139, height: 63, length: 3 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 495.00, valor_com_vidro: 760.00, weight: 7.5, width: 163, height: 73, length: 3 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 1230.00, valor_com_vidro: 1720.00, weight: 10.5, width: 193, height: 87, length: 3 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 2060.00, valor_com_vidro: 2870.00, weight: 15.0, width: 265, height: 123, length: 3 },
   ]
+};
+
+const frames = {
+    black: { label: 'Preta', color: '#000000' },
+    white: { label: 'Branca', color: '#FFFFFF' },
+    hazel_oak: { label: 'Carvalho Avelã', color: '#C19A6B' },
+    ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
 export default function ProductPage({ params }: { params: { id: string } }) {
@@ -50,7 +53,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   if (!product) {
     notFound();
   }
-
+  
+  const { addToCart } = useCart();
   const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
 
   const arrangementKey = product.arrangement as keyof typeof pricingData;
@@ -58,6 +62,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   
   const [selectedSize, setSelectedSize] = useState(availableSizes[1].tamanho);
   const [withGlass, setWithGlass] = useState(false);
+  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
   
   const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>(
     product.arrangement === 'Solo' ? 'environment' : 'frame_only'
@@ -66,14 +71,25 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
   const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
 
-  const frames = {
-    black: { label: 'Preta', color: '#000000' },
-    white: { label: 'Branca', color: '#FFFFFF' },
-    hazel_oak: { label: 'Carvalho Avelã', color: '#C19A6B' },
-    ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
+  const handleAddToCart = () => {
+    if (!product || !selectedPriceInfo || !finalPrice) return;
+    
+    const itemToAdd = {
+        id: `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
+        name: product.name,
+        price: finalPrice,
+        quantity: 1,
+        image: product.image,
+        options: `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
+        weight: selectedPriceInfo.weight,
+        width: selectedPriceInfo.width,
+        height: selectedPriceInfo.height,
+        length: selectedPriceInfo.length,
+    };
+    addToCart(itemToAdd);
   };
-  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
-  const humanHeightPx = 120; // Represents 1.7m
+
+  const humanHeightPx = 120;
   const humanImage = "https://i.ibb.co/q3tBWm6C/pngwing-com.png";
 
   const getFrameDimensions = (sizeString: string) => {
@@ -260,7 +276,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Button size="lg" className="flex-1 text-base">
+              <Button size="lg" className="flex-1 text-base" onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2" /> Adicionar ao Carrinho
               </Button>
               <Button variant="outline" size="lg" className="px-4">

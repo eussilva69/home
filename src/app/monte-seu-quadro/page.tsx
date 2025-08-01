@@ -9,31 +9,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Upload, Palette, GlassWater, X, Image as ImageIcon, Eye, Ruler, Info } from 'lucide-react';
+import { Upload, Palette, GlassWater, X, Image as ImageIcon, Eye, Ruler, Info, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { useCart } from '@/hooks/use-cart';
 
 const pricingData = {
   "Solo": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 95.00, valor_com_vidro: 120.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 160.00, valor_com_vidro: 215.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 200.00, valor_com_vidro: 360.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 475.00, valor_com_vidro: 651.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 780.00, valor_com_vidro: 1090.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 100.00, valor_com_vidro: 125.00, weight: 1.2, width: 33, height: 45, length: 3 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 165.00, valor_com_vidro: 220.00, weight: 1.8, width: 45, height: 63, length: 3 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 205.00, valor_com_vidro: 365.00, weight: 2.5, width: 53, height: 73, length: 3 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 480.00, valor_com_vidro: 656.00, weight: 3.5, width: 63, height: 87, length: 3 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 785.00, valor_com_vidro: 1095.00, weight: 5.0, width: 87, height: 123, length: 3 }
   ],
   "Dupla": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 195.00, valor_com_vidro: 290.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 280.00, valor_com_vidro: 400.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 370.00, valor_com_vidro: 650.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 860.00, valor_com_vidro: 1360.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 1390.00, valor_com_vidro: 2120.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 200.00, valor_com_vidro: 295.00, weight: 2.4, width: 68, height: 45, length: 3 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 285.00, valor_com_vidro: 405.00, weight: 3.6, width: 92, height: 63, length: 3 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 375.00, valor_com_vidro: 655.00, weight: 5.0, width: 108, height: 73, length: 3 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 865.00, valor_com_vidro: 1365.00, weight: 7.0, width: 128, height: 87, length: 3 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 1395.00, valor_com_vidro: 2125.00, weight: 10.0, width: 176, height: 123, length: 3 }
   ],
   "Trio": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 280.00, valor_com_vidro: 430.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 400.00, valor_com_vidro: 550.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 515.00, valor_com_vidro: 780.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 1250.00, valor_com_vidro: 1740.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 2080.00, valor_com_vidro: 2890.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 285.00, valor_com_vidro: 435.00, weight: 3.6, width: 103, height: 45, length: 3 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 405.00, valor_com_vidro: 555.00, weight: 5.4, width: 139, height: 63, length: 3 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 520.00, valor_com_vidro: 785.00, weight: 7.5, width: 163, height: 73, length: 3 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 1255.00, valor_com_vidro: 1745.00, weight: 10.5, width: 193, height: 87, length: 3 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 2085.00, valor_com_vidro: 2895.00, weight: 15.0, width: 265, height: 123, length: 3 }
   ]
 };
 
@@ -102,6 +103,7 @@ const ImageUploadSlot = ({ imagePreview, onImageChange, onImageRemove, onUploadC
 };
 
 export default function MonteSeuQuadro() {
+    const { addToCart } = useCart();
     const [arrangement, setArrangement] = useState<FrameArrangement>('Solo');
     const frameCount = getFrameCount(arrangement);
     const [imagePreviews, setImagePreviews] = useState<(string | null)[]>(Array(frameCount).fill(null));
@@ -184,6 +186,24 @@ export default function MonteSeuQuadro() {
         }
     };
 
+    const handleAddToCart = () => {
+        if (!selectedPriceInfo || !finalPrice || !imagePreviews[0]) return;
+
+        const itemToAdd = {
+            id: `personalizado-${selectedSize}-${selectedFrame}-${glassOption}-${Date.now()}`,
+            name: `Quadro Personalizado (${arrangement})`,
+            price: finalPrice,
+            quantity: 1,
+            image: imagePreviews[0], // Usar a primeira imagem como representativa
+            options: `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${glassOption === 'com-vidro' ? 'Com Vidro' : 'Sem Vidro'}`,
+            weight: selectedPriceInfo.weight,
+            width: selectedPriceInfo.width,
+            height: selectedPriceInfo.height,
+            length: selectedPriceInfo.length,
+        };
+        addToCart(itemToAdd);
+    };
+
     const humanHeightPx = 120;
     const humanImage = "https://i.ibb.co/q3tBWm6C/pngwing-com.png";
 
@@ -194,6 +214,7 @@ export default function MonteSeuQuadro() {
     };
 
     const hasAnyImage = imagePreviews.some(img => img !== null);
+    const allImagesUploaded = imagePreviews.every(img => img !== null);
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -351,9 +372,10 @@ export default function MonteSeuQuadro() {
                             </CardContent>
                         </Card>
 
-                        <Button size="lg" className="w-full font-headline text-lg md:text-xl" disabled={!imagePreviews.every(img => img !== null)}>
-                            Finalizar e Comprar
+                        <Button size="lg" className="w-full font-headline text-lg md:text-xl" disabled={!allImagesUploaded} onClick={handleAddToCart}>
+                            <ShoppingCart className="mr-2" /> Adicionar ao Carrinho
                         </Button>
+                        {!allImagesUploaded && <p className="text-xs text-center text-muted-foreground">Envie todas as imagens para continuar</p>}
                     </div>
                 </div>
             </main>

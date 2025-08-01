@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { Separator } from '../ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { useAuth } from '@/hooks/use-auth';
+import { useCart } from '@/hooks/use-cart';
 import { logoutAction } from '@/app/actions';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -27,6 +28,7 @@ export default function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isCollectionsOpen, setCollectionsOpen] = useState(false);
   const { user } = useAuth();
+  const { cartItems } = useCart();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -34,6 +36,8 @@ export default function Header() {
     await logoutAction();
     router.push('/');
   }
+  
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
@@ -97,6 +101,11 @@ export default function Header() {
           <Link href="/cart" className="relative">
             <Button variant="ghost" size="icon" className="hidden md:inline-flex">
               <ShoppingCart className="h-5 w-5" />
+               {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  {totalItems}
+                </span>
+              )}
               <span className="sr-only">Carrinho</span>
             </Button>
           </Link>
@@ -123,6 +132,11 @@ export default function Header() {
            <Link href="/cart" className="relative">
               <Button variant="ghost" size="icon">
                   <ShoppingCart className="h-6 w-6" />
+                  {totalItems > 0 && (
+                    <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                      {totalItems}
+                    </span>
+                  )}
                   <span className="sr-only">Carrinho</span>
               </Button>
             </Link>

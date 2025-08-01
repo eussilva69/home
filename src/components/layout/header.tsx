@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -11,9 +12,27 @@ import Image from 'next/image';
 import { Separator } from '../ui/separator';
 
 const navLinks = [
+  { href: '/monte-seu-quadro', label: 'Monte seu quadro' },
   { href: '#bestsellers', label: 'Mais Vendidos' },
   { href: '#compositions', label: 'Composições' },
 ];
+
+const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12.017 1.5c-5.96 0-9.45 4.01-9.45 8.71 0 3.19 1.71 6.32 4.63 7.5a.6.6 0 0 0 .8-.53l.36-1.54s.22-.92.2-1.07c-.07-.5-.45-1.3-.45-2.82 0-2.52 1.83-4.44 4.13-4.44 2.22 0 3.32 1.58 3.32 3.46 0 2.1-1.2 5.23-2.78 5.23-.9 0-1.84-.96-1.59-2.1.3-.98.9-2.03.9-2.73 0-.74-.4-1.34-.96-1.34-.78 0-1.42.78-1.42 1.8 0 .62.18 1.13.18 1.13s-1.2 5.08-1.44 6c-.3.92.03 1.95.89 1.95 1.07 0 1.9-1.37 1.9-2.52 0-1.2-.6-2.27-.6-2.27s.6-2.32.73-2.88c.24-1.07.9-1.93 2.02-1.93 2.2 0 3.93 2.05 3.93 4.9 0 2.7-1.5 5.02-4.18 5.02-3.3 0-5.4-2.57-5.4-5.63 0-2.3 1.2-4.14 2.73-4.14.83 0 1.5.48 1.5.48s-1.15 4.8-1.15 4.8c0 .28.02.5.15.65.13.15.35.2.5.1.4-.3.6-.6.8-.95.1-.18.25-1.07.25-1.07l.38-1.56s.3-1.25.5-2.3c.42-2.12 2.6-4.08 4.9-4.08 3.55 0 5.92 2.7 5.92 6.13 0 4.2-2.3 7.37-6.23 7.37C16.2 22.5 12.8 20.2 12.8 16c0-1.2.4-2.4 1-3.33" />
+    </svg>
+  );
 
 export default function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);

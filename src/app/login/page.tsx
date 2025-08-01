@@ -101,19 +101,6 @@ export default function LoginPage() {
                   </Button>
                 </form>
               </Form>
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Ou continue com</span>
-                </div>
-              </div>
-
-              <Button variant="outline" className="w-full text-lg">
-                <Image src="/google.svg" width={20} height={20} alt="Google logo" className="mr-2" />
-                Google
-              </Button>
 
               <div className="mt-6 text-center text-sm">
                 Não tem uma conta?{' '}

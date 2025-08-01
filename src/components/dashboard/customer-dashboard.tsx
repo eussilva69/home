@@ -2,9 +2,8 @@
 'use client';
 
 import { User } from 'firebase/auth';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Edit } from 'lucide-react';
 
 

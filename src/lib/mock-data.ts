@@ -8,6 +8,7 @@ export const products = [
     hint: 'abstract painting',
     hint_alt: 'living room',
     category: 'Abstrato',
+    arrangement: 'Solo',
   },
   {
     id: '2',
@@ -18,6 +19,7 @@ export const products = [
     hint: 'botanical print',
     hint_alt: 'bedroom wall',
     category: 'Floral',
+    arrangement: 'Solo',
   },
   {
     id: '3',
@@ -28,6 +30,7 @@ export const products = [
     hint: 'pixel art',
     hint_alt: 'office decor',
     category: 'Geek',
+    arrangement: 'Solo',
   },
   {
     id: '4',
@@ -38,6 +41,29 @@ export const products = [
     hint: 'minimalist art',
     hint_alt: 'hallway art',
     category: 'Minimalista',
+    arrangement: 'Solo',
+  },
+  {
+    id: '5',
+    name: 'Rei Leão Geométrico',
+    price: 139.99,
+    image: 'https://placehold.co/800x500.png',
+    image_alt: 'https://i0.wp.com/www.papeldeparede.etc.br/wp-content/uploads/2022/07/imagem-de-uma-sala-com-o-quadro-de-leao-geometrico_Easy-Resize.com_.jpg?resize=1000%2C1000&ssl=1',
+    hint: 'geometric lion',
+    hint_alt: 'modern office',
+    category: 'Animais',
+    arrangement: 'Dupla',
+  },
+  {
+    id: '6',
+    name: 'Fé Iluminada',
+    price: 159.99,
+    image: 'https://placehold.co/800x500.png',
+    image_alt: 'https://i0.wp.com/www.papeldeparede.etc.br/wp-content/uploads/2022/07/imagem-de-uma-sala-com-o-quadro-de-leao-geometrico_Easy-Resize.com_.jpg?resize=1000%2C1000&ssl=1',
+    hint: 'faith quote',
+    hint_alt: 'cozy living room',
+    category: 'Religião',
+    arrangement: 'Grid',
   },
 ];
 

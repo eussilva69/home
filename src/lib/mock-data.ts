@@ -474,7 +474,7 @@ export const testimonials = [
 ];
 
 export const collections = [
-  { slug: 'animais', name: 'Animais', image: 'https://static.vecteezy.com/ti/fotos-gratis/t2/42730459-leao-perigo-animal-animais-selvagens-natureza-floresta-foto.jpg', hint: 'elephant' },
+  { slug: 'animais', name: 'Animais', image: 'https://cdn6.campograndenews.com.br/uploads/noticias/2023/01/20/691c73dd24a60411b5bc65d4329035a56bba629e.jpeg', hint: 'elephant' },
   { slug: 'floral', name: 'Floral', image: 'https://placehold.co/40x40.png', hint: 'flower' },
   { slug: 'abstrato', name: 'Abstrato', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS667S4SsyCpYH6HuZ_ysVwnzFHV4_nHbdkcA&s', hint: 'abstract' },
   { slug: 'frases-tipografia', name: 'Frases/Tipografia', image: 'https://placehold.co/40x40.png', hint: 'typography' },

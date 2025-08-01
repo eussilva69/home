@@ -85,7 +85,7 @@ export default function MonteSeuQuadro() {
     rustica: 'groove',
   };
 
-  const frameWidth = 15;
+  const frameWidth = 5;
 
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();

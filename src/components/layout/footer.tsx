@@ -1,9 +1,10 @@
+
 "use client";
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Brush, Instagram, Facebook, Twitter } from 'lucide-react';
+import { Brush, Instagram, Facebook, Twitter, Phone, Mail, MapPin } from 'lucide-react';
 
 const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
@@ -44,10 +45,20 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="font-headline text-lg font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="#" className="hover:text-primary">Política de Privacidade</Link></li>
-              <li><Link href="#" className="hover:text-primary">Termos de Serviço</Link></li>
+            <h3 className="font-headline text-lg font-semibold mb-4">Contato</h3>
+            <ul className="space-y-3 text-sm">
+                <li className="flex items-start gap-2">
+                    <Phone className="h-4 w-4 mt-0.5" />
+                    <span>(34) 99722-2303</span>
+                </li>
+                <li className="flex items-start gap-2">
+                    <Mail className="h-4 w-4 mt-0.5" />
+                    <span className="break-all">homedecorinterioresplanejados@gmail.com</span>
+                </li>
+                <li className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 mt-0.5" />
+                    <span>Rua Virgílio Carrijo, 1045 - Bairro Minas Gerais, Uberlândia - MG</span>
+                </li>
             </ul>
           </div>
           <div>

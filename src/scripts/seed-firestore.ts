@@ -20,7 +20,8 @@ async function seedDatabase() {
 
     // 2. Add each product to the collection
     const promises = products.map((product) => {
-      const { hint_alt, ...productData } = product;
+      // The hint_alt is only used for local images, not needed in Firestore.
+      const { hint_alt, ...productData } = product; 
       return addDoc(productsCollectionRef, productData).then(() => {
           console.log(`Produto "${product.name}" adicionado com sucesso.`);
       });

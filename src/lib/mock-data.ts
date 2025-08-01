@@ -493,7 +493,7 @@ export const products = [
     hint: 'treasure map',
     hint_alt: 'playroom decor',
     category: 'Infantil',
-    arrangement: 'Solo',
+    arrangement: 'Dupla',
   },
   {
     id: '46',
@@ -515,7 +515,7 @@ export const products = [
     hint: 'space warrior',
     hint_alt: 'sci-fi room',
     category: 'Geek',
-    arrangement: 'Solo',
+    arrangement: 'Trio',
   },
   {
     id: '48',
@@ -603,7 +603,7 @@ export const products = [
     hint: 'unicorn programmer',
     hint_alt: 'developer office',
     category: 'Geek',
-    arrangement: 'Solo',
+    arrangement: 'Dupla',
   },
   {
     id: '56',
@@ -658,7 +658,7 @@ export const products = [
     hint: 'be strong',
     hint_alt: 'typography',
     category: 'Frases/Tipografia',
-    arrangement: 'Solo',
+    arrangement: 'Dupla',
   },
   {
     id: '61',
@@ -702,7 +702,7 @@ export const products = [
     hint: 'animal',
     hint_alt: 'room decor',
     category: 'Animais',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
   ...Array.from({ length: 17 }, (_, i) => ({
     id: `B${i + 1}`,
@@ -713,7 +713,7 @@ export const products = [
     hint: 'botanical',
     hint_alt: 'room decor',
     category: 'Botânico',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
   ...Array.from({ length: 18 }, (_, i) => ({
     id: `C${i + 1}`,
@@ -724,7 +724,7 @@ export const products = [
     hint: 'flower',
     hint_alt: 'room decor',
     category: 'Floral',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
   ...Array.from({ length: 18 }, (_, i) => ({
     id: `D${i + 1}`,
@@ -735,7 +735,7 @@ export const products = [
     hint: 'religion',
     hint_alt: 'room decor',
     category: 'Religião',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
   ...Array.from({ length: 18 }, (_, i) => ({
     id: `E${i + 1}`,
@@ -746,7 +746,7 @@ export const products = [
     hint: 'abstract',
     hint_alt: 'room decor',
     category: 'Abstrato',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
     ...Array.from({ length: 18 }, (_, i) => ({
     id: `F${i + 1}`,
@@ -757,7 +757,7 @@ export const products = [
     hint: 'minimalist',
     hint_alt: 'room decor',
     category: 'Minimalista',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
     ...Array.from({ length: 14 }, (_, i) => ({
     id: `G${i + 1}`,
@@ -768,7 +768,7 @@ export const products = [
     hint: 'kids',
     hint_alt: 'room decor',
     category: 'Infantil',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
     ...Array.from({ length: 18 }, (_, i) => ({
     id: `H${i + 1}`,
@@ -779,7 +779,7 @@ export const products = [
     hint: 'quotes',
     hint_alt: 'room decor',
     category: 'Frases/Tipografia',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
   ...Array.from({ length: 19 }, (_, i) => ({
     id: `I${i + 1}`,
@@ -790,7 +790,7 @@ export const products = [
     hint: 'photography',
     hint_alt: 'room decor',
     category: 'Fotografia',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
   ...Array.from({ length: 19 }, (_, i) => ({
     id: `J${i + 1}`,
@@ -801,7 +801,7 @@ export const products = [
     hint: 'fashion',
     hint_alt: 'room decor',
     category: 'Fashion',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   })),
   ...Array.from({ length: 19 }, (_, i) => ({
     id: `K${i + 1}`,
@@ -812,7 +812,7 @@ export const products = [
     hint: 'femme',
     hint_alt: 'room decor',
     category: 'Femme',
-    arrangement: 'Solo',
+    arrangement: ['Solo', 'Dupla', 'Trio', 'Grid', 'Composição Livre', 'Tríptico'][i % 6],
   }))
 ];
 

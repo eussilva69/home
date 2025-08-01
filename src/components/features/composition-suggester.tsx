@@ -55,9 +55,9 @@ export default function CompositionSuggester() {
             name="artworkDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Artwork Description</FormLabel>
+                <FormLabel>Descrição da Obra</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="e.g., A vibrant pop art piece of a city skyline at night, with bright neon colors." {...field} />
+                  <Textarea placeholder="Ex: Uma peça de pop art vibrante de um horizonte da cidade à noite..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -68,9 +68,9 @@ export default function CompositionSuggester() {
             name="userActions"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>User Browsing History / Preferences</FormLabel>
+                <FormLabel>Histórico de Navegação / Preferências</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="e.g., Viewed other pop art, has previously bought minimalist black frames." {...field} />
+                  <Textarea placeholder="Ex: Viu outras obras de pop art, já comprou molduras pretas minimalistas." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -78,13 +78,13 @@ export default function CompositionSuggester() {
           />
           <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-            Get Suggestions
+            Obter Sugestões
           </Button>
         </form>
       </Form>
       {error && (
          <Alert variant="destructive">
-           <AlertTitle>Error</AlertTitle>
+           <AlertTitle>Erro</AlertTitle>
            <AlertDescription>{error}</AlertDescription>
          </Alert>
        )}
@@ -92,7 +92,7 @@ export default function CompositionSuggester() {
         <Card className="mt-6">
           <CardContent className="p-6 space-y-4">
             <div>
-              <h3 className="font-headline text-lg mb-2 flex items-center"><Sparkles className="h-5 w-5 mr-2 text-primary" />Suggested Compositions</h3>
+              <h3 className="font-headline text-lg mb-2 flex items-center"><Sparkles className="h-5 w-5 mr-2 text-primary" />Composições Sugeridas</h3>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                 {result.compositions.map((comp, index) => (
                   <li key={index}>{comp}</li>
@@ -100,7 +100,7 @@ export default function CompositionSuggester() {
               </ul>
             </div>
             <div>
-              <h3 className="font-headline text-lg mb-2">Reasoning</h3>
+              <h3 className="font-headline text-lg mb-2">Justificativa</h3>
               <p className="text-muted-foreground">{result.reasoning}</p>
             </div>
           </CardContent>

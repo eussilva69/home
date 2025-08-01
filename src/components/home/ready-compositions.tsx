@@ -9,8 +9,8 @@ export default function ReadyCompositions() {
     <section id="compositions" className="py-12 md:py-24 bg-secondary/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-headline text-primary">Ready-to-Hang Compositions</h2>
-          <p className="text-lg text-muted-foreground mt-2">Professionally curated gallery walls to instantly elevate your home.</p>
+          <h2 className="text-3xl md:text-4xl font-headline text-primary">Composições Prontas</h2>
+          <p className="text-lg text-muted-foreground mt-2">Paredes de galeria selecionadas por profissionais para elevar sua casa instantaneamente.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
           {compositions.map((composition) => (
@@ -27,7 +27,7 @@ export default function ReadyCompositions() {
                   />
                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex flex-col items-center justify-center p-4">
                       <h3 className="text-2xl text-center font-headline text-white font-bold drop-shadow-md">{composition.name}</h3>
-                      <Button variant="secondary" className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">View Composition</Button>
+                      <Button variant="secondary" className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">Ver Composição</Button>
                   </div>
                 </CardContent>
               </Card>

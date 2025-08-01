@@ -40,14 +40,14 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="absolute bottom-2 left-2 right-2 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
               <ShoppingCart className="mr-2 h-4 w-4" />
-              Add to Cart
+              Adicionar ao Carrinho
             </Button>
           </div>
         </Link>
         <div className="p-4 bg-background">
           <h3 className="font-headline text-lg truncate">{product.name}</h3>
           <p className="text-md font-semibold text-primary">
-            ${product.price.toFixed(2)}
+            R${product.price.toFixed(2).replace('.', ',')}
           </p>
         </div>
       </CardContent>

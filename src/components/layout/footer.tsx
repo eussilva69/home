@@ -32,30 +32,30 @@ export default function Footer() {
               <Brush className="h-8 w-8 text-primary" />
               <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
             </Link>
-            <p className="text-sm">Modern and vibrant art for your space. Handcrafted with passion.</p>
+            <p className="text-sm">Arte moderna e vibrante para o seu espaço. Feito à mão com paixão.</p>
           </div>
           <div>
-            <h3 className="font-headline text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="font-headline text-lg font-semibold mb-4">Links Rápidos</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="#" className="hover:text-primary">About Us</Link></li>
-              <li><Link href="#" className="hover:text-primary">Contact</Link></li>
+              <li><Link href="#" className="hover:text-primary">Sobre Nós</Link></li>
+              <li><Link href="#" className="hover:text-primary">Contato</Link></li>
               <li><Link href="#" className="hover:text-primary">FAQ</Link></li>
-              <li><Link href="#" className="hover:text-primary">Shipping & Returns</Link></li>
+              <li><Link href="#" className="hover:text-primary">Envio e Devoluções</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="font-headline text-lg font-semibold mb-4">Legal</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="#" className="hover:text-primary">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-primary">Terms of Service</Link></li>
+              <li><Link href="#" className="hover:text-primary">Política de Privacidade</Link></li>
+              <li><Link href="#" className="hover:text-primary">Termos de Serviço</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="font-headline text-lg font-semibold mb-4">Newsletter</h3>
-            <p className="text-sm mb-4">Get a 10% discount on your first order. Subscribe now!</p>
+            <p className="text-sm mb-4">Ganhe 10% de desconto no seu primeiro pedido. Inscreva-se agora!</p>
             <form className="flex gap-2">
-              <Input type="email" placeholder="Your email" className="bg-background" />
-              <Button type="submit" className="bg-primary hover:bg-primary/90">Subscribe</Button>
+              <Input type="email" placeholder="Seu email" className="bg-background" />
+              <Button type="submit" className="bg-primary hover:bg-primary/90">Inscrever</Button>
             </form>
             <div className="flex space-x-4 mt-6">
               <Link href="#" aria-label="Instagram"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
@@ -66,7 +66,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Home Designer. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Home Designer. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>

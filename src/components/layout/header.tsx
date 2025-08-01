@@ -7,9 +7,9 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Search, Heart, ShoppingCart, User, Brush } from 'lucide-react';
 
 const navLinks = [
-  { href: '#collections', label: 'Collections' },
-  { href: '#bestsellers', label: 'Best Sellers' },
-  { href: '#compositions', label: 'Compositions' },
+  { href: '#collections', label: 'Coleções' },
+  { href: '#bestsellers', label: 'Mais Vendidos' },
+  { href: '#compositions', label: 'Composições' },
 ];
 
 export default function Header() {
@@ -32,19 +32,19 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-4">
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
-            <span className="sr-only">Search</span>
+            <span className="sr-only">Pesquisar</span>
           </Button>
           <Button variant="ghost" size="icon">
             <Heart className="h-5 w-5" />
-            <span className="sr-only">Wishlist</span>
+            <span className="sr-only">Lista de Desejos</span>
           </Button>
           <Button variant="ghost" size="icon">
             <ShoppingCart className="h-5 w-5" />
-            <span className="sr-only">Cart</span>
+            <span className="sr-only">Carrinho</span>
           </Button>
           <Button variant="ghost" size="icon">
             <User className="h-5 w-5" />
-            <span className="sr-only">Account</span>
+            <span className="sr-only">Conta</span>
           </Button>
         </div>
         <div className="md:hidden">
@@ -52,7 +52,7 @@ export default function Header() {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">Abrir menu</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
@@ -73,19 +73,19 @@ export default function Header() {
                 <div className="mt-auto p-6 flex items-center justify-around">
                   <Button variant="ghost" size="icon">
                     <Search className="h-6 w-6" />
-                    <span className="sr-only">Search</span>
+                    <span className="sr-only">Pesquisar</span>
                   </Button>
                   <Button variant="ghost" size="icon">
                     <Heart className="h-6 w-6" />
-                    <span className="sr-only">Wishlist</span>
+                    <span className="sr-only">Lista de Desejos</span>
                   </Button>
                   <Button variant="ghost" size="icon">
                     <ShoppingCart className="h-6 w-6" />
-                    <span className="sr-only">Cart</span>
+                    <span className="sr-only">Carrinho</span>
                   </Button>
                   <Button variant="ghost" size="icon">
                     <User className="h-6 w-6" />
-                    <span className="sr-only">Account</span>
+                    <span className="sr-only">Conta</span>
                   </Button>
                 </div>
               </div>

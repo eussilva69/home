@@ -9,8 +9,8 @@ export default function Testimonials() {
     <section id="testimonials" className="py-12 md:py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-headline text-primary">What Our Customers Say</h2>
-          <p className="text-lg text-muted-foreground mt-2">Real reviews from happy art lovers.</p>
+          <h2 className="text-3xl md:text-4xl font-headline text-primary">O Que Nossos Clientes Dizem</h2>
+          <p className="text-lg text-muted-foreground mt-2">Avaliações reais de amantes da arte felizes.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (

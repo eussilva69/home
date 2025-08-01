@@ -16,20 +16,20 @@ const slides = [
   {
     image: "https://placehold.co/1600x800.png",
     hint: "abstract art",
-    title: "Vibrant New Collections",
-    description: "Discover unique pieces that bring your walls to life.",
+    title: "Novas Coleções Vibrantes",
+    description: "Descubra peças únicas que dão vida às suas paredes.",
   },
   {
     image: "https://placehold.co/1600x800.png",
     hint: "modern living room",
-    title: "Summer Sale: Up to 40% Off",
-    description: "Don't miss out on our seasonal promotions. Redecorate for less.",
+    title: "Promoção de Verão: Até 40% Off",
+    description: "Não perca nossas promoções sazonais. Redecore por menos.",
   },
   {
     image: "https://placehold.co/1600x800.png",
     hint: "minimalist decor",
-    title: "The Minimalist Edit",
-    description: "Explore curated art for a clean and modern aesthetic.",
+    title: "A Edição Minimalista",
+    description: "Explore arte selecionada para uma estética limpa e moderna.",
   },
 ];
 
@@ -70,7 +70,7 @@ export default function HeroSection() {
                         {slide.description}
                       </p>
                       <Button size="lg" className="mt-6 bg-primary hover:bg-accent hover:text-accent-foreground text-primary-foreground">
-                        Shop Now
+                        Compre Agora
                       </Button>
                     </div>
                   </CardContent>

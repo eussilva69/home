@@ -58,9 +58,9 @@ export default function ProductDescriptionGenerator() {
               name="productName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name</FormLabel>
+                  <FormLabel>Nome do Produto</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Abstract Sunrise" {...field} />
+                    <Input placeholder="Ex: Nascer do Sol Abstrato" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -71,9 +71,9 @@ export default function ProductDescriptionGenerator() {
               name="productCategory"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>Categoria</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Wall Art" {...field} />
+                    <Input placeholder="Ex: Arte de Parede" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -85,9 +85,9 @@ export default function ProductDescriptionGenerator() {
             name="keywords"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Keywords</FormLabel>
+                <FormLabel>Palavras-chave</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., vibrant, modern, office decor" {...field} />
+                  <Input placeholder="Ex: vibrante, moderno, decoração de escritório" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -99,9 +99,9 @@ export default function ProductDescriptionGenerator() {
               name="style"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Style</FormLabel>
+                  <FormLabel>Estilo</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Pop Art" {...field} />
+                    <Input placeholder="Ex: Pop Art" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -112,9 +112,9 @@ export default function ProductDescriptionGenerator() {
               name="colorPalette"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Color Palette</FormLabel>
+                  <FormLabel>Paleta de Cores</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Vibrant, primary colors" {...field} />
+                    <Input placeholder="Ex: Vibrante, cores primárias" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -129,7 +129,7 @@ export default function ProductDescriptionGenerator() {
                 <FormItem>
                   <FormLabel>Material</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Giclée print on canvas" {...field} />
+                    <Input placeholder="Ex: Impressão Giclée em tela" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,9 +140,9 @@ export default function ProductDescriptionGenerator() {
               name="size"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Size</FormLabel>
+                  <FormLabel>Tamanho</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 24x36 inches" {...field} />
+                    <Input placeholder="Ex: 60x90 cm" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,20 +151,20 @@ export default function ProductDescriptionGenerator() {
           </div>
           <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}
-            Generate Description
+            Gerar Descrição
           </Button>
         </form>
       </Form>
       {error && (
          <Alert variant="destructive">
-           <AlertTitle>Error</AlertTitle>
+           <AlertTitle>Erro</AlertTitle>
            <AlertDescription>{error}</AlertDescription>
          </Alert>
        )}
       {result && (
         <Card className="mt-6">
           <CardContent className="p-6">
-            <h3 className="font-headline text-lg mb-2">Generated Description:</h3>
+            <h3 className="font-headline text-lg mb-2">Descrição Gerada:</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{result}</p>
           </CardContent>
         </Card>

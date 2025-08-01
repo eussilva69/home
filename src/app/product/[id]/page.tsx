@@ -68,7 +68,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     fill
                     style={{ objectFit: 'cover' }}
                     className={`transition-opacity duration-300 ${showInRoom ? 'opacity-100' : 'opacity-0'}`}
-                    unoptimized={product.image_alt.includes('aldescubierto.org')}
                 />
                  <div className="absolute bottom-4 right-4 bg-background/80 text-foreground text-xs p-2 rounded-md backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
                     {showInRoom ? "Visualizando no ambiente" : "Passe o mouse para ver no ambiente"}

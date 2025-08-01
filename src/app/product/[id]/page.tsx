@@ -15,6 +15,35 @@ import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 
+
+const parsePrice = (priceString: string) => {
+    return parseFloat(priceString.replace('R$ ', '').replace('.', '').replace(',', '.'));
+}
+
+const pricingData = {
+  "Solo": [
+    { tamanho: "30x42 cm", valor_sem_vidro: 75.00, valor_com_vidro: 100.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 140.00, valor_com_vidro: 195.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 180.00, valor_com_vidro: 340.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 455.00, valor_com_vidro: 631.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 760.00, valor_com_vidro: 1070.00 }
+  ],
+  "Dupla": [
+    { tamanho: "30x42 cm", valor_sem_vidro: 175.00, valor_com_vidro: 270.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 260.00, valor_com_vidro: 380.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 350.00, valor_com_vidro: 630.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 840.00, valor_com_vidro: 1340.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 1370.00, valor_com_vidro: 2100.00 }
+  ],
+  "Trio": [
+    { tamanho: "30x42 cm", valor_sem_vidro: 260.00, valor_com_vidro: 410.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 380.00, valor_com_vidro: 530.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 495.00, valor_com_vidro: 760.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 1230.00, valor_com_vidro: 1720.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 2060.00, valor_com_vidro: 2870.00 }
+  ]
+};
+
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
   const relatedProducts = products.filter((p) => p.category === product?.category && p.id !== product?.id).slice(0, 4);
@@ -22,36 +51,28 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   if (!product) {
     notFound();
   }
+
+  const arrangementKey = product.arrangement as keyof typeof pricingData;
+  const availableSizes = pricingData[arrangementKey];
   
-  const sizes = {
-    p: { label: 'Pequeno', dimensions: '20x30cm', price: 0, scale: 0.6 },
-    m: { label: 'Médio', dimensions: '30x45cm', price: 20, scale: 0.8 },
-    g: { label: 'Grande', dimensions: '40x60cm', price: 45, scale: 1.0 },
-    xg: { label: 'Extra Grande', dimensions: '60x90cm', price: 75, scale: 1.2 },
-    gg: { label: 'Gigante', dimensions: '84x120cm', price: 110, scale: 1.5 },
-  };
-
-  const frames = {
-    black: { label: 'Preta', color: '#000000', price: 30 },
-    white: { label: 'Branca', color: '#FFFFFF', price: 30 },
-    wood: { label: 'Madeira', color: '#A0522D', price: 40 },
-    darkwood: { label: 'Madeira Escura', color: '#5C4033', price: 45 },
-  };
-
-  const glassOptions = {
-    with_glass: { label: 'Com Vidro', price: 25 },
-    without_glass: { label: 'Sem Vidro', price: 0 },
-  };
-
-  const [selectedSize, setSelectedSize] = useState(Object.keys(sizes)[1]);
-  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
-  const [selectedGlass, setSelectedGlass] = useState(Object.keys(glassOptions)[1]);
+  const [selectedSize, setSelectedSize] = useState(availableSizes[1].tamanho);
+  const [withGlass, setWithGlass] = useState(false);
+  
   const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>(
     product.arrangement === 'Solo' ? 'environment' : 'frame_only'
   );
 
+  const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
+  const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
 
-  const finalPrice = product.price + sizes[selectedSize as keyof typeof sizes].price + frames[selectedFrame as keyof typeof frames].price + glassOptions[selectedGlass as keyof typeof glassOptions].price;
+  const frames = {
+    black: { label: 'Preta', color: '#000000' },
+    white: { label: 'Branca', color: '#FFFFFF' },
+    wood: { label: 'Madeira', color: '#A0522D' },
+    darkwood: { label: 'Madeira Escura', color: '#5C4033' },
+  };
+  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -90,7 +111,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             aspectRatio: '3/4',
                             backgroundColor: '#fff',
                             boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.35)',
-                            border: selectedFrame !== 'none' ? `10px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
+                            border: `10px solid ${frames[selectedFrame as keyof typeof frames].color}`,
                         }}
                         >
                         <Image
@@ -101,7 +122,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             style={{ objectFit: 'cover' }}
                             className="p-1.5"
                         />
-                        {selectedGlass === 'with_glass' && (
+                        {withGlass && (
                             <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
                         )}
                     </div>
@@ -112,10 +133,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         className="relative"
                         style={{
                             width: 'min(75vw, 320px)',
-                            aspectRatio: product.arrangement === 'Dupla' ? '8/5' : '3/4',
+                            aspectRatio: product.arrangement === 'Dupla' ? '8/5' : (product.arrangement === 'Trio' ? '12/5' : '3/4'),
                             backgroundColor: '#fff',
                             boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-                            border: selectedFrame !== 'none' ? `10px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
+                            border: `10px solid ${frames[selectedFrame as keyof typeof frames].color}`,
                         }}
                         >
                         <Image
@@ -126,7 +147,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             style={{ objectFit: 'cover' }}
                             className="p-2"
                         />
-                        {selectedGlass === 'with_glass' && (
+                        {withGlass && (
                             <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
                         )}
                     </div>
@@ -137,33 +158,34 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {/* Product Details */}
           <div>
             <h1 className="text-3xl md:text-4xl font-headline text-primary mb-2">{product.name}</h1>
-            <p className="text-xl md:text-2xl font-semibold mb-6">R$ {finalPrice.toFixed(2).replace('.', ',')}</p>
+            <p className="text-xl md:text-2xl font-semibold mb-6">
+                {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione uma opção'}
+            </p>
 
              {/* Size Selector */}
              <div className="mb-6 md:mb-8">
                 <div className="flex items-center mb-3">
                     <Ruler className="h-5 w-5 mr-2" />
-                    <Label className="text-base md:text-lg font-medium">Tamanho: <span className="font-bold">{sizes[selectedSize as keyof typeof sizes].label} ({sizes[selectedSize as keyof typeof sizes].dimensions})</span></Label>
+                    <Label className="text-base md:text-lg font-medium">Tamanho: <span className="font-bold">{selectedSize}</span></Label>
                 </div>
                  <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
                     <Info className="h-4 w-4"/> Entenda os tamanhos
                 </p>
               <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex flex-wrap gap-2">
-                {Object.entries(sizes).map(([key, { dimensions, scale }]) => (
-                  <div key={key}>
-                    <RadioGroupItem value={key} id={`size-${key}`} className="sr-only" />
+                {availableSizes.map(({ tamanho }) => (
+                  <div key={tamanho}>
+                    <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
                     <Label
-                      htmlFor={`size-${key}`}
+                      htmlFor={`size-${tamanho}`}
                       className={cn(
-                        "flex flex-col items-center justify-center cursor-pointer rounded-lg border-2 p-2 text-center transition-all w-20 h-20 md:w-24 md:h-24",
-                        selectedSize === key ? 'border-primary bg-primary/5' : 'border-border bg-background'
+                        "flex flex-col items-center justify-center cursor-pointer rounded-lg border-2 p-2 text-center transition-all w-28 h-20 md:w-28 md:h-24",
+                        selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background'
                       )}
                     >
-                      <div className="relative flex items-end justify-center h-10 md:h-12">
-                          <Image src="https://images.icon-icons.com/1458/PNG/512/personavatar_99746.png" alt="Pessoa" width={40} height={40} className="object-contain h-8 w-8 md:h-10 md:w-10 opacity-70" />
-                          <div className="absolute bottom-0 right-0 border border-foreground/50 bg-white" style={{ width: `${scale * 12}px`, height: `${scale*16}px`}} />
-                      </div>
-                      <span className="text-xs text-muted-foreground mt-1">{dimensions}</span>
+                      <span className="font-semibold text-sm">{tamanho}</span>
+                      <span className="text-xs text-muted-foreground mt-1">
+                        {product.arrangement}
+                      </span>
                     </Label>
                   </div>
                 ))}
@@ -193,16 +215,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             {/* Glass Selector */}
             <div className="mb-6 md:mb-8">
-                <Label className="text-base md:text-lg font-medium mb-3 block">Vidro: <span className="font-bold">{glassOptions[selectedGlass as keyof typeof glassOptions].label}</span></Label>
-                <RadioGroup value={selectedGlass} onValueChange={setSelectedGlass} className="grid grid-cols-2 gap-4">
-                     {Object.entries(glassOptions).map(([key, { label }]) => (
-                         <div key={key}>
-                             <RadioGroupItem value={key} id={`glass-${key}`} className="sr-only" />
-                             <Label htmlFor={`glass-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", selectedGlass === key ? 'border-primary bg-primary/5' : 'border-border')}>
-                                 {label}
-                             </Label>
-                         </div>
-                     ))}
+                <Label className="text-base md:text-lg font-medium mb-3 block">Acabamento: <span className="font-bold">{withGlass ? 'Com Vidro' : 'Sem Vidro'}</span></Label>
+                <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-4">
+                     <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
+                     <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", withGlass ? 'border-primary bg-primary/5' : 'border-border')}>
+                         Com Vidro
+                     </Label>
+                     <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
+                     <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", !withGlass ? 'border-primary bg-primary/5' : 'border-border')}>
+                         Sem Vidro
+                     </Label>
                 </RadioGroup>
             </div>
 

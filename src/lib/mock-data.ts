@@ -3,7 +3,7 @@ export const products = [
   {
     id: '1',
     name: 'Explosão Cromática',
-    price: 79.99,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'abstract painting',
@@ -14,7 +14,7 @@ export const products = [
   {
     id: '2',
     name: 'Selva Esmeralda',
-    price: 64.99,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'botanical print',
@@ -25,7 +25,7 @@ export const products = [
   {
     id: '3',
     name: 'Coração de Pixel',
-    price: 49.99,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'pixel art',
@@ -36,7 +36,7 @@ export const products = [
   {
     id: '4',
     name: 'Linhas Serenas',
-    price: 89.99,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'minimalist art',
@@ -47,7 +47,7 @@ export const products = [
   {
     id: '5',
     name: 'Rei Leão Geométrico',
-    price: 139.99,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://i0.wp.com/www.papeldeparede.etc.br/wp-content/uploads/2022/07/imagem-de-uma-sala-com-o-quadro-de-leao-geometrico_Easy-Resize.com_.jpg?resize=1000%2C1000&ssl=1',
     hint: 'geometric lion',
@@ -58,7 +58,7 @@ export const products = [
   {
     id: '6',
     name: 'Fé Iluminada',
-    price: 159.99,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://i0.wp.com/www.papeldeparede.etc.br/wp-content/uploads/2022/07/imagem-de-uma-sala-com-o-quadro-de-leao-geometrico_Easy-Resize.com_.jpg?resize=1000%2C1000&ssl=1',
     hint: 'faith quote',
@@ -69,7 +69,7 @@ export const products = [
   {
     id: '7',
     name: 'Quadro Cavalo Branco',
-    price: 99.9,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'white horse',
@@ -80,7 +80,7 @@ export const products = [
   {
     id: '8',
     name: 'Pássaros Tropicais',
-    price: 110.5,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'tropical birds',
@@ -91,18 +91,18 @@ export const products = [
   {
     id: '9',
     name: 'Borboletas Coloridas',
-    price: 150.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'butterflies',
     hint_alt: 'study room',
     category: 'Animais',
-    arrangement: 'Dupla',
+    arrangement: 'Trio',
   },
   {
     id: '10',
     name: 'Patas Amigas',
-    price: 80.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'animal paws',
@@ -113,7 +113,7 @@ export const products = [
   {
     id: '11',
     name: 'Lobo da Meia-Noite',
-    price: 99.99,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'wolf',
@@ -124,7 +124,7 @@ export const products = [
   {
     id: '12',
     name: 'Rosa Solitária',
-    price: 75.0,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'single rose',
@@ -135,7 +135,7 @@ export const products = [
   {
     id: '13',
     name: 'Dupla de Lírios',
-    price: 145.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'lily flowers',
@@ -146,18 +146,18 @@ export const products = [
   {
     id: '14',
     name: 'Girassóis Vibrantes',
-    price: 120.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'sunflowers',
     hint_alt: 'kitchen',
     category: 'Floral',
-    arrangement: 'Dupla',
+    arrangement: 'Trio',
   },
   {
     id: '15',
     name: 'Salmo 23',
-    price: 89.9,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'psalm 23',
@@ -168,7 +168,7 @@ export const products = [
   {
     id: '16',
     name: 'A Criação',
-    price: 120.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'creation',
@@ -179,18 +179,18 @@ export const products = [
   {
     id: '17',
     name: 'Versículos em Dupla',
-    price: 165.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'bible verses',
     hint_alt: 'office',
     category: 'Religião',
-    arrangement: 'Dupla',
+    arrangement: 'Trio',
   },
   {
     id: '18',
     name: 'Onda Abstrata',
-    price: 110.0,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'abstract wave',
@@ -201,7 +201,7 @@ export const products = [
   {
     id: '19',
     name: 'Formas Geométricas',
-    price: 150.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'geometric shapes',
@@ -212,7 +212,7 @@ export const products = [
   {
     id: '20',
     name: 'Névoa Minimalista',
-    price: 95.0,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'minimalist fog',
@@ -223,7 +223,7 @@ export const products = [
   {
     id: '21',
     name: 'Ponto e Linha',
-    price: 175.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'minimalist art',
@@ -234,7 +234,7 @@ export const products = [
   {
     id: '22',
     name: 'Controlador Clássico',
-    price: 85.0,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'classic controller',
@@ -245,7 +245,7 @@ export const products = [
   {
     id: '23',
     name: 'Naves Espaciais',
-    price: 150.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'space ship',
@@ -256,7 +256,7 @@ export const products = [
   {
     id: '24',
     name: 'Panda Fofo',
-    price: 70.0,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'cute panda',
@@ -267,7 +267,7 @@ export const products = [
   {
     id: '25',
     name: 'Dupla de Gatos Pretos',
-    price: 155.0,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'black cats',
@@ -278,7 +278,7 @@ export const products = [
    {
     id: 'A1',
     name: 'Sussurro da Savana',
-    price: 70,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'animal',
@@ -289,7 +289,7 @@ export const products = [
   {
     id: 'A2',
     name: 'Mergulho Ártico',
-    price: 75,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'animal',
@@ -300,7 +300,7 @@ export const products = [
   {
     id: 'A3',
     name: 'Voo da Liberdade',
-    price: 80,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'animal',
@@ -311,7 +311,7 @@ export const products = [
   {
     id: 'A4',
     name: 'Abraço do Panda',
-    price: 85,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'animal',
@@ -322,7 +322,7 @@ export const products = [
   {
     id: 'A5',
     name: 'Canto da Baleia',
-    price: 90,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'animal',
@@ -333,7 +333,7 @@ export const products = [
   {
     id: 'B1',
     name: 'Costela de Adão',
-    price: 67.99,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'botanical',
@@ -344,7 +344,7 @@ export const products = [
   {
     id: 'B2',
     name: 'Folha de Bananeira',
-    price: 70.99,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'botanical',
@@ -355,7 +355,7 @@ export const products = [
   {
     id: 'B3',
     name: 'Jardim Suspenso',
-    price: 73.99,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'botanical',
@@ -366,7 +366,7 @@ export const products = [
   {
     id: 'B4',
     name: 'Paraíso Tropical',
-    price: 76.99,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'botanical',
@@ -377,7 +377,7 @@ export const products = [
   {
     id: 'B5',
     name: 'Cacto do Deserto',
-    price: 79.99,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'botanical',
@@ -388,7 +388,7 @@ export const products = [
   {
     id: 'C1',
     name: 'Buquê de Peônias',
-    price: 77,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'flower',
@@ -399,7 +399,7 @@ export const products = [
   {
     id: 'C2',
     name: 'Orquídea Delicada',
-    price: 79,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'flower',
@@ -410,7 +410,7 @@ export const products = [
   {
     id: 'C3',
     name: 'Campo de Lavanda',
-    price: 81,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'flower',
@@ -421,7 +421,7 @@ export const products = [
   {
     id: 'C4',
     name: 'Tulipas ao Vento',
-    price: 83,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'flower',
@@ -432,7 +432,7 @@ export const products = [
   {
     id: 'C5',
     name: 'Dália Vermelha',
-    price: 85,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'flower',
@@ -443,7 +443,7 @@ export const products = [
   {
     id: 'D1',
     name: 'Mãos em Oração',
-    price: 93.9,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'religion',
@@ -454,7 +454,7 @@ export const products = [
   {
     id: 'D2',
     name: 'Cruz da Esperança',
-    price: 97.9,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'religion',
@@ -465,7 +465,7 @@ export const products = [
   {
     id: 'D3',
     name: 'Espírito Santo em Dourado',
-    price: 101.9,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'religion',
@@ -476,7 +476,7 @@ export const products = [
   {
     id: 'D4',
     name: 'O Bom Pastor',
-    price: 105.9,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'religion',
@@ -487,7 +487,7 @@ export const products = [
   {
     id: 'D5',
     name: 'Santa Ceia Minimalista',
-    price: 109.9,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'religion',
@@ -498,7 +498,7 @@ export const products = [
   {
     id: 'E1',
     name: 'Conexões Neurais',
-    price: 116,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'abstract',
@@ -509,7 +509,7 @@ export const products = [
   {
     id: 'E2',
     name: 'Sonata em Azul',
-    price: 122,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'abstract',
@@ -520,7 +520,7 @@ export const products = [
   {
     id: 'E3',
     name: 'Tempestade de Areia',
-    price: 128,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'abstract',
@@ -531,7 +531,7 @@ export const products = [
   {
     id: 'E4',
     name: 'Aurora Boreal',
-    price: 134,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'abstract',
@@ -542,7 +542,7 @@ export const products = [
   {
     id: 'E5',
     name: 'Caos Organizado',
-    price: 140,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'abstract',
@@ -553,7 +553,7 @@ export const products = [
   {
     id: 'F1',
     name: 'Traço Único',
-    price: 97,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'minimalist',
@@ -564,7 +564,7 @@ export const products = [
   {
     id: 'F2',
     name: 'Círculo Perfeito',
-    price: 99,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'minimalist',
@@ -575,7 +575,7 @@ export const products = [
   {
     id: 'F3',
     name: 'Equilíbrio Zen',
-    price: 101,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'minimalist',
@@ -586,7 +586,7 @@ export const products = [
   {
     id: 'F4',
     name: 'Sussurro do Vento',
-    price: 103,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'minimalist',
@@ -597,7 +597,7 @@ export const products = [
   {
     id: 'F5',
     name: 'Ponto de Fuga',
-    price: 105,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'minimalist',
@@ -608,7 +608,7 @@ export const products = [
   {
     id: 'G1',
     name: 'Aventura na Selva',
-    price: 73,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'kids',
@@ -619,7 +619,7 @@ export const products = [
   {
     id: 'G2',
     name: 'Monstrinhos Amigáveis',
-    price: 76,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'kids',
@@ -630,7 +630,7 @@ export const products = [
   {
     id: 'G3',
     name: 'Viagem Espacial',
-    price: 79,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'kids',
@@ -641,7 +641,7 @@ export const products = [
   {
     id: 'G4',
     name: 'Reino dos Dinossauros',
-    price: 82,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'kids',
@@ -652,7 +652,7 @@ export const products = [
   {
     id: 'G5',
     name: 'Festa do Pijama',
-    price: 85,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'kids',
@@ -663,7 +663,7 @@ export const products = [
   {
     id: 'H1',
     name: 'Carpe Diem',
-    price: 70,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'quotes',
@@ -674,7 +674,7 @@ export const products = [
   {
     id: 'H2',
     name: 'Sonhe Alto',
-    price: 72,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'quotes',
@@ -685,7 +685,7 @@ export const products = [
   {
     id: 'H3',
     name: 'Apenas Respire',
-    price: 74,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'quotes',
@@ -696,7 +696,7 @@ export const products = [
   {
     id: 'H4',
     name: 'Lar Doce Lar',
-    price: 76,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'quotes',
@@ -707,7 +707,7 @@ export const products = [
   {
     id: 'H5',
     name: 'Faça Acontecer',
-    price: 78,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'quotes',
@@ -718,7 +718,7 @@ export const products = [
   {
     id: 'I1',
     name: 'Cidade sob a Chuva',
-    price: 95,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'photography',
@@ -729,7 +729,7 @@ export const products = [
   {
     id: 'I2',
     name: 'Pôr do Sol na Praia',
-    price: 102,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'photography',
@@ -740,7 +740,7 @@ export const products = [
   {
     id: 'I3',
     name: 'Escadaria em Espiral',
-    price: 109,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'photography',
@@ -751,7 +751,7 @@ export const products = [
   {
     id: 'I4',
     name: 'Retrato Anônimo',
-    price: 116,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'photography',
@@ -762,7 +762,7 @@ export const products = [
   {
     id: 'I5',
     name: 'Luzes de Neon',
-    price: 123,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'photography',
@@ -773,7 +773,7 @@ export const products = [
   {
     id: 'J1',
     name: 'Croqui de Moda',
-    price: 100,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'fashion',
@@ -784,7 +784,7 @@ export const products = [
   {
     id: 'J2',
     name: 'Salto Alto',
-    price: 105,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'fashion',
@@ -795,7 +795,7 @@ export const products = [
   {
     id: 'J3',
     name: 'Olhar da Passarela',
-    price: 110,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'fashion',
@@ -806,7 +806,7 @@ export const products = [
   {
     id: 'J4',
     name: 'Costura Fina',
-    price: 115,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'fashion',
@@ -817,7 +817,7 @@ export const products = [
   {
     id: 'J5',
     name: 'Elegância em Preto e Branco',
-    price: 120,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'fashion',
@@ -828,7 +828,7 @@ export const products = [
   {
     id: 'K1',
     name: 'Silhueta Feminina',
-    price: 89,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'femme',
@@ -839,7 +839,7 @@ export const products = [
   {
     id: 'K2',
     name: 'Força da Mulher',
-    price: 93,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'femme',
@@ -850,7 +850,7 @@ export const products = [
   {
     id: 'K3',
     name: 'Olhar de Confiança',
-    price: 97,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'femme',
@@ -861,7 +861,7 @@ export const products = [
   {
     id: 'K4',
     name: 'Florescer Interior',
-    price: 101,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'femme',
@@ -872,7 +872,7 @@ export const products = [
   {
     id: 'K5',
     name: 'Curvas em Linhas',
-    price: 105,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
     hint: 'femme',
@@ -883,7 +883,7 @@ export const products = [
   {
     id: 'L1',
     name: 'Dragão Místico',
-    price: 95,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'mystical dragon',
@@ -894,7 +894,7 @@ export const products = [
   {
     id: 'L2',
     name: 'Guerreiros Espaciais',
-    price: 180,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'space warriors',
@@ -905,18 +905,18 @@ export const products = [
   {
     id: 'L3',
     name: 'Portal Dimensional',
-    price: 130,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'dimensional portal',
     hint_alt: 'modern office geek',
     category: 'Geek',
-    arrangement: 'Solo'
+    arrangement: 'Trio'
   },
   {
     id: 'L4',
     name: 'Unicórnio Programador',
-    price: 154,
+    price: 0,
     image: 'https://placehold.co/800x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'unicorn programmer',
@@ -927,7 +927,7 @@ export const products = [
   {
     id: 'L5',
     name: 'Fantasma Divertido',
-    price: 68,
+    price: 0,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://placehold.co/800x600.png',
     hint: 'funny ghost',

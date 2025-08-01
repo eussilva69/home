@@ -113,6 +113,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'img.elo7.com.br',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'blog-leiturinha-novo.s3.us-east-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

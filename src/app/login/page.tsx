@@ -1,12 +1,11 @@
 
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { loginSchema } from '@/lib/schemas';
@@ -19,6 +18,9 @@ import { Loader2, LogIn, AlertCircle } from 'lucide-react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { loginAction } from '@/app/actions';
+import { useAuth } from '@/hooks/use-auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 type FormData = z.infer<typeof loginSchema>;
 
@@ -27,6 +29,13 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(loginSchema),
@@ -40,17 +49,36 @@ export default function LoginPage() {
     setError(null);
     setSuccess(null);
     startTransition(async () => {
-      const result = await loginAction(values);
-      if (result.error) {
-        setError(result.error);
-      } else {
-        setSuccess("Login bem-sucedido! Redirecionando...");
-        setTimeout(() => {
-            router.push('/');
-        }, 1000);
+      try {
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        const actionResult = await loginAction(values);
+        if (actionResult.error) {
+          setError(actionResult.error);
+        } else {
+          setSuccess("Login bem-sucedido! Redirecionando...");
+          router.push('/dashboard');
+        }
+      } catch (authError: any) {
+        if (authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password' || authError.code === 'auth/invalid-credential') {
+            setError('Email ou senha inválidos. Por favor, tente novamente.');
+        } else {
+            setError('Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.');
+        }
       }
     });
   };
+
+  if (loading || user) {
+    return (
+        <div className="flex flex-col min-h-screen bg-secondary/50">
+            <Header />
+            <main className="flex-grow flex items-center justify-center p-4">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </main>
+            <Footer />
+        </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">

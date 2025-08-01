@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster";
 import AiChatbot from "@/components/features/ai-chatbot";
 import ExitIntentPopup from "@/components/ui/exit-intent-popup";
+import { AuthProvider } from "@/hooks/use-auth";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,10 +23,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&family=Belleza&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        {children}
-        <Toaster />
-        <AiChatbot />
-        <ExitIntentPopup />
+        <AuthProvider>
+          {children}
+          <Toaster />
+          <AiChatbot />
+          <ExitIntentPopup />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -3,14 +3,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Search, Heart, ShoppingCart, User, Brush, ChevronDown } from 'lucide-react';
+import { Menu, Search, Heart, ShoppingCart, User, Brush, ChevronDown, LogOut } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { collections } from '@/lib/mock-data';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { useAuth } from '@/hooks/use-auth';
+import { logoutAction } from '@/app/actions';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
 
 const navLinks = [
   { href: '/monte-seu-quadro', label: 'Monte seu quadro' },
@@ -21,6 +26,14 @@ const navLinks = [
 export default function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isCollectionsOpen, setCollectionsOpen] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    await logoutAction();
+    router.push('/');
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
@@ -76,27 +89,39 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-2">
-          <Button variant="ghost" size="icon">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
             <Search className="h-5 w-5" />
             <span className="sr-only">Pesquisar</span>
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
             <Heart className="h-5 w-5" />
             <span className="sr-only">Lista de Desejos</span>
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
             <ShoppingCart className="h-5 w-5" />
             <span className="sr-only">Carrinho</span>
           </Button>
-          <Link href="/login">
-            <Button variant="ghost" size="icon">
+          <Link href={user ? "/dashboard" : "/login"}>
+            <Button variant="ghost" size="icon" className="hidden md:inline-flex">
               <User className="h-5 w-5" />
               <span className="sr-only">Conta</span>
             </Button>
           </Link>
+          {user && (
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="hidden md:inline-flex">
+              <LogOut className="h-5 w-5" />
+              <span className="sr-only">Sair</span>
+            </Button>
+          )}
         </div>
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+          {user && (
+             <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="h-6 w-6" />
+              <span className="sr-only">Sair</span>
+            </Button>
+          )}
           <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -163,7 +188,7 @@ export default function Header() {
                     <ShoppingCart className="h-6 w-6" />
                     <span className="sr-only">Carrinho</span>
                   </Button>
-                  <Link href="/login" onClick={() => setMenuOpen(false)}>
+                  <Link href={user ? "/dashboard" : "/login"} onClick={() => setMenuOpen(false)}>
                     <Button variant="ghost" size="icon">
                       <User className="h-6 w-6" />
                       <span className="sr-only">Conta</span>

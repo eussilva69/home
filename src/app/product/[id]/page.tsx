@@ -15,13 +15,6 @@ import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 
-const PersonIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M12 2a2 2 0 100 4 2 2 0 000-4zm0 6c-2.76 0-5 1.12-5 2.5V12h10v-1.5c0-1.38-2.24-2.5-5-2.5zM12 13c-3.31 0-6 1.34-6 3v2h12v-2c0-1.66-2.69-3-6-3z"/>
-    </svg>
-);
-
-
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
   const relatedProducts = products.filter((p) => p.category === product?.category && p.id !== product?.id).slice(0, 4);
@@ -127,7 +120,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                       )}
                     >
                       <div className="relative flex items-end justify-center h-12">
-                          <PersonIcon className="h-10 text-gray-300"/>
+                          <Image src="https://images.icon-icons.com/1458/PNG/512/personavatar_99746.png" alt="Pessoa" width={40} height={40} className="object-contain h-10 w-10 opacity-70" />
                           <div className="absolute bottom-0 right-0 border border-foreground/50 bg-white" style={{ width: `${scale * 12}px`, height: `${scale*16}px`}} />
                       </div>
                       <span className="text-xs text-muted-foreground mt-1">{dimensions}</span>

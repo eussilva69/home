@@ -45,6 +45,12 @@ const nextConfig: NextConfig = {
         hostname: 'acdn-us.mitiendanube.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.icon-icons.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

@@ -125,6 +125,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'st2.depositphotos.com',
+        port: '',
+        pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'carolinarochas.com.br',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

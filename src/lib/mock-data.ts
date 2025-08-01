@@ -483,7 +483,7 @@ export const collections = [
   { slug: 'fotografia', name: 'Fotografia', image: 'https://a-static.mlcdn.com.br/800x560/quadro-arte-abstrata-cidade-europeia-ki-art-quadros-decorativos/oliststore/mgl8fkfftqb5zmnn/55c04a7ccb3cede0d14df1da0a3f991e.jpeg', hint: 'camera' },
   { slug: 'infantil', name: 'Infantil', image: 'https://blog-leiturinha-novo.s3.us-east-1.amazonaws.com/production/uploads/2023/05/babyshark.jpg', hint: 'hedgehog' },
   { slug: 'fashion', name: 'Fashion', image: 'https://cdn.11.vuzi.com.br/goquadros/product/404401.webp', hint: 'fashion' },
-  { slug: 'minimalista', name: 'Minimalista', image: 'https://placehold.co/40x40.png', hint: 'minimalism' },
+  { slug: 'minimalista', name: 'Minimalista', image: 'https://st2.depositphotos.com/8815532/44724/v/450/depositphotos_447247498-stock-illustration-one-line-drawing-face-abstract.jpg', hint: 'line art face' },
   { slug: 'femme', name: 'Femme', image: 'https://medias.artmajeur.com/home/14141927_17c76aac-e019-48f9-af9d-a05a7a6aa5c1.jpg?v=1739181916', hint: 'woman face' },
-  { slug: 'religiao', name: 'Religião', image: 'https://placehold.co/40x40.png', hint: 'religious symbol' },
+  { slug: 'religiao', name: 'Religião', image: 'https://carolinarochas.com.br/wp-content/uploads/2025/03/Pintura-sacra-de-Jesus-Cristo-pintado-a-mao.jpg', hint: 'jesus christ painting' },
 ];

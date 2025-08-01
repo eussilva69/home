@@ -14,8 +14,8 @@ import Autoplay from "embla-carousel-autoplay";
 
 const slides = [
   {
-    image: "https://placehold.co/1600x800.png",
-    hint: "abstract art",
+    image: "https://midias.jornalcruzeiro.com.br/wp-content/uploads/2020/09/Ha-regras-para-por-quadros-nas-paredes-0.jpg",
+    hint: "gallery wall",
     title: "Novas Coleções Vibrantes",
     description: "Descubra peças únicas que dão vida às suas paredes.",
   },
@@ -61,6 +61,7 @@ export default function HeroSection() {
                       fill
                       style={{ objectFit: 'cover' }}
                       className="brightness-50"
+                      unoptimized={slide.image.includes('jornalcruzeiro')}
                     />
                     <div className="relative z-10 text-center text-primary-foreground p-4">
                       <h2 className="text-3xl md:text-5xl font-headline font-bold drop-shadow-lg">

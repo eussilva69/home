@@ -9,9 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { User, Package, Loader2, CheckCircle, QrCode, Copy, CreditCard } from 'lucide-react';
+import { User, Package, Loader2, CheckCircle, QrCode, Copy, CreditCard, AlertTriangle } from 'lucide-react';
 import { processPixPayment, processRedirectPayment, getPaymentStatus } from '../actions';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
 import { useRouter } from 'next/navigation';
@@ -38,17 +38,19 @@ export default function CheckoutPage() {
   const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string, paymentId: number } | null>(null);
   
   const { toast } = useToast();
-  const { cartItems, clearCart } = useCart();
+  const { cartItems, shipping, clearCart } = useCart();
   const router = useRouter();
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingCost = 0; // Temporariamente zerado
+  const subtotal = useMemo(() => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0), [cartItems]);
+  const shippingCost = useMemo(() => shipping?.price || 0, [shipping]);
+  
   const finalTotal = subtotal + shippingCost;
   const pixDiscount = 0.10; // 10%
   const cardFee = 0.0499; // 4.99%
-  const totalPix = finalTotal * (1 - pixDiscount);
-  const totalCard = finalTotal * (1 + cardFee);
+
+  const totalPix = useMemo(() => (subtotal * (1 - pixDiscount)) + shippingCost, [subtotal, shippingCost, pixDiscount]);
+  const totalCard = useMemo(() => (subtotal + shippingCost) * (1 + cardFee), [subtotal, shippingCost, cardFee]);
   
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -121,7 +123,7 @@ export default function CheckoutPage() {
      setIsProcessing(true);
      const result = await processPixPayment({
          transaction_amount: parseFloat(totalPix.toFixed(2)),
-         description: "Compra na Home Designer via Pix",
+         description: `Compra na Home Designer - Pedido #${Date.now()}`,
          payer: {
              email: form.getValues('email'),
              first_name: form.getValues('firstName'),
@@ -151,39 +153,38 @@ export default function CheckoutPage() {
     
     setIsProcessing(true);
 
-    const cartAndShippingItems = [
-      ...cartItems.map(item => ({
-        id: item.id,
-        title: `${item.name} (${item.options})`,
-        quantity: item.quantity,
-        unit_price: item.price,
-        currency_id: 'BRL',
-      })),
-      {
+    const cartItemsForPref = cartItems.map(item => ({
+      id: item.id,
+      title: `${item.name} (${item.options})`,
+      quantity: item.quantity,
+      unit_price: item.price,
+      currency_id: 'BRL',
+    }));
+
+    // Taxa de serviço do cartão e frete como itens separados
+    const serviceItems = [];
+    if (shippingCost > 0) {
+      serviceItems.push({
         id: 'shipping',
-        title: 'Frete',
+        title: `Frete (${shipping?.name} - ${shipping?.company})`,
         quantity: 1,
         unit_price: shippingCost,
-        currency_id: 'BRL'
-      }
-    ];
+        currency_id: 'BRL',
+      });
+    }
 
-    const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0) + shippingCost;
-    const fee = totalAmount * cardFee;
-
-    const itemsWithFee = [
-        ...cartAndShippingItems,
-        {
-            id: 'fee',
-            title: 'Taxa de Serviço (Cartão)',
-            quantity: 1,
-            unit_price: parseFloat(fee.toFixed(2)),
-            currency_id: 'BRL',
-        }
-    ];
+    const subtotalForFee = subtotal + shippingCost;
+    const fee = subtotalForFee * cardFee;
+     serviceItems.push({
+        id: 'fee',
+        title: 'Taxa de Serviço (Cartão)',
+        quantity: 1,
+        unit_price: parseFloat(fee.toFixed(2)),
+        currency_id: 'BRL',
+    });
 
     const result = await processRedirectPayment({
-        items: itemsWithFee,
+        items: [...cartItemsForPref, ...serviceItems],
         payer: {
             name: form.getValues('firstName'),
             surname: form.getValues('lastName'),
@@ -207,7 +208,7 @@ export default function CheckoutPage() {
   const copyToClipboard = () => {
       if (pixData) {
           navigator.clipboard.writeText(pixData.qrCode);
-          toast({ title: 'Copiado!', description: 'Código Pix copiado para a área de transferência.' });
+          toast({ title: 'Copiado!', description: 'Código Pix copiado para la área de transferência.' });
       }
   }
 
@@ -217,6 +218,19 @@ export default function CheckoutPage() {
   }
 
   const renderContent = () => {
+    if (cartItems.length > 0 && !shipping) {
+        return (
+            <div className="text-center">
+                <AlertTriangle className="h-24 w-24 mx-auto text-yellow-500 mb-4"/>
+                <h1 className="font-headline text-4xl font-bold mb-4">Frete não calculado!</h1>
+                <p className="text-muted-foreground mb-8">Por favor, volte ao carrinho para calcular o frete antes de prosseguir.</p>
+                <Button onClick={() => router.push('/cart')} size="lg">
+                    Voltar para o Carrinho
+                </Button>
+            </div>
+        )
+    }
+
     if (paymentResult?.success) {
         return (
           <div className="text-center">
@@ -316,17 +330,17 @@ export default function CheckoutPage() {
                             <TabsTrigger value="card"><CreditCard className="mr-2 h-4 w-4"/>Cartão de Crédito</TabsTrigger>
                           </TabsList>
                           <TabsContent value="pix" className="mt-6">
-                             <p className="text-muted-foreground mb-4">Ganhe <span className="font-bold text-green-600">{(pixDiscount * 100)}% de desconto</span>! Após preencher seus dados, clique no botão para gerar o QR Code.</p>
+                             <p className="text-muted-foreground mb-4">Ganhe <span className="font-bold text-green-600">{(pixDiscount * 100)}% de desconto</span> sobre os produtos! Após preencher seus dados, clique no botão para gerar o QR Code.</p>
                              <Button onClick={handleGeneratePix} size="lg" className="w-full" disabled={isProcessing || cartItems.length === 0}>
                                 {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : <QrCode className="mr-2 h-5 w-5"/>}
-                                {isProcessing ? 'Gerando...' : `Pagar R$ ${totalPix.toFixed(2)} com Pix`}
+                                {isProcessing ? 'Gerando...' : `Pagar R$ ${totalPix.toFixed(2).replace('.', ',')} com Pix`}
                              </Button>
                           </TabsContent>
                            <TabsContent value="card" className="mt-6">
                              <p className="text-muted-foreground mb-4">Você será redirecionado para o ambiente seguro do Mercado Pago para finalizar o pagamento com seu cartão de crédito. Haverá uma taxa de serviço de {(cardFee * 100).toFixed(2)}%.</p>
                              <Button onClick={handleRedirectPayment} size="lg" className="w-full" disabled={isProcessing || cartItems.length === 0}>
                                 {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : <CreditCard className="mr-2 h-5 w-5"/>}
-                                {isProcessing ? 'Redirecionando...' : `Pagar R$ ${totalCard.toFixed(2)} com Cartão`}
+                                {isProcessing ? 'Redirecionando...' : `Pagar R$ ${totalCard.toFixed(2).replace('.', ',')} com Cartão`}
                              </Button>
                            </TabsContent>
                         </Tabs>
@@ -347,7 +361,7 @@ export default function CheckoutPage() {
                               ))}
                               {shippingCost > 0 && (
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="font-semibold">Frete</span>
+                                    <span className="font-semibold">Frete ({shipping?.name})</span>
                                     <span>R$ {shippingCost.toFixed(2).replace('.',',')}</span>
                                 </div>
                                )}

@@ -8,7 +8,8 @@ import type { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/
 import type { PreferenceCreateData } from 'mercadopago/dist/clients/preference/create/types';
 import { randomUUID } from 'crypto';
 import type { CreatePixPaymentInput, CreatePreferenceInput } from '@/lib/schemas';
-
+import { melhorEnvioService } from '@/services/melhor-envio.service';
+import type { CartItemType } from '@/hooks/use-cart';
 
 // Adicione o Access Token do vendedor
 const MERCADO_PAGO_ACCESS_TOKEN = 'TEST-669430014263398-080114-6223aa7da057a138568fab88ea605ccd-1118229328';
@@ -143,6 +144,21 @@ export async function processRedirectPayment(input: CreatePreferenceInput) {
     }
 }
 
+export async function calculateShipping(postalCode: string, products: CartItemType[]) {
+    try {
+        const result = await melhorEnvioService.calculateShipping(postalCode, products);
+        return {
+            success: true,
+            options: result
+        }
+    } catch (error: any) {
+        console.error("Erro ao calcular frete:", error);
+        return {
+            success: false,
+            message: error.message || 'Falha ao calcular o frete.'
+        }
+    }
+}
 
 export async function loginAction(values: z.infer<typeof loginSchema>) {
   try {

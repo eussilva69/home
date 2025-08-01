@@ -148,6 +148,12 @@ const nextConfig: NextConfig = {
         hostname: 'images.tcdn.com.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.melhorenvio.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

@@ -13,8 +13,10 @@ import {
   aiChatbotSupport,
   AiChatbotSupportInput
 } from '@/ai/flows/ai-chatbot-support';
-import { productDescriptionSchema, compositionSuggesterSchema, chatbotSchema } from '@/lib/schemas';
+import { productDescriptionSchema, compositionSuggesterSchema, chatbotSchema, loginSchema } from '@/lib/schemas';
 import { products } from '@/lib/mock-data';
+import { auth } from '@/lib/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export async function generateDescriptionAction(values: z.infer<typeof productDescriptionSchema>) {
   try {
@@ -73,4 +75,17 @@ export async function chatbotSupportAction(values: z.infer<typeof chatbotSchema>
         console.error(error);
         return { error: 'Estou com problemas de conexão. Por favor, tente novamente mais tarde.' };
     }
+}
+
+export async function loginAction(values: z.infer<typeof loginSchema>) {
+  try {
+    const validatedFields = loginSchema.safeParse(values);
+    if (!validatedFields.success) {
+      return { error: "Entrada inválida." };
+    }
+
+    return { success: "Login bem-sucedido!" };
+  } catch (error) {
+    return { error: 'Falha ao fazer login. Verifique suas credenciais.' };
+  }
 }

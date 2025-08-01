@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { loginSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
@@ -17,12 +18,15 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, LogIn, AlertCircle } from 'lucide-react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
+import { loginAction } from '@/app/actions';
 
 type FormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const router = useRouter();
 
   const form = useForm<FormData>({
     resolver: zodResolver(loginSchema),
@@ -34,12 +38,17 @@ export default function LoginPage() {
 
   const onSubmit = (values: FormData) => {
     setError(null);
+    setSuccess(null);
     startTransition(async () => {
-      // Login action will be here
-      console.log('Login attempt with:', values);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setError("Funcionalidade de login ainda não implementada.");
+      const result = await loginAction(values);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setSuccess("Login bem-sucedido! Redirecionando...");
+        setTimeout(() => {
+            router.push('/');
+        }, 1000);
+      }
     });
   };
 
@@ -92,6 +101,14 @@ export default function LoginPage() {
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle>Erro de Autenticação</AlertTitle>
                       <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {success && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Sucesso</AlertTitle>
+                      <AlertDescription>{success}</AlertDescription>
                     </Alert>
                   )}
 

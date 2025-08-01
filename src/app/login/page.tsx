@@ -44,22 +44,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-black">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <iframe
-          className="absolute top-1/2 left-1/2 w-screen h-screen object-cover transform -translate-x-1/2 -translate-y-1/2"
-          src="https://www.youtube.com/embed/UQBDo9L_amU?autoplay=1&mute=1&loop=1&playlist=UQBDo9L_amU&controls=0&showinfo=0&autohide=1&modestbranding=1"
-          frameBorder="0"
-          allow="autoplay; encrypted-media"
-          allowFullScreen
-        ></iframe>
-        <div className="absolute top-0 left-0 w-full h-full bg-black/50"></div>
-      </div>
-
-      <div className="relative z-10 flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-secondary/50">
         <Header />
         <main className="flex-grow flex items-center justify-center p-4">
-          <Card className="w-full max-w-md shadow-xl bg-background/80 backdrop-blur-sm">
+          <Card className="w-full max-w-md shadow-xl">
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-headline">Bem-vindo de volta!</CardTitle>
               <CardDescription>Acesse sua conta para continuar.</CardDescription>
@@ -74,7 +62,7 @@ export default function LoginPage() {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="seu@email.com" {...field} className="bg-background/70"/>
+                          <Input type="email" placeholder="seu@email.com" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -92,7 +80,7 @@ export default function LoginPage() {
                           </Link>
                         </div>
                         <FormControl>
-                          <Input type="password" placeholder="********" {...field} className="bg-background/70"/>
+                          <Input type="password" placeholder="********" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -118,11 +106,11 @@ export default function LoginPage() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background/80 backdrop-blur-sm px-2 text-muted-foreground">Ou continue com</span>
+                  <span className="bg-card px-2 text-muted-foreground">Ou continue com</span>
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full text-lg bg-background/70">
+              <Button variant="outline" className="w-full text-lg">
                 <Image src="/google.svg" width={20} height={20} alt="Google logo" className="mr-2" />
                 Google
               </Button>
@@ -137,7 +125,6 @@ export default function LoginPage() {
           </Card>
         </main>
         <Footer />
-      </div>
     </div>
   );
 }

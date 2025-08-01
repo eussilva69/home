@@ -68,8 +68,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const frames = {
     black: { label: 'Preta', color: '#000000' },
     white: { label: 'Branca', color: '#FFFFFF' },
-    wood: { label: 'Madeira', color: '#A0522D' },
-    darkwood: { label: 'Madeira Escura', color: '#5C4033' },
+    hazel_oak: { label: 'Carvalho Avelã', color: '#C19A6B' },
+    ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
   };
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
   const humanHeightPx = 120; // Represents 1.7m

@@ -695,7 +695,7 @@ export const products = [
   },
   ...Array.from({ length: 19 }, (_, i) => ({
     id: `A${i + 1}`,
-    name: `Animais ${i + 13}`,
+    name: ['Sussurro da Savana', 'Mergulho Ártico', 'Voo da Liberdade', 'Abraço do Panda', 'Canto da Baleia', 'Olhar do Tigre', 'Dança dos Flamingos', 'Pulo do Golfinho', 'Sombra do Jaguar', 'Passeio do Elefante', 'Revoada de Andorinhas', 'Salto do Coala', 'Canção do Sabiá', 'Corrida da Zebra', 'Descanso do Leão', 'Ataque da Serpente', 'Pausa do Camelo', 'Voo do Beija-Flor', 'Espreita da Pantera'][i],
     price: 70.0 + i * 5,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -706,7 +706,7 @@ export const products = [
   })),
   ...Array.from({ length: 17 }, (_, i) => ({
     id: `B${i + 1}`,
-    name: `Botânico ${i + 2}`,
+    name: ['Costela de Adão', 'Folha de Bananeira', 'Jardim Suspenso', 'Paraíso Tropical', 'Cacto do Deserto', 'Brotos de Bambu', 'Sombra do Eucalipto', 'Folhagem de Outono', 'Trigo Dourado', 'Raízes Profundas', 'Flor de Lótus', 'Samambaia Real', 'Oásis Verdejante', 'Cipó Entrelaçado', 'Musgo na Pedra', 'Vida na Estufa', 'Refúgio Botânico'][i],
     price: 64.99 + i * 3,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -715,9 +715,9 @@ export const products = [
     category: 'Botânico',
     arrangement: 'Solo',
   })),
-    ...Array.from({ length: 18 }, (_, i) => ({
+  ...Array.from({ length: 18 }, (_, i) => ({
     id: `C${i + 1}`,
-    name: `Floral ${i + 4}`,
+    name: ['Buquê de Peônias', 'Orquídea Delicada', 'Campo de Lavanda', 'Tulipas ao Vento', 'Dália Vermelha', 'Margaridas no Campo', 'Lírio do Vale', 'Cerejeira em Flor', 'Jasmim Perfumado', 'Anêmonas Coloridas', 'Cravo Solitário', 'Amor-Perfeito', 'Vitória-Régia', 'Dente-de-Leão', 'Astromélias Vibrantes', 'Magnólia Branca', 'Gerânios na Janela', 'Flor do Campo'][i],
     price: 75.0 + i * 2,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -728,7 +728,7 @@ export const products = [
   })),
   ...Array.from({ length: 18 }, (_, i) => ({
     id: `D${i + 1}`,
-    name: `Religião ${i + 4}`,
+    name: ['Mãos em Oração', 'Cruz da Esperança', 'Espírito Santo em Dourado', 'O Bom Pastor', 'Santa Ceia Minimalista', 'Anjo da Guarda', 'Sagrada Família', 'Terço de Luz', 'Peixe Cristão', 'Cordeiro de Deus', 'Pomba da Paz', 'Vitraux da Catedral', 'Manjedoura Iluminada', 'O Sermão da Montanha', 'Arca de Noé', 'Estrela de Davi', 'Buda Meditando', 'Hamsá Protetor'][i],
     price: 89.9 + i * 4,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -739,7 +739,7 @@ export const products = [
   })),
   ...Array.from({ length: 18 }, (_, i) => ({
     id: `E${i + 1}`,
-    name: `Abstrato ${i + 3}`,
+    name: ['Conexões Neurais', 'Sonata em Azul', 'Tempestade de Areia', 'Aurora Boreal', 'Caos Organizado', 'Metrópole Noturna', 'Rastro de Cometa', 'Fragmentos de Memória', 'Eco do Silêncio', 'Rizoma Urbano', 'Labirinto de Cores', 'Poesia Concreta', 'Sinfonia Geométrica', 'Oceano Cósmico', 'Miragem no Deserto', 'Pulso da Cidade', 'Geodo Brilhante', 'Fractal de Gelo'][i],
     price: 110.0 + i * 6,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -750,7 +750,7 @@ export const products = [
   })),
     ...Array.from({ length: 18 }, (_, i) => ({
     id: `F${i + 1}`,
-    name: `Minimalista ${i + 3}`,
+    name: ['Traço Único', 'Círculo Perfeito', 'Equilíbrio Zen', 'Sussurro do Vento', 'Ponto de Fuga', 'Horizonte Calmo', 'Sombra e Luz', 'Areia e Céu', 'Gota de Orvalho', 'Fio de Ariadne', 'Silhueta Distante', 'Respiro Profundo', 'Forma Pura', 'Pausa para o Café', 'Vazio Iluminado', 'Essência da Forma', 'Pincelada Única', 'Ondas Suaves'][i],
     price: 95.0 + i * 2,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -761,7 +761,7 @@ export const products = [
   })),
     ...Array.from({ length: 14 }, (_, i) => ({
     id: `G${i + 1}`,
-    name: `Infantil ${i + 7}`,
+    name: ['Aventura na Selva', 'Monstrinhos Amigáveis', 'Viagem Espacial', 'Reino dos Dinossauros', 'Festa do Pijama', 'Corrida de Carrinhos', 'Ovelhas nos Sonhos', 'Circo Mágico', 'Fundo do Mar', 'Piquenique no Bosque', 'Super-Heróis Mirins', 'Castelo da Princesa', 'Banda dos Animais', 'Construindo o Futuro'][i],
     price: 70.0 + i * 3,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -772,7 +772,7 @@ export const products = [
   })),
     ...Array.from({ length: 18 }, (_, i) => ({
     id: `H${i + 1}`,
-    name: `Frases ${i + 3}`,
+    name: ['Carpe Diem', 'Sonhe Alto', 'Apenas Respire', 'Lar Doce Lar', 'Faça Acontecer', 'Gratidão Gera Gratidão', 'Viver o Momento', 'Amor em Tipografia', 'Sorria, Sempre', 'Café e Boas Ideias', 'Aqui e Agora', 'Colecione Momentos', 'Seja a Mudança', 'Mais Amor, Por Favor', 'Pense Fora da Caixa', 'A Vida é Bela', 'Hoje Vai ser Incrível', 'Continue a Nadar'][i],
     price: 68.0 + i * 2,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -783,7 +783,7 @@ export const products = [
   })),
   ...Array.from({ length: 19 }, (_, i) => ({
     id: `I${i + 1}`,
-    name: `Fotografia ${i + 2}`,
+    name: ['Cidade sob a Chuva', 'Pôr do Sol na Praia', 'Escadaria em Espiral', 'Retrato Anônimo', 'Luzes de Neon', 'Reflexo na Poça', 'Mercado de Rua', 'Janela para o Mundo', 'Texturas Urbanas', 'Ponte da Metrópole', 'Sombra do Arranha-Céu', 'Porta Colorida', 'Bicicleta Solitária', 'Olhar Penetrante', 'Caminho na Floresta', 'Montanhas Nevadas', 'Voo dos Pássaros', 'Detalhe Arquitetônico', 'Instante Decisivo'][i],
     price: 88.0 + i * 7,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -794,7 +794,7 @@ export const products = [
   })),
   ...Array.from({ length: 19 }, (_, i) => ({
     id: `J${i + 1}`,
-    name: `Fashion ${i + 2}`,
+    name: ['Croqui de Moda', 'Salto Alto', 'Olhar da Passarela', 'Costura Fina', 'Elegância em Preto e Branco', 'Manchas de Batom', 'Perfume no Ar', 'Ícone Fashion', 'Estilo de Rua', 'Acessórios Essenciais', 'Brilho da Vitrine', 'Tendência de Verão', 'Coleção de Inverno', 'Chapéu Clássico', 'Óculos de Sol', 'Bolsa de Grife', 'Joia Rara', 'Desfile de Cores', 'Toque de Seda'][i],
     price: 95.0 + i * 5,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',
@@ -805,7 +805,7 @@ export const products = [
   })),
   ...Array.from({ length: 19 }, (_, i) => ({
     id: `K${i + 1}`,
-    name: `Femme ${i + 2}`,
+    name: ['Silhueta Feminina', 'Força da Mulher', 'Olhar de Confiança', 'Florescer Interior', 'Curvas em Linhas', 'Abraço Próprio', 'Dança da Alma', 'Universo Particular', 'Retrato da Coragem', 'Beleza Natural', 'Empoderamento em Cores', 'Voz Ativa', 'Sororidade', 'Mãe Natureza', 'Intuição Aguçada', 'Ciclos da Lua', 'Juntas Somos Mais Fortes', 'Amor-Próprio', 'Essência Feminina'][i],
     price: 85.0 + i * 4,
     image: 'https://placehold.co/400x500.png',
     image_alt: 'https://www.papeleparede.com.br/4402-large_default/papel-de-parede-com-fundo-palha-e-detalhes-em-bege.jpg',

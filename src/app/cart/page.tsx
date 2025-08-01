@@ -78,7 +78,7 @@ export default function CartPage() {
   };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingCost = 0; // Temporarily disabled
+  const shippingCost = selectedShipping ? parseFloat(selectedShipping.price) : 0;
   const total = subtotal + shippingCost;
 
 
@@ -141,7 +141,7 @@ export default function CartPage() {
                 </CardContent>
               </Card>
               
-               {/*
+               
                <Card className="shadow-md">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Truck className="h-6 w-6"/> Calcular Frete</CardTitle>
@@ -194,7 +194,7 @@ export default function CartPage() {
                         )}
                     </CardContent>
                 </Card>
-                */}
+                
 
             </div>
             <aside className="lg:col-span-1">
@@ -207,12 +207,12 @@ export default function CartPage() {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-semibold">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
                   </div>
-                   {/* <div className="flex justify-between">
+                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Frete</span>
                     <span className="font-semibold">
                       {selectedShipping ? `R$ ${shippingCost.toFixed(2).replace('.', ',')}` : 'A calcular'}
                     </span>
-                  </div> */}
+                  </div>
                   <Separator />
                    <div className="flex justify-between text-xl font-bold">
                     <span>Total</span>
@@ -224,13 +224,13 @@ export default function CartPage() {
                      size="lg" 
                      className="w-full text-lg" 
                      onClick={() => setIsCheckingOut(true)}
-                     // disabled={!selectedShipping} // Temporarily enabled
+                     disabled={!selectedShipping}
                     >
                      Finalizar Compra
                    </Button>
-                   {/* {!selectedShipping && (
+                   {!selectedShipping && (
                        <p className="text-xs text-muted-foreground text-center">Calcule o frete para continuar</p>
-                   )} */}
+                   )}
                    <Button variant="link" asChild>
                      <Link href="/">Continuar comprando</Link>
                    </Button>

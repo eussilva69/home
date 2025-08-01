@@ -39,47 +39,6 @@ export async function logoutAction() {
 }
 
 
-type CartItem = {
-  id: string;
-  title: string;
-  quantity: number;
-  unit_price: number;
-  picture_url: string;
-}
-
-export async function createPaymentPreference(cartItems: CartItem[], shippingCost: number) {
-  try {
-    const preference = new Preference(client);
-
-    const createdPreference = await preference.create({
-      body: {
-        items: cartItems.map(item => ({
-          id: item.id,
-          title: item.title,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          picture_url: item.picture_url,
-        })),
-        shipments: {
-            cost: shippingCost,
-            mode: "not_specified",
-        },
-        back_urls: {
-            success: "https://seusite.com/sucesso",
-            failure: "https://seusite.com/falha",
-            pending: "https://seusite.com/pendente"
-        },
-        auto_return: "approved"
-      }
-    });
-
-    return { preferenceId: createdPreference.id };
-  } catch (error: any) {
-    console.error('Error creating payment preference:', error.cause?.message || error.message);
-    return { error: 'Falha ao criar preferência de pagamento.' };
-  }
-}
-
 type ShippingItem = {
   id: string;
   width: number;

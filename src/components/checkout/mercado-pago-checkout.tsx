@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CardPayment, initMercadoPago } from '@mercadopago/sdk-react';
+import { Payment, initMercadoPago } from '@mercadopago/sdk-react';
 import { Loader2, ShieldCheck, AlertTriangle, CheckCircle } from 'lucide-react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
@@ -83,14 +83,18 @@ export default function MercadoPagoCheckout({ items, shippingCost }: MercadoPago
   };
 
   const customization = {
-    visual: {
+    paymentMethods: {
+      ticket: "all" as const,
+      bankTransfer: "all" as const,
+      creditCard: "all" as const,
+      debitCard: "all" as const,
+      mercadoPago: "all" as const,
+    },
+     visual: {
       style: {
         theme: 'default' as 'default', // ou 'dark', 'flat'
       },
     },
-    paymentMethods: {
-       maxInstallments: 6,
-    }
   };
 
 
@@ -131,7 +135,7 @@ export default function MercadoPagoCheckout({ items, shippingCost }: MercadoPago
             )}
             
             {!isLoading && !paymentResult && (
-                <CardPayment
+                <Payment
                     initialization={initialization}
                     customization={customization}
                     onSubmit={handlePayment}

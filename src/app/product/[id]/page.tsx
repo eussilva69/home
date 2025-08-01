@@ -8,37 +8,54 @@ import { products } from '@/lib/mock-data';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info } from 'lucide-react';
+import ProductCard from '@/components/shared/product-card';
+import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck } from 'lucide-react';
-import ProductCard from '@/components/shared/product-card';
+
+const PersonIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M12 2a2 2 0 100 4 2 2 0 000-4zm0 6c-2.76 0-5 1.12-5 2.5V12h10v-1.5c0-1.38-2.24-2.5-5-2.5zM12 13c-3.31 0-6 1.34-6 3v2h12v-2c0-1.66-2.69-3-6-3z"/>
+    </svg>
+);
+
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const [selectedSize, setSelectedSize] = useState('medium');
-  const [selectedFrame, setSelectedFrame] = useState('black');
-
   const product = products.find((p) => p.id === params.id);
   const relatedProducts = products.filter((p) => p.category === product?.category && p.id !== product?.id).slice(0, 4);
 
   if (!product) {
     notFound();
   }
-
+  
   const sizes = {
-    small: { label: 'Pequeno', dimensions: '20x30cm', price: 0 },
-    medium: { label: 'Médio', dimensions: '30x45cm', price: 20 },
-    large: { label: 'Grande', dimensions: '40x60cm', price: 45 },
+    p: { label: 'Pequeno', dimensions: '20x30cm', price: 0, scale: 0.6 },
+    m: { label: 'Médio', dimensions: '30x45cm', price: 20, scale: 0.8 },
+    g: { label: 'Grande', dimensions: '40x60cm', price: 45, scale: 1.0 },
+    xg: { label: 'Extra Grande', dimensions: '60x90cm', price: 75, scale: 1.2 },
+    gg: { label: 'Gigante', dimensions: '84x120cm', price: 110, scale: 1.5 },
   };
 
   const frames = {
-    none: { label: 'Sem Moldura', price: 0 },
-    black: { label: 'Preta', price: 30 },
-    white: { label: 'Branca', price: 30 },
-    wood: { label: 'Madeira', price: 40 },
+    black: { label: 'Preta', color: '#000000', price: 30 },
+    white: { label: 'Branca', color: '#FFFFFF', price: 30 },
+    wood: { label: 'Madeira', color: '#A0522D', price: 40 },
+    darkwood: { label: 'Madeira Escura', color: '#5C4033', price: 45 },
   };
 
-  const finalPrice = product.price + sizes[selectedSize as keyof typeof sizes].price + frames[selectedFrame as keyof typeof frames].price;
+  const glassOptions = {
+    with_glass: { label: 'Com Vidro', price: 25 },
+    without_glass: { label: 'Sem Vidro', price: 0 },
+  };
+
+  const [selectedSize, setSelectedSize] = useState(Object.keys(sizes)[1]);
+  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+  const [selectedGlass, setSelectedGlass] = useState(Object.keys(glassOptions)[1]);
+
+
+  const finalPrice = product.price + sizes[selectedSize as keyof typeof sizes].price + frames[selectedFrame as keyof typeof frames].price + glassOptions[selectedGlass as keyof typeof glassOptions].price;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -65,11 +82,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             fill
                             style={{ 
                               objectFit: 'cover',
-                              border: selectedFrame !== 'none' ? `12px solid ${selectedFrame}` : 'none',
-                              borderColor: selectedFrame === 'wood' ? '#854d0e' : selectedFrame,
+                              border: selectedFrame !== 'none' ? `12px solid ${frames[selectedFrame as keyof typeof frames].color}` : 'none',
                             }}
                             className="rounded-sm"
                         />
+                         {selectedGlass === 'with_glass' && (
+                            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
+                        )}
                     </div>
                 </div>
             </div>
@@ -80,43 +99,70 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <h1 className="text-4xl font-headline text-primary mb-2">{product.name}</h1>
             <p className="text-2xl font-semibold mb-6">R$ {finalPrice.toFixed(2).replace('.', ',')}</p>
 
-            {/* Size Selector */}
-            <div className="mb-6">
-              <Label className="text-lg font-medium mb-3 block">Tamanho</Label>
-              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex gap-4">
-                {Object.entries(sizes).map(([key, { label, dimensions }]) => (
+             {/* Size Selector */}
+             <div className="mb-8">
+                <div className="flex items-center mb-3">
+                    <Ruler className="h-5 w-5 mr-2" />
+                    <Label className="text-lg font-medium">Tamanho: <span className="font-bold">{sizes[selectedSize as keyof typeof sizes].label} ({sizes[selectedSize as keyof typeof sizes].dimensions})</span></Label>
+                </div>
+                 <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
+                    <Info className="h-4 w-4"/> Entenda os tamanhos
+                </p>
+              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex flex-wrap gap-2">
+                {Object.entries(sizes).map(([key, { dimensions, scale }]) => (
                   <div key={key}>
                     <RadioGroupItem value={key} id={`size-${key}`} className="sr-only" />
                     <Label
                       htmlFor={`size-${key}`}
-                      className={`block cursor-pointer rounded-lg border-2 p-4 text-center transition-all ${selectedSize === key ? 'border-primary bg-primary/5' : 'border-border'}`}
+                      className={cn(
+                        "flex flex-col items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center transition-all w-24 h-24",
+                        selectedSize === key ? 'border-primary bg-primary/5' : 'border-border bg-background'
+                      )}
                     >
-                      <span className="font-bold block">{label}</span>
-                      <span className="text-sm text-muted-foreground">{dimensions}</span>
+                      <div className="relative flex items-end justify-center h-12">
+                          <PersonIcon className="h-10 text-gray-300"/>
+                          <div className="absolute bottom-0 right-0 border border-foreground/50 bg-white" style={{ width: `${scale * 12}px`, height: `${scale*16}px`}} />
+                      </div>
+                      <span className="text-xs text-muted-foreground mt-1">{dimensions}</span>
                     </Label>
                   </div>
                 ))}
               </RadioGroup>
             </div>
-            
+
             {/* Frame Selector */}
             <div className="mb-8">
-                <Label className="text-lg font-medium mb-3 block">Moldura</Label>
-                <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-4">
-                    {Object.entries(frames).map(([key, { label }]) => (
-                    <div key={key} className="flex items-center">
-                        <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
-                        <Label
-                        htmlFor={`frame-${key}`}
-                        className={`flex items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center transition-all ${selectedFrame === key ? 'border-primary bg-primary/5' : 'border-border'}`}
-                        >
-                        {key !== 'none' && (
-                            <div className="h-6 w-6 rounded-full mr-2 border" style={{ backgroundColor: key === 'wood' ? '#854d0e' : key }}></div>
-                        )}
-                        {label}
-                        </Label>
-                    </div>
+                <Label className="text-lg font-medium mb-3 block">Cor da Moldura: <span className="font-bold">{frames[selectedFrame as keyof typeof frames].label}</span></Label>
+                <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-2">
+                    {Object.entries(frames).map(([key, { color }]) => (
+                        <div key={key}>
+                            <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
+                            <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-md border-2 p-1 transition-all", selectedFrame === key ? 'border-primary' : 'border-transparent')}>
+                                <div className="w-16 h-16 rounded-md overflow-hidden border">
+                                    <div className="w-full h-full relative">
+                                        <div style={{ backgroundColor: color, width: '50%', height: '15px', position: 'absolute', top: 0, left: 0 }} />
+                                        <div style={{ backgroundColor: color, width: '15px', height: '50%', position: 'absolute', top: 0, left: 0 }} />
+                                        <div style={{ backgroundColor: '#f0f0f0', width: 'calc(100% - 15px)', height: 'calc(100% - 15px)', position: 'absolute', bottom: 0, right: 0 }} />
+                                    </div>
+                                </div>
+                            </Label>
+                        </div>
                     ))}
+                </RadioGroup>
+            </div>
+
+            {/* Glass Selector */}
+            <div className="mb-8">
+                <Label className="text-lg font-medium mb-3 block">Vidro: <span className="font-bold">{glassOptions[selectedGlass as keyof typeof glassOptions].label}</span></Label>
+                <RadioGroup value={selectedGlass} onValueChange={setSelectedGlass} className="grid grid-cols-2 gap-4">
+                     {Object.entries(glassOptions).map(([key, { label }]) => (
+                         <div key={key}>
+                             <RadioGroupItem value={key} id={`glass-${key}`} className="sr-only" />
+                             <Label htmlFor={`glass-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-20", selectedGlass === key ? 'border-primary bg-primary/5' : 'border-border')}>
+                                 {label}
+                             </Label>
+                         </div>
+                     ))}
                 </RadioGroup>
             </div>
 

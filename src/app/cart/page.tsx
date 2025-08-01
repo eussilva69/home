@@ -6,93 +6,36 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Minus, Plus, Trash2, ShoppingCart, Loader2, Truck } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart, CreditCard, Droplet } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import MercadoPagoCheckout from '@/components/checkout/mercado-pago-checkout';
-import { calculateShipping } from '@/app/actions';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/use-cart';
 
-type ShippingOption = {
-  id: number;
-  name: string;
-  price: string;
-  custom_delivery_time: number;
-  company: {
-      id: number;
-      name: string;
-      picture: string;
-  };
-};
-
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeFromCart } = useCart();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-  // const [cep, setCep] = useState('');
-  // const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
-  // const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
-  // const [isCalculating, setIsCalculating] = useState(false);
-  // const [shippingError, setShippingError] = useState<string | null>(null);
+  const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
+  const router = useRouter();
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     updateQuantity(id, newQuantity);
-    // setSelectedShipping(null);
-    // setShippingOptions([]);
   };
 
   const handleRemoveItem = (id: string) => {
     removeFromCart(id);
-    // setSelectedShipping(null);
-    // setShippingOptions([]);
   };
-  
-  // const handleCalculateShipping = async () => {
-  //   if (!cep || cartItems.length === 0) return;
-  //   setIsCalculating(true);
-  //   setShippingError(null);
-  //   setSelectedShipping(null);
-  //   setShippingOptions([]);
-
-  //   const shippingItems = cartItems.map(item => ({
-  //       id: item.id,
-  //       width: item.width,
-  //       height: item.height,
-  //       length: item.length,
-  //       weight: item.weight,
-  //       quantity: item.quantity,
-  //   }));
-
-  //   const result = await calculateShipping(cep, shippingItems);
-    
-  //   if (result.error) {
-  //       setShippingError(result.error);
-  //   } else if (result.shippingOptions) {
-  //       setShippingOptions(result.shippingOptions);
-  //   }
-  //   setIsCalculating(false);
-  // };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingCost = 0; // Temporariamente desativado
-  // const shippingCost = selectedShipping ? parseFloat(selectedShipping.price) : 0;
+  const shippingCost = 0;
   const total = subtotal + shippingCost;
+  const totalWithCardFee = total * 1.05; // 5% de taxa do cartão
+  const pixDiscount = totalWithCardFee - total;
 
-
-  if (isCheckingOut) {
-    const checkoutItems = cartItems.map(item => ({
-      id: item.id,
-      title: `${item.name} (${item.options})`,
-      quantity: item.quantity,
-      unit_price: item.price,
-      picture_url: item.image,
-    }));
-    return <MercadoPagoCheckout items={checkoutItems} shippingCost={shippingCost} />;
-  }
+  const handleCheckout = (method: 'card' | 'pix') => {
+      const checkoutUrl = method === 'card' ? '/checkout/card' : '/checkout/pix';
+      router.push(checkoutUrl);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
@@ -141,63 +84,6 @@ export default function CartPage() {
                   </ul>
                 </CardContent>
               </Card>
-              
-               
-               {/* 
-               <Card className="shadow-md">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Truck className="h-6 w-6"/> Calcular Frete</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-col sm:flex-row gap-2 max-w-sm">
-                            <Input
-                                type="text"
-                                placeholder="Digite seu CEP"
-                                value={cep}
-                                onChange={(e) => setCep(e.target.value)}
-                                maxLength={9}
-                            />
-                            <Button onClick={handleCalculateShipping} disabled={isCalculating || !cep}>
-                                {isCalculating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Calcular'}
-                            </Button>
-                        </div>
-                        {shippingError && <p className="text-red-500 text-sm mt-2">{shippingError}</p>}
-                        
-                        {isCalculating && (
-                             <div className="mt-4 p-4 text-center bg-secondary/50 rounded-md">
-                                <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
-                             </div>
-                        )}
-
-                        {shippingOptions.length > 0 && !isCalculating && (
-                            <div className="mt-4">
-                                <RadioGroup onValueChange={(id) => setSelectedShipping(shippingOptions.find(opt => opt.id.toString() === id) || null)}>
-                                    <div className="space-y-2">
-                                        {shippingOptions.map((option) => (
-                                            <Label key={option.id} htmlFor={String(option.id)} className="flex items-center p-3 border rounded-md cursor-pointer hover:bg-accent has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
-                                                <RadioGroupItem value={String(option.id)} id={String(option.id)} className="mr-3" />
-                                                <div className="flex-grow grid grid-cols-3 items-center gap-2 text-sm">
-                                                    <div className="flex items-center gap-2">
-                                                        {option.company.picture && <Image src={option.company.picture} alt={option.company.name} width={20} height={20} />}
-                                                        <span>{option.name}</span>
-                                                    </div>
-                                                    <span className="font-semibold text-center">
-                                                        R$ {parseFloat(option.price).toFixed(2).replace('.', ',')}
-                                                    </span>
-                                                    <span className="text-muted-foreground text-right">
-                                                        {option.custom_delivery_time} dias úteis
-                                                    </span>
-                                                </div>
-                                            </Label>
-                                        ))}
-                                    </div>
-                                </RadioGroup>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-                 */}
-
             </div>
             <aside className="lg:col-span-1">
               <Card className="shadow-md sticky top-24">
@@ -211,28 +97,40 @@ export default function CartPage() {
                   </div>
                    <div className="flex justify-between">
                     <span className="text-muted-foreground">Frete</span>
-                    <span className="font-semibold">
-                      R$ 0,00
-                    </span>
+                    <span className="font-semibold">R$ 0,00</span>
                   </div>
                   <Separator />
-                   <div className="flex justify-between text-xl font-bold">
-                    <span>Total</span>
+                   <div className="flex justify-between text-lg font-bold">
+                    <span>Total (sem taxas)</span>
                     <span>R$ {total.toFixed(2).replace('.', ',')}</span>
                   </div>
+                  <Card className="bg-primary/5 border-primary/20 p-3 text-sm">
+                      <p>
+                          Pague com <span className="font-bold">Cartão de Crédito</span> por <span className="font-bold">R$ {totalWithCardFee.toFixed(2).replace('.', ',')}</span> (incluso 5% de taxa).
+                      </p>
+                      <Separator className="my-2" />
+                      <p className="text-green-600 font-semibold">
+                          Ou pague com <span className="font-bold">Pix</span> e ganhe <span className="font-bold">R$ {pixDiscount.toFixed(2).replace('.', ',')} de desconto</span>, pagando apenas <span className="font-bold">R$ {total.toFixed(2).replace('.', ',')}</span>!
+                      </p>
+                  </Card>
                 </CardContent>
-                <CardFooter className="flex-col gap-2">
+                <CardFooter className="flex-col gap-3">
+                   <Button 
+                     size="lg" 
+                     className="w-full text-lg bg-green-600 hover:bg-green-700 text-white" 
+                     onClick={() => handleCheckout('pix')}
+                     disabled={cartItems.length === 0}
+                    >
+                     <Droplet className="mr-2" /> Pagar com Pix
+                   </Button>
                    <Button 
                      size="lg" 
                      className="w-full text-lg" 
-                     onClick={() => setIsCheckingOut(true)}
+                     onClick={() => handleCheckout('card')}
                      disabled={cartItems.length === 0}
                     >
-                     Finalizar Compra
+                     <CreditCard className="mr-2" /> Pagar com Cartão
                    </Button>
-                   {/* {!selectedShipping && (
-                       <p className="text-xs text-muted-foreground text-center">Calcule o frete para continuar</p>
-                   )} */}
                    <Button variant="link" asChild>
                      <Link href="/">Continuar comprando</Link>
                    </Button>
@@ -252,7 +150,6 @@ export default function CartPage() {
              </CardContent>
            </Card>
         )}
-
       </main>
       <Footer />
     </div>

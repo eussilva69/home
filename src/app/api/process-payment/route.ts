@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
+import { redirect } from 'next/navigation';
 
 const ACCESS_TOKEN = "TEST-669430014263398-080114-6223aa7da057a138568fab88ea605ccd-1118229328";
 
@@ -10,6 +11,9 @@ const payment = new Payment(client);
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+
+    // Adiciona um ID de idempotência para evitar pagamentos duplicados
+    const idempotencyKey = req.headers.get('X-Idempotency-Key') || `req-${Date.now()}`;
 
     const paymentData = {
       transaction_amount: body.transaction_amount,
@@ -26,15 +30,43 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    const paymentResponse = await payment.create({ body: paymentData });
+    const paymentResponse = await payment.create({ 
+        body: paymentData,
+        requestOptions: {
+            idempotencyKey: idempotencyKey
+        }
+    });
+
+    // Se for PIX, retorna os dados para o QR Code
+    if (paymentResponse.payment_method_id === 'pix') {
+      return NextResponse.json(
+        { 
+          status: paymentResponse.status,
+          detail: paymentResponse.status_detail,
+          id: paymentResponse.id,
+          qr_code: paymentResponse.point_of_interaction?.transaction_data?.qr_code,
+          qr_code_base64: paymentResponse.point_of_interaction?.transaction_data?.qr_code_base64,
+        }, 
+        { status: 201 }
+      );
+    }
     
-    return NextResponse.json(paymentResponse, { status: 200 });
+    // Se for cartão, retorna o resultado
+    return NextResponse.json(paymentResponse, { status: 201 });
     
   } catch (error: any) {
-    console.error('API Error:', error.cause?.message || error.message);
+    console.error('API Error:', error.cause ? JSON.stringify(error.cause, null, 2) : error.message);
+    
+    const errorMessage = error.cause?.error?.message || 'Ocorreu um erro no servidor.';
+    const errorStatus = error.statusCode || 500;
+
     return NextResponse.json(
-      { error: error.message || 'Ocorreu um erro no servidor.' },
-      { status: 500 }
+      { 
+        error: "Falha no processamento do pagamento",
+        message: errorMessage,
+        details: error.cause?.error?.causes
+      },
+      { status: errorStatus }
     );
   }
 }

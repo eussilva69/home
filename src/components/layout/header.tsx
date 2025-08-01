@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { collections } from '@/lib/mock-data';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 const navLinks = [
   { href: '/monte-seu-quadro', label: 'Monte seu quadro' },
@@ -129,17 +130,44 @@ export default function Header() {
                     <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
                   </Link>
                 </div>
-                <nav className="flex flex-col p-6 gap-4 text-lg">
-                  <Link href="#collections" className="transition-colors hover:text-primary" onClick={() => setMenuOpen(false)}>
-                    Coleções
-                  </Link>
+                <nav className="flex flex-col p-6 gap-1 text-lg">
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="collections" className="border-b-0">
+                      <AccordionTrigger className="hover:no-underline py-3">Coleções</AccordionTrigger>
+                      <AccordionContent className="pl-4 pt-2">
+                        <div className="flex flex-col gap-3">
+                          {collections.map((collection) => (
+                            <Link
+                              key={collection.name}
+                              href={`/collection/${collection.slug}`}
+                              className="flex items-center gap-4 text-base transition-colors hover:text-primary"
+                              onClick={() => setMenuOpen(false)}
+                            >
+                              <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
+                                  <Image
+                                    src={collection.image}
+                                    alt={collection.name}
+                                    data-ai-hint={collection.hint}
+                                    width={40}
+                                    height={40}
+                                    className="w-full h-full object-cover"
+                                  />
+                              </div>
+                              <span>{collection.name}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                  <Separator />
                   {navLinks.map((link) => (
-                    <Link key={link.href} href={link.href} className="transition-colors hover:text-primary" onClick={() => setMenuOpen(false)}>
+                    <Link key={link.href} href={link.href} className="transition-colors hover:text-primary py-3" onClick={() => setMenuOpen(false)}>
                       {link.label}
                     </Link>
                   ))}
                 </nav>
-                <div className="mt-auto p-6 flex items-center justify-around">
+                <div className="mt-auto p-6 flex items-center justify-around border-t">
                   <Button variant="ghost" size="icon">
                     <Search className="h-6 w-6" />
                     <span className="sr-only">Pesquisar</span>

@@ -4,10 +4,11 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Search, Heart, ShoppingCart, User, Brush } from 'lucide-react';
+import { Menu, Search, Heart, ShoppingCart, User, Brush, ChevronDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { collections } from '@/lib/mock-data';
 
 const navLinks = [
-  { href: '#collections', label: 'Coleções' },
   { href: '#bestsellers', label: 'Mais Vendidos' },
   { href: '#compositions', label: 'Composições' },
 ];
@@ -23,6 +24,29 @@ export default function Header() {
           <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+           <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" className="flex items-center gap-1 transition-colors hover:text-primary">
+                Coleções <ChevronDown className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56">
+              <div className="grid gap-4">
+                <p className="font-medium">Nossas Coleções</p>
+                <div className="grid gap-2">
+                {collections.map((collection) => (
+                  <Link
+                    key={collection.name}
+                    href="#"
+                    className="block p-2 -m-2 rounded-md hover:bg-accent"
+                  >
+                    {collection.name}
+                  </Link>
+                ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className="transition-colors hover:text-primary">
               {link.label}
@@ -64,6 +88,9 @@ export default function Header() {
                   </Link>
                 </div>
                 <nav className="flex flex-col p-6 gap-4 text-lg">
+                  <Link href="#collections" className="transition-colors hover:text-primary" onClick={() => setMenuOpen(false)}>
+                    Coleções
+                  </Link>
                   {navLinks.map((link) => (
                     <Link key={link.href} href={link.href} className="transition-colors hover:text-primary" onClick={() => setMenuOpen(false)}>
                       {link.label}

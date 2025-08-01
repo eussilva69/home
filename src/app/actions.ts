@@ -9,11 +9,7 @@ import {
   suggestFrameCompositions,
   SuggestFrameCompositionsInput,
 } from '@/ai/flows/suggest-frame-compositions';
-import {
-  aiChatbotSupport,
-  AiChatbotSupportInput
-} from '@/ai/flows/ai-chatbot-support';
-import { productDescriptionSchema, compositionSuggesterSchema, chatbotSchema, loginSchema } from '@/lib/schemas';
+import { productDescriptionSchema, compositionSuggesterSchema, loginSchema } from '@/lib/schemas';
 import { products } from '@/lib/mock-data';
 import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
@@ -50,30 +46,6 @@ export async function suggestCompositionsAction(values: z.infer<typeof compositi
     } catch (error) {
         console.error(error);
         return { error: 'Failed to suggest compositions. Please try again.' };
-    }
-}
-
-export async function chatbotSupportAction(values: z.infer<typeof chatbotSchema>) {
-    try {
-        const validatedFields = chatbotSchema.safeParse(values);
-        if (!validatedFields.success) {
-            return { error: "Entrada inválida." };
-        }
-
-        const productCatalog = products.map(p => `${p.name} - ${p.category} - $${p.price}`).join('\n');
-        
-        const input: AiChatbotSupportInput = {
-            query: validatedFields.data.query,
-            productCatalog: productCatalog,
-            shippingInformation: "Enviamos para todo o mundo. O envio padrão leva de 5 a 7 dias úteis. O envio expresso leva de 2 a 3 dias úteis.",
-            sizeInformation: "Nossas impressões estão disponíveis em Pequeno (20x25 cm), Médio (30x40 cm) e Grande (45x60 cm).",
-        };
-
-        const result = await aiChatbotSupport(input);
-        return { success: result.response };
-    } catch (error) {
-        console.error(error);
-        return { error: 'Estou com problemas de conexão. Por favor, tente novamente mais tarde.' };
     }
 }
 

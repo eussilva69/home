@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster";
-import AiChatbot from "@/components/features/ai-chatbot";
 import ExitIntentPopup from "@/components/ui/exit-intent-popup";
 import { AuthProvider } from "@/hooks/use-auth";
 import "./globals.css";
@@ -26,7 +25,6 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <Toaster />
-          <AiChatbot />
           <ExitIntentPopup />
         </AuthProvider>
       </body>

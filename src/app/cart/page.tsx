@@ -32,53 +32,54 @@ type ShippingOption = {
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [cep, setCep] = useState('');
-  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
-  const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [shippingError, setShippingError] = useState<string | null>(null);
+  // const [cep, setCep] = useState('');
+  // const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  // const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
+  // const [isCalculating, setIsCalculating] = useState(false);
+  // const [shippingError, setShippingError] = useState<string | null>(null);
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     updateQuantity(id, newQuantity);
-    setSelectedShipping(null);
-    setShippingOptions([]);
+    // setSelectedShipping(null);
+    // setShippingOptions([]);
   };
 
   const handleRemoveItem = (id: string) => {
     removeFromCart(id);
-    setSelectedShipping(null);
-    setShippingOptions([]);
+    // setSelectedShipping(null);
+    // setShippingOptions([]);
   };
   
-  const handleCalculateShipping = async () => {
-    if (!cep || cartItems.length === 0) return;
-    setIsCalculating(true);
-    setShippingError(null);
-    setSelectedShipping(null);
-    setShippingOptions([]);
+  // const handleCalculateShipping = async () => {
+  //   if (!cep || cartItems.length === 0) return;
+  //   setIsCalculating(true);
+  //   setShippingError(null);
+  //   setSelectedShipping(null);
+  //   setShippingOptions([]);
 
-    const shippingItems = cartItems.map(item => ({
-        id: item.id,
-        width: item.width,
-        height: item.height,
-        length: item.length,
-        weight: item.weight,
-        quantity: item.quantity,
-    }));
+  //   const shippingItems = cartItems.map(item => ({
+  //       id: item.id,
+  //       width: item.width,
+  //       height: item.height,
+  //       length: item.length,
+  //       weight: item.weight,
+  //       quantity: item.quantity,
+  //   }));
 
-    const result = await calculateShipping(cep, shippingItems);
+  //   const result = await calculateShipping(cep, shippingItems);
     
-    if (result.error) {
-        setShippingError(result.error);
-    } else if (result.shippingOptions) {
-        setShippingOptions(result.shippingOptions);
-    }
-    setIsCalculating(false);
-  };
+  //   if (result.error) {
+  //       setShippingError(result.error);
+  //   } else if (result.shippingOptions) {
+  //       setShippingOptions(result.shippingOptions);
+  //   }
+  //   setIsCalculating(false);
+  // };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingCost = selectedShipping ? parseFloat(selectedShipping.price) : 0;
+  const shippingCost = 0; // Temporariamente desativado
+  // const shippingCost = selectedShipping ? parseFloat(selectedShipping.price) : 0;
   const total = subtotal + shippingCost;
 
 
@@ -142,6 +143,7 @@ export default function CartPage() {
               </Card>
               
                
+               {/* 
                <Card className="shadow-md">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Truck className="h-6 w-6"/> Calcular Frete</CardTitle>
@@ -194,7 +196,7 @@ export default function CartPage() {
                         )}
                     </CardContent>
                 </Card>
-                
+                 */}
 
             </div>
             <aside className="lg:col-span-1">
@@ -210,7 +212,7 @@ export default function CartPage() {
                    <div className="flex justify-between">
                     <span className="text-muted-foreground">Frete</span>
                     <span className="font-semibold">
-                      {selectedShipping ? `R$ ${shippingCost.toFixed(2).replace('.', ',')}` : 'A calcular'}
+                      R$ 0,00
                     </span>
                   </div>
                   <Separator />
@@ -224,13 +226,13 @@ export default function CartPage() {
                      size="lg" 
                      className="w-full text-lg" 
                      onClick={() => setIsCheckingOut(true)}
-                     disabled={!selectedShipping}
+                     disabled={cartItems.length === 0}
                     >
                      Finalizar Compra
                    </Button>
-                   {!selectedShipping && (
+                   {/* {!selectedShipping && (
                        <p className="text-xs text-muted-foreground text-center">Calcule o frete para continuar</p>
-                   )}
+                   )} */}
                    <Button variant="link" asChild>
                      <Link href="/">Continuar comprando</Link>
                    </Button>

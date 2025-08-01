@@ -15,25 +15,25 @@ import { cn } from '@/lib/utils';
 
 const pricingData = {
   "Solo": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 85.00, valor_com_vidro: 110.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 150.00, valor_com_vidro: 205.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 190.00, valor_com_vidro: 350.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 465.00, valor_com_vidro: 641.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 770.00, valor_com_vidro: 1080.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 90.00, valor_com_vidro: 115.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 155.00, valor_com_vidro: 210.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 195.00, valor_com_vidro: 355.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 470.00, valor_com_vidro: 646.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 775.00, valor_com_vidro: 1085.00 }
   ],
   "Dupla": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 185.00, valor_com_vidro: 280.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 270.00, valor_com_vidro: 390.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 360.00, valor_com_vidro: 640.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 850.00, valor_com_vidro: 1350.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 1380.00, valor_com_vidro: 2110.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 190.00, valor_com_vidro: 285.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 275.00, valor_com_vidro: 395.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 365.00, valor_com_vidro: 645.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 855.00, valor_com_vidro: 1355.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 1385.00, valor_com_vidro: 2115.00 }
   ],
   "Trio": [
-    { tamanho: "30x42 cm", valor_sem_vidro: 270.00, valor_com_vidro: 420.00 },
-    { tamanho: "42x60 cm", valor_sem_vidro: 390.00, valor_com_vidro: 540.00 },
-    { tamanho: "50x70 cm", valor_sem_vidro: 505.00, valor_com_vidro: 770.00 },
-    { tamanho: "60x84 cm", valor_sem_vidro: 1240.00, valor_com_vidro: 1730.00 },
-    { tamanho: "84x120 cm", valor_sem_vidro: 2070.00, valor_com_vidro: 2880.00 }
+    { tamanho: "30x42 cm", valor_sem_vidro: 275.00, valor_com_vidro: 425.00 },
+    { tamanho: "42x60 cm", valor_sem_vidro: 395.00, valor_com_vidro: 545.00 },
+    { tamanho: "50x70 cm", valor_sem_vidro: 510.00, valor_com_vidro: 775.00 },
+    { tamanho: "60x84 cm", valor_sem_vidro: 1245.00, valor_com_vidro: 1735.00 },
+    { tamanho: "84x120 cm", valor_sem_vidro: 2075.00, valor_com_vidro: 2885.00 }
   ]
 };
 
@@ -130,18 +130,14 @@ export default function MonteSeuQuadro() {
     };
   };
 
-  const getFrameDimensionsForPreview = (sizeString: string) => {
+  const getFrameAspectRatio = (sizeString: string) => {
     const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);
-    // Adjusted scale factor for better visualization in the environment
-    const scaleFactor = 0.8; 
-    return {
-      width: w_cm * scaleFactor,
-      height: h_cm * scaleFactor,
-    };
-  };
+    const frameCount = arrangement === 'Trio' ? 3 : (arrangement === 'Dupla' ? 2 : 1);
+    const totalWidthCm = w_cm * frameCount;
+    return `${totalWidthCm}/${h_cm}`;
+  }
 
   const frameCount = arrangement === 'Trio' ? 3 : (arrangement === 'Dupla' ? 2 : 1);
-  const frameDimensions = getFrameDimensionsForPreview(selectedSize);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -179,39 +175,48 @@ export default function MonteSeuQuadro() {
                 <div 
                   className={cn(
                     "flex items-center justify-center gap-4 transition-all",
-                    viewMode === 'frame_only' ? "relative p-4 md:p-12 w-full h-full" : "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+                     viewMode === 'environment' ? "absolute" : "relative p-4 md:p-12 w-full h-full"
                   )}
                   style={viewMode === 'environment' ? {
-                    width: `${frameDimensions.width * frameCount + (frameCount > 1 ? 8 * (frameCount -1) : 0)}px`,
-                    height: `${frameDimensions.height}px`,
+                     top: '30%',
+                     left: '50%',
+                     transform: 'translate(-50%, -50%) rotate(-2deg)',
+                     width: `min(30vw, ${200 * frameCount}px)`,
+                     aspectRatio: getFrameAspectRatio(selectedSize),
                   } : {}}
                 >
-                  {[...Array(frameCount)].map((_, i) => (
-                    <div 
-                      key={i}
-                      className="relative w-full h-full"
+                  <div 
+                      className="relative w-full h-full flex gap-2"
                       style={{
-                        border: `${frameWidth}px ${frameStyles[frameStyle as keyof typeof frameStyles] || 'solid'} ${frameColor}`,
                         boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
                       }}
                     >
-                      <Image
-                          src={imagePreview}
-                          alt="Prévia da imagem"
-                          layout="fill"
-                          objectFit="cover"
-                      />
-                      {glassOption === 'com-vidro' && (
-                          <div 
-                              className="absolute inset-0 w-full h-full"
-                              style={{
-                                  backdropFilter: 'brightness(0.98)',
-                                  background: 'linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15))',
-                              }}
-                          />
-                      )}
-                    </div>
-                  ))}
+                    {[...Array(frameCount)].map((_, i) => (
+                      <div 
+                        key={i}
+                        className="relative w-full h-full"
+                        style={{
+                           border: `${frameWidth}px ${frameStyles[frameStyle as keyof typeof frameStyles] || 'solid'} ${frameColor}`,
+                        }}
+                      >
+                        <Image
+                            src={imagePreview}
+                            alt="Prévia da imagem"
+                            layout="fill"
+                            objectFit="cover"
+                        />
+                        {glassOption === 'com-vidro' && (
+                            <div 
+                                className="absolute inset-0 w-full h-full"
+                                style={{
+                                    backdropFilter: 'brightness(0.98)',
+                                    background: 'linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15))',
+                                }}
+                            />
+                        )}
+                      </div>
+                    ))}
+                   </div>
                   <Button
                       variant="destructive"
                       size="icon"
@@ -336,3 +341,5 @@ export default function MonteSeuQuadro() {
     </div>
   );
 }
+
+    

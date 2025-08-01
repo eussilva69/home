@@ -66,7 +66,7 @@ export default function MercadoPagoCheckout({ totalAmount, paymentMethods }: Mer
       if (result.status === 'approved' || result.status === 'in_process') {
          setPaymentResult({ status: 'approved', message: 'Pagamento aprovado com sucesso! Obrigado pela sua compra.' });
          handleSuccessfulPayment();
-      } else if (result.status === 'pending' && result.payment_method_id === 'pix') {
+      } else if (result.status === 'pending' && result.qr_code_base64) {
          setPaymentResult({ 
              status: 'pending_pix', 
              message: 'Aponte a câmera do seu celular para o QR Code ou copie o código para pagar.',

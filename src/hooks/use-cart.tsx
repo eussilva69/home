@@ -19,7 +19,7 @@ export type CartItemType = {
 
 type CartContextType = {
   cartItems: CartItemType[];
-  addToCart: (item: Omit<CartItemType, 'quantity'>) => void;
+  addToCart: (item: CartItemType) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -50,7 +50,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (itemToAdd: Omit<CartItemType, 'quantity'>) => {
+  const addToCart = (itemToAdd: CartItemType) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === itemToAdd.id);
       if (existingItem) {
@@ -59,8 +59,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           item.id === itemToAdd.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      // Se não, adiciona o novo item
-      return [...prevItems, { ...itemToAdd, quantity: 1 }];
+      // Se não, adiciona o novo item com quantidade 1
+      return [...prevItems, { ...itemToAdd }];
     });
      toast({
       title: "Adicionado ao Carrinho!",
@@ -94,6 +94,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem('cart');
   };
 
   return (

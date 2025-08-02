@@ -67,6 +67,7 @@ const ImageUploadSlot = ({ imagePreview, onUploadClick, onDrop, onDragOver, onDr
                 !imagePreview && "border-2 border-dashed",
                 isDragging ? "border-primary bg-primary/10" : "border-border"
             )}
+            style={{ aspectRatio: '1 / 1.25' }}
             onDrop={(e) => onDrop(e, index)}
             onDragOver={onDragOver}
             onDragEnter={onDragEnter}
@@ -91,7 +92,6 @@ export default function MonteSeuQuadro() {
     const { addToCart } = useCart();
     const [arrangement, setArrangement] = useState<FrameArrangement>('Solo');
     const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([]);
-    const [imageAspectRatios, setImageAspectRatios] = useState<(number | null)[]>([]);
     const [frameStyle, setFrameStyle] = useState('moderna');
     const [glassOption, setGlassOption] = useState('sem-vidro');
     const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -116,13 +116,6 @@ export default function MonteSeuQuadro() {
             }
             return newPreviews;
         });
-        setImageAspectRatios(currentRatios => {
-            const newRatios = Array(newFrameCount).fill(null);
-            for (let i = 0; i < Math.min(currentRatios.length, newFrameCount); i++) {
-                newRatios[i] = currentRatios[i];
-            }
-            return newRatios;
-        });
     }, [arrangement]);
 
     const availableSizes = pricingData[arrangement];
@@ -140,18 +133,6 @@ export default function MonteSeuQuadro() {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const dataUrl = reader.result as string;
-
-                const img = document.createElement('img');
-                img.onload = () => {
-                    const aspectRatio = img.width / img.height;
-                    setImageAspectRatios(ratios => {
-                        const newRatios = [...ratios];
-                        newRatios[index] = aspectRatio;
-                        return newRatios;
-                    });
-                };
-                img.src = dataUrl;
-                
                 setImagePreviews(previews => {
                     const newPreviews = [...previews];
                     newPreviews[index] = dataUrl;
@@ -174,11 +155,6 @@ export default function MonteSeuQuadro() {
             const newPreviews = [...previews];
             newPreviews[index] = null;
             return newPreviews;
-        });
-        setImageAspectRatios(ratios => {
-            const newRatios = [...ratios];
-            newRatios[index] = null;
-            return newRatios;
         });
     };
     
@@ -242,7 +218,7 @@ export default function MonteSeuQuadro() {
                                                      border: `${frameWidth}px ${frameStyles[frameStyle as keyof typeof frameStyles] || 'solid'} ${frameColor}`,
                                                      boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
                                                      backgroundColor: 'white',
-                                                     aspectRatio: imageAspectRatios[index] ? `${imageAspectRatios[index]}` : '1 / 1.25'
+                                                     aspectRatio: '1 / 1.25'
                                                 }}>
                                                      <div className="relative w-full h-full">
                                                         <ImageUploadSlot 

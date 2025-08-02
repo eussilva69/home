@@ -106,7 +106,7 @@ export async function getPaymentStatus(paymentId: number) {
     }
 }
 
-export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'createdAt' | 'shipping'> & { shipping: Omit<OrderDetails['shipping'], 'weight' | 'width' | 'height' | 'length'> }) {
+export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'createdAt'>) {
     try {
         const ordersCollectionRef = collection(firestore, 'orders');
 

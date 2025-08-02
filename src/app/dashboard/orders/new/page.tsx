@@ -126,8 +126,8 @@ export default function NewOrderPage() {
   const cepValue = form.watch('cep');
   useEffect(() => {
     const fetchAddressFromCep = async () => {
-        const cleanCep = cepValue.replace(/\D/g, '');
-        if (cleanCep.length === 8) {
+        const cleanCep = cepValue?.replace(/\D/g, '');
+        if (cleanCep?.length === 8) {
             try {
                 const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
                 const data = await response.json();
@@ -215,9 +215,9 @@ export default function NewOrderPage() {
       },
     };
     
-    const result = await saveOrder(orderDetails as any); // Type assertion to match expected structure
+    const result = await saveOrder(orderDetails as any);
     
-    if (result.success && result.orderId) {
+    if (result.orderId) {
       toast({ title: 'Sucesso!', description: `Pedido #${result.orderId} criado com sucesso.` });
       router.push('/dashboard/orders');
     } else {
@@ -279,8 +279,8 @@ export default function NewOrderPage() {
                             <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Número</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                          </div>
                          <FormField control={form.control} name="complement" render={({ field }) => (<FormItem><FormLabel>Complemento</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                         <div className="grid grid-cols-2 gap-4">
-                            <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem><FormLabel>Bairro</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Bairro</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>Cidade</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                          </div>

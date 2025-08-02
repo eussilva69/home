@@ -130,7 +130,7 @@ export const OrderDetailsSchema = z.object({
     paymentId: z.number().optional(),
   }),
   status: z.string(),
-  createdAt: z.any(),
+  createdAt: z.any(), // Alterado para 'any' para lidar com Timestamp do Firebase
 });
 export type OrderDetails = z.infer<typeof OrderDetailsSchema>;
 

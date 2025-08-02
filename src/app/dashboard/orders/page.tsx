@@ -23,9 +23,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { OrderDetails } from '@/lib/schemas';
 
-interface OrderDocument extends OrderDetails {
+interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
-  createdAt: Timestamp;
+  createdAt: string; // Changed from Timestamp to string
 }
 
 export default function OrdersPage() {
@@ -43,10 +43,15 @@ export default function OrdersPage() {
       } else {
         const q = query(collection(firestore, 'orders'), orderBy('createdAt', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
-          const fetchedOrders = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          } as OrderDocument));
+          const fetchedOrders = snapshot.docs.map(doc => {
+            const data = doc.data();
+            const createdAtTimestamp = data.createdAt as Timestamp;
+            return {
+                id: doc.id,
+                ...data,
+                createdAt: createdAtTimestamp.toDate().toISOString(),
+            } as OrderDocument
+          });
           setOrders(fetchedOrders);
           setLoading(false);
         });
@@ -105,7 +110,7 @@ export default function OrdersPage() {
                         <TableRow key={order.id} className="cursor-pointer hover:bg-muted/50">
                           <TableCell>
                             <Link href={`/dashboard/orders/${order.id}`} className="block w-full h-full">
-                                {order.createdAt?.toDate().toLocaleDateString('pt-BR')}
+                                {new Date(order.createdAt).toLocaleDateString('pt-BR')}
                             </Link>
                           </TableCell>
                           <TableCell>

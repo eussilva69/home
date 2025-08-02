@@ -21,6 +21,8 @@ import type { CreatePaymentOutput } from '@/lib/schemas';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { cn } from '@/lib/utils';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const checkoutSchema = z.object({
   firstName: z.string().min(2, "Nome é obrigatório."),
@@ -47,12 +49,12 @@ export default function CheckoutPage() {
   const subtotal = useMemo(() => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0), [cartItems]);
   const shippingCost = useMemo(() => shipping?.price || 0, [shipping]);
 
-  const finalTotal = subtotal + shippingCost;
   const pixDiscount = 0.10; // 10%
   const cardFee = 0.0499; // 4.99%
 
   const totalPix = useMemo(() => (subtotal * (1 - pixDiscount)) + shippingCost, [subtotal, shippingCost, pixDiscount]);
   const totalCard = useMemo(() => (subtotal + shippingCost) * (1 + cardFee), [subtotal, shippingCost, cardFee]);
+  const totalDisplay = paymentMethod === 'pix' ? totalPix : totalCard;
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -114,24 +116,18 @@ export default function CheckoutPage() {
     }, 5000);
   }
 
-  const handleGeneratePix = async () => {
-     const validation = await form.trigger();
-     if (!validation) {
-         toast({ variant: 'destructive', title: 'Dados incompletos', description: 'Por favor, preencha suas informações pessoais primeiro.' });
-         return;
-     }
-
+  const handleGeneratePix = async (formData: CheckoutFormValues) => {
      setIsProcessing(true);
      const result = await processPixPayment({
          transaction_amount: parseFloat(totalPix.toFixed(2)),
          description: `Compra na Home Designer - Pedido #${Date.now()}`,
          payer: {
-             email: form.getValues('email'),
-             first_name: form.getValues('firstName'),
-             last_name: form.getValues('lastName'),
+             email: formData.email,
+             first_name: formData.firstName,
+             last_name: formData.lastName,
              identification: {
-                 type: form.getValues('docType'),
-                 number: form.getValues('docNumber'),
+                 type: formData.docType,
+                 number: formData.docNumber,
              }
          }
      });
@@ -145,13 +141,7 @@ export default function CheckoutPage() {
      }
   }
 
-  const handleRedirectPayment = async () => {
-    const validation = await form.trigger();
-    if (!validation) {
-      toast({ variant: 'destructive', title: 'Dados incompletos', description: 'Por favor, preencha suas informações pessoais primeiro.' });
-      return;
-    }
-    
+  const handleRedirectPayment = async (formData: CheckoutFormValues) => {
     setIsProcessing(true);
 
     const cartItemsForPref = cartItems.map(item => ({
@@ -186,12 +176,12 @@ export default function CheckoutPage() {
     const result = await processRedirectPayment({
         items: [...cartItemsForPref, ...serviceItems],
         payer: {
-            name: form.getValues('firstName'),
-            surname: form.getValues('lastName'),
-            email: form.getValues('email'),
+            name: formData.firstName,
+            surname: formData.lastName,
+            email: formData.email,
             identification: {
-                type: form.getValues('docType'),
-                number: form.getValues('docNumber'),
+                type: formData.docType,
+                number: formData.docNumber,
             }
         },
     });
@@ -204,6 +194,14 @@ export default function CheckoutPage() {
     }
   };
 
+  const onFormSubmit = (data: CheckoutFormValues) => {
+    if (paymentMethod === 'pix') {
+      handleGeneratePix(data);
+    } else {
+      handleRedirectPayment(data);
+    }
+  }
+
   const copyToClipboard = () => {
       if (pixData) {
           navigator.clipboard.writeText(pixData.qrCode);
@@ -214,14 +212,6 @@ export default function CheckoutPage() {
   const handleBackFromPix = () => {
     stopPolling();
     setPixData(null);
-  }
-
-  const handleFormSubmit = () => {
-    if (paymentMethod === 'pix') {
-      handleGeneratePix();
-    } else {
-      handleRedirectPayment();
-    }
   }
 
   const renderContent = () => {
@@ -254,14 +244,14 @@ export default function CheckoutPage() {
 
     if (pixData) {
        return (
-          <div className="text-center">
+          <div className="text-center max-w-md mx-auto">
               <h1 className="font-headline text-4xl font-bold mb-4">Pague com Pix</h1>
               <p className="text-muted-foreground mb-8">Escaneie o QR Code abaixo com o app do seu banco.</p>
               <div className="flex justify-center mb-6">
                 <QRCode value={pixData.qrCode} size={256} />
               </div>
                <p className="text-muted-foreground mb-4">Ou copie o código:</p>
-              <div className="flex justify-center items-center gap-2 max-w-lg mx-auto mb-8">
+              <div className="flex justify-center items-center gap-2 w-full mb-8">
                   <Input readOnly value={pixData.qrCode} className="text-center text-xs truncate"/>
                   <Button onClick={copyToClipboard} size="icon" variant="outline"><Copy className="h-4 w-4"/></Button>
               </div>
@@ -279,81 +269,106 @@ export default function CheckoutPage() {
 
     return (
         <FormProvider {...form}>
-            <form onSubmit={(e) => { e.preventDefault(); handleFormSubmit(); }}>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-                    <div className="lg:col-span-2 space-y-8">
-                        <div className="bg-white shadow rounded-xl p-6">
-                            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2"><User /> Informações Pessoais</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormControl><Input placeholder="Seu nome" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormControl><Input placeholder="Seu sobrenome" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <div className="md:col-span-2">
-                                    <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                </div>
-                                <FormField control={form.control} name="docType" render={({ field }) => (
-                                    <FormItem>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )} />
-                                <FormField control={form.control} name="docNumber" render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                            </div>
+            <form onSubmit={form.handleSubmit(onFormSubmit)} className="max-w-2xl mx-auto space-y-8">
+                {/* Forma de Pagamento */}
+                <Card className="rounded-2xl shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="text-xl">Escolha a forma de pagamento:</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
+                            <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
+                                <RadioGroupItem value="pix" id="pix" />
+                                <span className="font-medium">
+                                Pix <span className="text-green-600 font-semibold">(Ganhe {pixDiscount*100}% de desconto!)</span>
+                                </span>
+                            </Label>
+                             <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
+                                <RadioGroupItem value="card" id="card" />
+                                <span className="font-medium">Cartão de Crédito</span>
+                            </Label>
+                        </RadioGroup>
+                    </CardContent>
+                </Card>
+
+                 {/* Informações Pessoais */}
+                <Card className="rounded-2xl shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="text-xl font-semibold">Informações Pessoais</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Seu nome</FormLabel><FormControl><Input placeholder="Digite seu nome" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Seu sobrenome</FormLabel><FormControl><Input placeholder="Digite seu sobrenome" {...field} /></FormControl><FormMessage /></FormItem>)} />
                         </div>
-
-                        <div className="bg-white shadow rounded-xl p-6">
-                            <h2 className="text-xl font-semibold mb-4">Pagamento</h2>
-                            <p className="text-sm text-gray-600 mb-2">Escolha a forma de pagamento:</p>
-                             <div className="flex gap-4 mb-4">
-                                <button type="button" onClick={() => setPaymentMethod("pix")} className={cn("flex-1 flex items-center justify-center gap-2 rounded-lg border p-3 transition-all duration-200", paymentMethod === 'pix' ? "bg-primary/10 border-primary text-primary" : "bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200")}>
-                                    <QrCode size={20} /> Pix
-                                </button>
-                                <button type="button" onClick={() => setPaymentMethod("card")} className={cn("flex-1 flex items-center justify-center gap-2 rounded-lg border p-3 transition-all duration-200", paymentMethod === 'card' ? "bg-primary/10 border-primary text-primary" : "bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200")}>
-                                    <CreditCard size={20} /> Cartão
-                                </button>
-                            </div>
-
-                            {paymentMethod === 'pix' && <p className="text-green-700 text-sm mb-4">Ganhe <strong>{(pixDiscount * 100)}% de desconto</strong> sobre os produtos! Após preencher seus dados, clique no botão para gerar o QR Code.</p>}
-                            {paymentMethod === 'card' && <p className="text-muted-foreground text-sm mb-4">Você será redirecionado para o ambiente seguro do Mercado Pago para finalizar. Haverá uma taxa de serviço de {(cardFee * 100).toFixed(2)}%.</p>}
-
-                            <Button type="submit" size="lg" className="w-full" disabled={isProcessing || cartItems.length === 0}>
-                                {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
-                                {isProcessing ? (paymentMethod === 'pix' ? 'Gerando...' : 'Redirecionando...') : (paymentMethod === 'pix' ? `Pagar R$ ${totalPix.toFixed(2).replace('.', ',')} com Pix` : `Pagar R$ ${totalCard.toFixed(2).replace('.', ',')} com Cartão`)}
-                             </Button>
+                        <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <FormField control={form.control} name="docType" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Tipo de Documento</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
+                                        <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="docNumber" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Número do Documento</FormLabel>
+                                    <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
                         </div>
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    <div className="lg:col-span-1">
-                        <div className="bg-white shadow rounded-xl p-6 space-y-4 sticky top-24">
-                            <h2 className="text-xl font-semibold flex items-center gap-2"><Package /> Resumo do Pedido</h2>
-                            <div className="max-h-60 overflow-y-auto pr-2 space-y-3">
-                                {cartItems.map(item => (
-                                    <div key={item.id} className="flex justify-between items-center text-sm">
-                                        <span className="font-semibold">{item.name} <span className="text-muted-foreground">x{item.quantity}</span></span>
-                                        <span>R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</span>
-                                    </div>
-                                ))}
-                                {shippingCost > 0 && (
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="font-semibold">Frete ({shipping?.name})</span>
-                                    <span>R$ {shippingCost.toFixed(2).replace('.',',')}</span>
-                                </div>
-                                )}
+                {/* Resumo do Pedido */}
+                 <Card className="rounded-2xl shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="text-xl font-semibold">Resumo do Pedido</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {cartItems.map(item => (
+                            <div key={item.id} className="flex justify-between text-sm">
+                                <span>{item.name} <span className="text-muted-foreground">x{item.quantity}</span></span>
+                                <span>R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</span>
                             </div>
-                            <Separator />
-                            <div className="text-lg font-bold flex justify-between">
-                                <span>Total</span>
-                                <span>R$ {finalTotal.toFixed(2).replace('.',',')}</span>
+                        ))}
+                         {shippingCost > 0 && (
+                            <div className="flex justify-between text-sm">
+                                <span className="">Frete ({shipping?.name})</span>
+                                <span>R$ {shippingCost.toFixed(2).replace('.',',')}</span>
                             </div>
+                        )}
+                        {paymentMethod === 'pix' && (
+                            <div className="flex justify-between text-sm text-green-600 font-semibold">
+                                <span>Desconto Pix ({pixDiscount*100}%)</span>
+                                <span>- R$ {(subtotal * pixDiscount).toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        )}
+                         {paymentMethod === 'card' && (
+                            <div className="flex justify-between text-sm">
+                                <span>Taxa Cartão ({(cardFee*100).toFixed(2)}%)</span>
+                                <span>+ R$ {((subtotal + shippingCost) * cardFee).toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        )}
+
+                        <Separator />
+                        <div className="flex justify-between text-lg font-bold">
+                            <span>Total</span>
+                            <span>R$ {totalDisplay.toFixed(2).replace('.',',')}</span>
                         </div>
-                    </div>
+                    </CardContent>
+                </Card>
+
+                 <div className="text-center">
+                    <Button type="submit" size="lg" className="w-full max-w-xs h-12 text-lg rounded-xl" disabled={isProcessing || cartItems.length === 0}>
+                         {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
+                         Finalizar Pedido
+                    </Button>
                 </div>
+
             </form>
         </FormProvider>
     );

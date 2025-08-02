@@ -153,6 +153,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'www.melhorenvio.com.br',
         port: '',
+      },
+      {
+        protocol: 'https',
+        hostname: 'http2.mlstatic.com',
+        port: '',
         pathname: '/**',
       }
     ],

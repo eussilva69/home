@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, ChangeEvent, DragEvent } from 'react';
@@ -50,7 +49,7 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
-const environmentImage = "https://images.tcdn.com.br/img/img_prod/703418/papel_de_parede_adesivo_geometrico_costela_de_adao_clean_12087_1_de68faa1e068d65bd29f3d2e0cafe453.jpg";
+const environmentImage = "https://http2.mlstatic.com/D_NQ_NP_988953-MLB72022418120_102023-O.webp";
 
 export default function MonteSeuQuadroPage() {
     const { addToCart } = useCart();
@@ -312,3 +311,4 @@ export default function MonteSeuQuadroPage() {
     );
 
     
+

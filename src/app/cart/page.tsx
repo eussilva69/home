@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
@@ -13,35 +13,28 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/use-cart';
 import { Input } from '@/components/ui/input';
-import { calculateShipping } from '../actions'; // Importando a nova action
+import { calculateShipping } from '../actions';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeFromCart, updateShipping } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, updateShipping, shipping } = useCart();
   const router = useRouter();
   const [cep, setCep] = useState('');
   const [shippingOptions, setShippingOptions] = useState<any[]>([]);
-  const [selectedShipping, setSelectedShipping] = useState<any | null>(null);
+  const [selectedShipping, setSelectedShipping] = useState<any | null>(shipping);
   const [isLoadingShipping, setIsLoadingShipping] = useState(false);
   const [errorShipping, setErrorShipping] = useState<string | null>(null);
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     updateQuantity(id, newQuantity);
-    // Recalculate shipping if an option is selected
-    if (selectedShipping) {
-      handleCalculateShipping();
-    }
   };
 
   const handleRemoveItem = (id: string) => {
     removeFromCart(id);
-     if (selectedShipping) {
-      handleCalculateShipping();
-    }
   };
-  
+
   const handleCalculateShipping = async () => {
     if (cep.replace(/\D/g, '').length !== 8) {
       setErrorShipping('CEP inválido. Por favor, digite 8 números.');
@@ -56,7 +49,11 @@ export default function CartPage() {
     try {
       const result = await calculateShipping(cep, cartItems);
       if (result.success && result.options) {
-        setShippingOptions(result.options);
+        if (result.options.length === 0) {
+            setErrorShipping('Nenhuma opção de frete encontrada para este CEP.');
+        } else {
+            setShippingOptions(result.options);
+        }
       } else {
         setErrorShipping(result.message || 'Não foi possível calcular o frete.');
       }
@@ -66,6 +63,30 @@ export default function CartPage() {
       setIsLoadingShipping(false);
     }
   };
+  
+  // Auto-calculate shipping when CEP is valid
+  useEffect(() => {
+    const cleanCep = cep.replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+        handleCalculateShipping();
+    } else {
+        // Clear previous options if CEP becomes invalid
+        setShippingOptions([]);
+        setSelectedShipping(null);
+        updateShipping(null);
+        setErrorShipping(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cep]);
+  
+  // Recalculate shipping if cart changes and a CEP is entered
+  useEffect(() => {
+    const cleanCep = cep.replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+        handleCalculateShipping();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartItems]);
 
   const subtotal = useMemo(() => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0), [cartItems]);
   const cardFee = 0.0499; // 4.99%
@@ -85,12 +106,15 @@ export default function CartPage() {
           };
           setSelectedShipping(shippingInfo);
           updateShipping(shippingInfo);
+          setErrorShipping(null); // Clear error on selection
       }
   };
 
   const handleCheckout = () => {
       if (shippingOptions.length > 0 && !selectedShipping) {
-        setErrorShipping("Por favor, selecione uma opção de frete.");
+        setErrorShipping("Por favor, selecione uma opção de frete para continuar.");
+        const shippingSection = document.getElementById('shipping-section');
+        shippingSection?.scrollIntoView({ behavior: 'smooth' });
         return;
       }
       router.push('/checkout');
@@ -105,17 +129,17 @@ export default function CartPage() {
         </div>
 
         {cartItems.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2 space-y-6">
               <Card className="shadow-md">
                 <CardHeader>
-                    <CardTitle>Itens</CardTitle>
+                    <CardTitle>Itens no Carrinho</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <ul className="divide-y">
                     {cartItems.map(item => (
                       <li key={item.id} className="flex flex-col sm:flex-row items-center p-4 gap-4">
-                        <div className="w-24 h-32 flex-shrink-0 relative rounded-md overflow-hidden">
+                        <div className="w-24 h-32 flex-shrink-0 relative rounded-md overflow-hidden bg-secondary">
                            <Image src={item.image} alt={item.name} layout="fill" objectFit="cover" />
                         </div>
                         <div className="flex-grow text-center sm:text-left">
@@ -144,40 +168,40 @@ export default function CartPage() {
                 </CardContent>
               </Card>
 
-              {/* Shipping Calculation */}
-              <Card className="shadow-md">
+              <Card className="shadow-md" id="shipping-section">
                   <CardHeader>
                       <CardTitle className="flex items-center gap-2"><Truck/> Calcular Frete</CardTitle>
                   </CardHeader>
                   <CardContent>
-                      <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="flex items-start gap-2">
                           <Input 
                               placeholder="Digite seu CEP" 
                               value={cep} 
-                              onChange={(e) => setCep(e.target.value)} 
+                              onChange={(e) => setCep(e.target.value.replace(/\D/g, '').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 9))} 
                               maxLength={9}
+                              className="max-w-xs"
                           />
-                          <Button onClick={handleCalculateShipping} disabled={isLoadingShipping} className="w-full sm:w-auto">
-                              {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular'}
-                          </Button>
+                          {isLoadingShipping && <Loader2 className="animate-spin mt-2" />}
                       </div>
                       {errorShipping && <p className="text-sm text-destructive mt-2">{errorShipping}</p>}
-                      {shippingOptions.length > 0 && (
+                      
+                      {!isLoadingShipping && shippingOptions.length > 0 && (
                           <div className="mt-4">
+                              <h3 className="text-md font-medium mb-2">Opções de entrega:</h3>
                               <RadioGroup value={selectedShipping?.id.toString()} onValueChange={handleSelectShipping}>
                                   <div className="space-y-2">
                                       {shippingOptions.map((option) => (
-                                          <Label key={option.id} htmlFor={option.id.toString()} className="flex items-center justify-between p-3 border rounded-md cursor-pointer hover:bg-accent has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                                          <Label key={option.id} htmlFor={option.id.toString()} className="flex items-center justify-between p-3 border rounded-md cursor-pointer hover:bg-accent has-[:checked]:bg-primary/10 has-[:checked]:border-primary transition-all">
                                               <div className="flex items-center gap-3">
                                                   <RadioGroupItem value={option.id.toString()} id={option.id.toString()} />
                                                   <div className="flex items-center gap-2">
-                                                      <Image src={option.company.picture} alt={option.company.name} width={20} height={20} />
+                                                      <Image src={option.company.picture} alt={option.company.name} width={20} height={20} className="rounded-full"/>
                                                       <span className="font-semibold">{option.name}</span>
                                                   </div>
                                               </div>
                                               <div className="text-right">
-                                                  <span className="font-bold">R$ {option.price}</span>
-                                                  <p className="text-xs text-muted-foreground">Prazo: {option.delivery_time} dias</p>
+                                                  <span className="font-bold">R$ {parseFloat(option.price).toFixed(2).replace('.', ',')}</span>
+                                                  <p className="text-xs text-muted-foreground">Prazo: {option.delivery_time} dias úteis</p>
                                               </div>
                                           </Label>
                                       ))}
@@ -256,3 +280,5 @@ export default function CartPage() {
     </div>
   );
 }
+
+    

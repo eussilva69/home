@@ -44,38 +44,36 @@ const CartContext = createContext<CartContextType>({
   clearCart: () => {},
 });
 
+const isClient = typeof window !== 'undefined';
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
-  const [cartItems, setCartItems] = useState<CartItemType[]>([]);
-  const [shipping, setShipping] = useState<ShippingInfo>(null);
-  
-  // Load state from localStorage on client-side
-  useEffect(() => {
-    try {
-      const savedCart = localStorage.getItem('cart');
-      const savedShipping = localStorage.getItem('shipping');
-      if (savedCart) {
-        setCartItems(JSON.parse(savedCart));
-      }
-      if (savedShipping) {
-        setShipping(JSON.parse(savedShipping));
-      }
-    } catch (error) {
-        console.error("Failed to parse cart/shipping from localStorage", error);
-        // Clear corrupted data
-        localStorage.removeItem('cart');
-        localStorage.removeItem('shipping');
-    }
-  }, []);
 
-  // Save cart to localStorage whenever it changes
+  const getInitialState = <T,>(key: string, fallback: T): T => {
+    if (!isClient) return fallback;
+    try {
+      const storedValue = localStorage.getItem(key);
+      return storedValue ? JSON.parse(storedValue) : fallback;
+    } catch (error) {
+      console.error(`Failed to parse ${key} from localStorage`, error);
+      localStorage.removeItem(key);
+      return fallback;
+    }
+  };
+
+  const [cartItems, setCartItems] = useState<CartItemType[]>(() => getInitialState('cart', []));
+  const [shipping, setShipping] = useState<ShippingInfo>(() => getInitialState('shipping', null));
+  
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
+    if(isClient) {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+    }
   }, [cartItems]);
   
-  // Save shipping to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('shipping', JSON.stringify(shipping));
+    if(isClient) {
+      localStorage.setItem('shipping', JSON.stringify(shipping));
+    }
   }, [shipping]);
 
 
@@ -83,12 +81,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === itemToAdd.id);
       if (existingItem) {
-        // Se o item já existe, aumenta a quantidade
         return prevItems.map(item =>
           item.id === itemToAdd.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      // Se não, adiciona o novo item com quantidade 1
       return [...prevItems, { ...itemToAdd }];
     });
      toast({
@@ -98,22 +94,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeFromCart = (id: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-     toast({
+    setCartItems(prevItems => {
+        const newItems = prevItems.filter(item => item.id !== id);
+        // If cart becomes empty, also clear shipping
+        if (newItems.length === 0) {
+            setShipping(null);
+        }
+        return newItems;
+    });
+    toast({
       variant: "destructive",
       title: "Item Removido",
       description: `O item foi removido do seu carrinho.`,
     });
   };
-  
-  const removeItem = (id: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-  };
-
 
   const updateQuantity = (id: string, quantity: number) => {
     if (quantity < 1) {
-        removeItem(id);
+        removeFromCart(id);
         return;
     };
     setCartItems(prevItems =>
@@ -128,8 +126,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = () => {
     setCartItems([]);
     setShipping(null);
-    localStorage.removeItem('cart');
-    localStorage.removeItem('shipping');
+    if(isClient) {
+      localStorage.removeItem('cart');
+      localStorage.removeItem('shipping');
+    }
   };
 
   return (
@@ -140,3 +140,5 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useCart = () => useContext(CartContext);
+
+    

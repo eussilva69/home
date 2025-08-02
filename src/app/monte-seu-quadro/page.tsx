@@ -143,8 +143,8 @@ export default function MonteSeuQuadroPage() {
         addToCart(itemToAdd);
     };
     
-    const FrameComponent = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-        <div className={cn("relative w-full aspect-[4/5] p-2", className)} style={{ backgroundColor: frames[selectedFrame as keyof typeof frames].color, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+    const FrameComponent = ({ children }: { children: React.ReactNode; }) => (
+        <div className="relative w-48 aspect-[4/5] p-2" style={{ backgroundColor: frames[selectedFrame as keyof typeof frames].color, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
             <div className="relative w-full h-full bg-white">
                 {children}
             </div>
@@ -165,29 +165,27 @@ export default function MonteSeuQuadroPage() {
               onDragLeave={handleDragLeave}
             >
                 {[...Array(count)].map((_, i) => (
-                    <div key={i} className="w-full">
-                         <label htmlFor="image-upload" className="cursor-pointer w-full">
-                            <FrameComponent className={cn(isDragging && "border-primary border-2 border-dashed")}>
-                            {imagePreview ? (
-                                <>
-                                    <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" />
-                                     <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => { e.preventDefault(); setImagePreview(null)}}>
-                                        <X className="h-4 w-4"/>
-                                    </Button>
-                                </>
-                            ) : isUploading ? (
-                                <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                </div>
-                            ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-muted-foreground">
-                                    <UploadCloud className="h-8 w-8 mb-2" />
-                                    <span className="text-xs text-center">Arraste ou clique para enviar</span>
-                                </div>
-                            )}
-                            </FrameComponent>
-                         </label>
-                    </div>
+                    <label key={i} htmlFor="image-upload" className="cursor-pointer">
+                        <FrameComponent>
+                        {imagePreview ? (
+                            <>
+                                <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" />
+                                 <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => { e.preventDefault(); setImagePreview(null)}}>
+                                    <X className="h-4 w-4"/>
+                                </Button>
+                            </>
+                        ) : isUploading ? (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            </div>
+                        ) : (
+                            <div className={cn("w-full h-full flex flex-col items-center justify-center bg-gray-100 text-muted-foreground", isDragging && "border-primary border-2 border-dashed")}>
+                                <UploadCloud className="h-8 w-8 mb-2" />
+                                <span className="text-xs text-center">Arraste ou clique para enviar</span>
+                            </div>
+                        )}
+                        </FrameComponent>
+                     </label>
                 ))}
                 <input id="image-upload" type="file" className="sr-only" onChange={onFileChange} accept="image/*" />
             </div>
@@ -218,12 +216,12 @@ export default function MonteSeuQuadroPage() {
                  {viewMode === 'environment' ? (
                      <>
                         <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90"/>
-                        <div className="relative w-1/3">
+                        <div className="relative">
                             {renderFrames()}
                         </div>
                      </>
                  ) : (
-                     <div className="w-2/3">
+                     <div className="p-4">
                          {renderFrames()}
                      </div>
                  )}
@@ -312,4 +310,5 @@ export default function MonteSeuQuadroPage() {
       <Footer />
     </div>
     );
-}
+
+    

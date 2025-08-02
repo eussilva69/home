@@ -59,11 +59,11 @@ const getFrameCount = (arrangement: FrameArrangement) => {
     return 1;
 };
 
-const ImageUploadSlot = ({ imagePreview, onUploadClick, onDrop, onDragOver, onDragEnter, onDragLeave, isDragging, index, aspectRatio }: any) => {
+const ImageUploadSlot = ({ imagePreview, onUploadClick, onDrop, onDragOver, onDragEnter, onDragLeave, isDragging, index, onRemove }: any) => {
     return (
         <div
             className={cn(
-                "w-full h-full relative flex items-center justify-center bg-secondary/30 rounded-lg transition-colors",
+                "w-full h-full relative flex items-center justify-center bg-secondary/30 rounded-lg transition-colors overflow-hidden",
                 !imagePreview && "border-2 border-dashed",
                 isDragging ? "border-primary bg-primary/10" : "border-border"
             )}
@@ -71,10 +71,12 @@ const ImageUploadSlot = ({ imagePreview, onUploadClick, onDrop, onDragOver, onDr
             onDragOver={onDragOver}
             onDragEnter={onDragEnter}
             onDragLeave={onDragLeave}
-            style={{ aspectRatio: aspectRatio || '1 / 1.25' }}
         >
             {imagePreview ? (
-                <Image src={imagePreview} alt="Prévia da imagem" layout="fill" objectFit="cover" className="rounded-md" />
+                <>
+                    <Image src={imagePreview} alt="Prévia da imagem" layout="fill" objectFit="cover" className="rounded-md" />
+                    <Button variant="destructive" size="icon" className="absolute top-2 right-2 z-10 h-6 w-6 rounded-full" onClick={() => onRemove(index)}><X className="h-4 w-4" /></Button>
+                </>
             ) : (
                  <div className="text-center text-muted-foreground p-4 cursor-pointer" onClick={() => onUploadClick(index)}>
                     <Upload className="mx-auto h-8 w-8 mb-2" />
@@ -246,19 +248,16 @@ export default function MonteSeuQuadro() {
                                                         <ImageUploadSlot 
                                                             index={index} 
                                                             imagePreview={imagePreviews[index]} 
-                                                            onUploadClick={handleUploadClick} 
+                                                            onUploadClick={handleUploadClick}
+                                                            onRemove={handleImageRemove} 
                                                             onDrop={handleDrop} 
                                                             onDragOver={handleDragOver} 
                                                             onDragEnter={handleDragEnter} 
                                                             onDragLeave={handleDragLeave} 
                                                             isDragging={isDragging} 
-                                                            aspectRatio={imageAspectRatios[index]} 
                                                         />
-                                                        {imagePreviews[index] && (
-                                                            <>
-                                                                {glassOption === 'com-vidro' && <div className="absolute inset-0 w-full h-full" style={{ background: 'linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15))' }} />}
-                                                                <Button variant="destructive" size="icon" className="absolute top-2 right-2 z-10 h-6 w-6 rounded-full" onClick={() => handleImageRemove(index)}><X className="h-4 w-4" /></Button>
-                                                            </>
+                                                        {imagePreviews[index] && glassOption === 'com-vidro' && (
+                                                            <div className="absolute inset-0 w-full h-full" style={{ background: 'linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15))' }} />
                                                         )}
                                                          <input ref={el => fileInputRefs.current[index] = el} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageChange(e, index)} />
                                                      </div>

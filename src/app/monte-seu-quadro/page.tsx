@@ -144,7 +144,7 @@ export default function MonteSeuQuadroPage() {
     };
     
     const FrameComponent = ({ children }: { children: React.ReactNode }) => (
-        <div className="relative w-full h-full p-4" style={{ backgroundColor: frames[selectedFrame as keyof typeof frames].color, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+        <div className="relative w-full aspect-[4/5] p-4" style={{ backgroundColor: frames[selectedFrame as keyof typeof frames].color, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
             <div className="relative w-full h-full bg-white">
                 {children}
             </div>
@@ -224,7 +224,7 @@ export default function MonteSeuQuadroPage() {
                     >
                        {imagePreview ? (
                             <>
-                                <Image src={imagePreview} alt="Sua imagem" layout="fill" objectFit="contain" className="p-2"/>
+                                <Image src={imagePreview} alt="Sua imagem" layout="fill" objectFit="cover" className="rounded-md" />
                                 <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7" onClick={() => setImagePreview(null)}>
                                     <X className="h-4 w-4"/>
                                 </Button>
@@ -326,5 +326,3 @@ export default function MonteSeuQuadroPage() {
     </div>
     );
 }
-
-    

@@ -231,7 +231,7 @@ export default function MonteSeuQuadro() {
                                     <div className={cn("relative flex items-center justify-center p-4", viewMode === 'environment' ? "absolute w-full h-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "")}>
                                         <div className="flex items-center justify-center gap-4 w-full h-full max-w-4xl" style={{ transform: viewMode === 'environment' ? 'scale(0.8)' : 'none' }}>
                                             {Array.from({ length: frameCount }).map((_, index) => (
-                                                <div key={index} className="w-full h-full flex items-center justify-center" style={{
+                                                <div key={index} className="flex items-center justify-center max-w-full max-h-full" style={{
                                                      border: `${frameWidth}px ${frameStyles[frameStyle as keyof typeof frameStyles] || 'solid'} ${frameColor}`,
                                                      boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
                                                      backgroundColor: 'white',
@@ -341,5 +341,3 @@ export default function MonteSeuQuadro() {
         </div>
     );
 }
-
-    

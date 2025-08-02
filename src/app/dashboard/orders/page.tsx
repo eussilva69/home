@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { Loader2, ChevronDown, Package, User, MapPin, CreditCard, Box, Weight, Ruler, ArrowUpRight } from 'lucide-react';
+import { Loader2, ChevronDown, Package, User, MapPin, CreditCard, Box, Weight, Ruler, ArrowUpRight, PlusCircle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { updateTrackingCode } from '@/app/actions';
+import Link from 'next/link';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
@@ -49,11 +50,10 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         const fromPostalCode = "38401104"; // CEP de origem fixo
         const toPostalCode = order.shipping.cep.replace(/\D/g, '');
 
-        let url = `https://app.melhorenvio.com.br/calculadora?from[postal_code]=${fromPostalCode}&to[postal_code]=${toPostalCode}`;
+        let url = `https://app.melhorenvio.com.br/calculator?from[postal_code]=${fromPostalCode}&to[postal_code]=${toPostalCode}`;
 
-        order.items.forEach((item, index) => {
-            url += `&products[${index}][id]=${item.id}&products[${index}][width]=${item.width}&products[${index}][height]=${item.height}&products[${index}][length]=${item.length}&products[${index}][weight]=${item.weight}&products[${index}][insurance_value]=${item.price}&products[${index}][quantity]=${item.quantity}`;
-        });
+        // Usando 'package' em vez de 'volumes' ou 'products' para a calculadora
+        url += `&package[weight]=${order.shipping.weight}&package[width]=${order.shipping.width}&package[height]=${order.shipping.height}&package[length]=${order.shipping.length}&package[insurance_value]=${order.payment.subtotal}`;
         
         window.open(url, '_blank');
     };
@@ -214,8 +214,14 @@ export default function OrdersPage() {
           <DashboardSidebar links={adminLinks} isAdmin={isAdmin} />
           <main className="flex-1">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Histórico de Pedidos</CardTitle>
+                <Button asChild>
+                  <Link href="/dashboard/orders/new">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Criar Pedido
+                  </Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -269,3 +275,4 @@ export default function OrdersPage() {
     </div>
   );
 }
+

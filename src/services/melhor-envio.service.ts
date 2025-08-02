@@ -68,9 +68,24 @@ class MelhorEnvioService {
       
       // Filtra para não incluir opções com erro e para incluir apenas Correios e Jadlog
       const allowedCompanies = ['Correios', 'Jadlog'];
-      const filteredOptions = data.filter((option: any) => {
+      let filteredOptions = data.filter((option: any) => {
         return !option.error && option.company && allowedCompanies.includes(option.company.name);
       });
+
+      // Adiciona a opção de Frete Grátis
+      const freeShippingOption = {
+          id: 999, // Um ID único para a opção de frete grátis
+          name: 'Frete Grátis',
+          price: '0.00',
+          delivery_time: '7-15',
+          company: {
+              name: 'Promocional',
+              picture: 'https://www.melhorenvio.com.br/images/header/logo-dashboard.svg'
+          }
+      };
+
+      // Adiciona a opção de frete grátis no início do array
+      filteredOptions = [freeShippingOption, ...filteredOptions];
 
       return filteredOptions;
 

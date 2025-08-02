@@ -1,5 +1,8 @@
 
 export const products = [
+  // --- Produto de Teste ---
+  { id: 'TEST-01', name: 'Produto de Teste', price: 0.50, image: 'https://placehold.co/400x500.png', image_alt: 'https://images.tcdn.com.br/img/img_prod/703418/papel_de_parede_adesivo_ariana_clean_756_1_20200217074948.jpg', artwork_image: 'https://placehold.co/400x500.png', hint: 'test product', hint_alt: 'living room', category: 'Minimalista', arrangement: 'Solo' },
+
   // --- Coleção Animais (7 Solo, 7 Dupla, 5 Trio) ---
   { id: 'AN-S1', name: 'Leão Majestoso', price: 75.00, image: 'https://placehold.co/400x500.png', image_alt: 'https://images.tcdn.com.br/img/img_prod/703418/papel_de_parede_adesivo_ariana_clean_756_1_20200217074948.jpg', artwork_image: 'https://placehold.co/400x500.png', hint: 'lion', hint_alt: 'living room', category: 'Animais', arrangement: 'Solo' },
   { id: 'AN-S2', name: 'Águia Soberana', price: 75.00, image: 'https://placehold.co/400x500.png', image_alt: 'https://images.tcdn.com.br/img/img_prod/703418/papel_de_parede_adesivo_ariana_clean_756_1_20200217074948.jpg', artwork_image: 'https://placehold.co/400x500.png', hint: 'eagle', hint_alt: 'living room', category: 'Animais', arrangement: 'Solo' },

@@ -11,13 +11,13 @@ import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { firestore } from '@/lib/firebase';
-import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import type { OrderDetails } from '@/lib/schemas';
 import { Badge } from '@/components/ui/badge';
 
-interface OrderDocument extends OrderDetails {
+interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
-  createdAt: Timestamp;
+  createdAt: string; // Changed from Timestamp to string to avoid serialization error
 }
 
 export default function MyOrdersPage() {
@@ -42,17 +42,19 @@ export default function MyOrdersPage() {
                     where("customer.email", "==", user.email)
                 );
                 const querySnapshot = await getDocs(q);
-                const fetchedOrders = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                } as OrderDocument));
+                const fetchedOrders = querySnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const createdAtTimestamp = data.createdAt as Timestamp;
+                    return {
+                        id: doc.id,
+                        ...data,
+                        createdAt: createdAtTimestamp.toDate().toISOString(), // Convert Timestamp to ISO string
+                    } as OrderDocument
+                });
 
                 // Sort client-side to avoid composite index requirement
                 fetchedOrders.sort((a, b) => {
-                    if (a.createdAt && b.createdAt) {
-                        return b.createdAt.toMillis() - a.createdAt.toMillis();
-                    }
-                    return 0;
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
                 });
 
                 setOrders(fetchedOrders);
@@ -118,7 +120,7 @@ export default function MyOrdersPage() {
                                 {orders.length > 0 ? (
                                     orders.map(order => (
                                         <TableRow key={order.id}>
-                                            <TableCell>{order.createdAt?.toDate().toLocaleDateString('pt-BR') ?? 'Data indisponível'}</TableCell>
+                                            <TableCell>{new Date(order.createdAt).toLocaleDateString('pt-BR') ?? 'Data indisponível'}</TableCell>
                                             <TableCell>
                                                 <Badge variant={order.status === 'Aprovado' ? 'default' : 'secondary'}>
                                                     {order.status}

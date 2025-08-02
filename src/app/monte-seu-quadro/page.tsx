@@ -163,8 +163,8 @@ export default function MonteSeuQuadroPage() {
                        {imagePreview ? (
                             <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" />
                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-muted-foreground text-sm text-center">Imagem {i + 1}</span>
+                          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                            <span className="text-muted-foreground text-xs text-center">Sua arte aqui</span>
                           </div>
                        )}
                     </FrameComponent>
@@ -186,10 +186,10 @@ export default function MonteSeuQuadroPage() {
           <div className="flex flex-col gap-4">
               <div className="flex items-center justify-center gap-2 mb-4">
                   <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
-                      <Eye className="mr-2" /> No Ambiente
+                      <Eye className="mr-2 h-4 w-4" /> No Ambiente
                   </Button>
                   <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
-                      <ImageIcon className="mr-2" /> Somente o Quadro
+                      <ImageIcon className="mr-2 h-4 w-4" /> Somente o Quadro
                   </Button>
               </div>
 
@@ -214,7 +214,8 @@ export default function MonteSeuQuadroPage() {
                     <div 
                         className={cn(
                             "relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors",
-                            isDragging && "bg-muted border-primary"
+                            isDragging && "bg-muted border-primary",
+                            imagePreview && "border-none"
                         )}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
@@ -312,8 +313,9 @@ export default function MonteSeuQuadroPage() {
                     </AccordionItem>
                   </Accordion>
 
-                  <Button size="lg" className="w-full mt-8 text-base h-12" onClick={handleAddToCart} disabled={!imagePreview}>
-                    <ShoppingCart className="mr-2" /> Adicionar ao Carrinho
+                  <Button size="lg" className="w-full mt-8 text-base h-12" onClick={handleAddToCart} disabled={!imagePreview || isUploading}>
+                     {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2" />}
+                     Adicionar ao Carrinho
                   </Button>
                 </CardContent>
               </Card>
@@ -324,3 +326,5 @@ export default function MonteSeuQuadroPage() {
     </div>
     );
 }
+
+    

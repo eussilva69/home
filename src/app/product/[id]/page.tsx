@@ -201,30 +201,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
                   <Info className="h-4 w-4"/> Escolha um tamanho para ver a escala real.
               </p>
-              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex flex-wrap gap-2">
+              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {availableSizes.map(({ tamanho }) => {
                   const { width, height } = getFrameDimensions(tamanho);
-                  const frameCount = product.arrangement === 'Trio' ? 3 : (product.arrangement === 'Dupla' ? 2 : 1);
-                  const totalWidth = width * frameCount + (frameCount > 1 ? 8 * (frameCount - 1) : 0);
-
+                  
                   return (
                     <div key={tamanho}>
                       <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
                       <Label
                         htmlFor={`size-${tamanho}`}
                         className={cn(
-                          "flex flex-col items-center justify-between cursor-pointer rounded-lg border-2 p-2 text-center transition-all w-28 h-40",
+                          "flex flex-col items-center justify-between cursor-pointer rounded-lg border-2 p-2 text-center transition-all h-40",
                           selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background'
                         )}
                       >
                         <div className="w-full flex-grow flex items-end justify-center gap-2" style={{ transform: 'scale(0.8)' }}>
                           <Image src={humanImage} alt="Silhueta humana" width={30} height={humanHeightPx} style={{height: `${humanHeightPx}px`}}/>
                           <div className='flex items-center justify-center' style={{height: `${humanHeightPx}px`}}>
-                            <div className="flex items-center justify-center gap-1" style={{ width: `${totalWidth}px`, height: `${height}px` }}>
-                              {[...Array(frameCount)].map((_, i) => (
-                                <div key={i} className="bg-primary/50" style={{ width: `${width}px`, height: `${height}px`}} />
-                              ))}
-                            </div>
+                             <div className="bg-primary/50" style={{ width: `${width}px`, height: `${height}px`}} />
                           </div>
                         </div>
                         <div className='w-full text-center py-1'>

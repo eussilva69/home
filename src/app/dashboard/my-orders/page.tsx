@@ -42,11 +42,10 @@ export default function MyOrdersPage() {
             try {
                 const q = query(
                     collection(firestore, 'orders'), 
-                    where("customer.email", "==", user.email),
-                    orderBy("createdAt", "desc")
+                    where("customer.email", "==", user.email)
                 );
                 const querySnapshot = await getDocs(q);
-                const fetchedOrders = querySnapshot.docs.map(doc => {
+                let fetchedOrders = querySnapshot.docs.map(doc => {
                     const data = doc.data();
                     const createdAtTimestamp = data.createdAt as Timestamp;
                     return {
@@ -55,6 +54,10 @@ export default function MyOrdersPage() {
                         createdAt: createdAtTimestamp.toDate().toISOString(), // Convert Timestamp to ISO string
                     } as OrderDocument
                 });
+                
+                // Sort orders by date client-side
+                fetchedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                
                 setOrders(fetchedOrders);
             } catch (error) {
                 console.error("Erro ao buscar pedidos:", error);
@@ -66,7 +69,8 @@ export default function MyOrdersPage() {
           }
       }
       fetchOrders();
-  }, [user, loading]);
+  }, [user]);
+
 
   if (loading || !user) {
     return (

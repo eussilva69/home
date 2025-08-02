@@ -1,15 +1,51 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Package, Users, DollarSign } from 'lucide-react';
+import { Package, Users, DollarSign, Loader2 } from 'lucide-react';
+import { firestore } from '@/lib/firebase';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 
 type AdminDashboardProps = {
   user: User;
 };
 
+type Stats = {
+    totalSales: number;
+    totalOrders: number;
+    totalCustomers: number;
+};
+
 export default function AdminDashboard({ user }: AdminDashboardProps) {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const ordersQuery = query(collection(firestore, 'orders'));
+    const usersQuery = query(collection(firestore, 'users'));
+
+    const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
+        let totalSales = 0;
+        snapshot.forEach(doc => {
+            totalSales += doc.data().payment.total;
+        });
+        setStats(prev => ({ ...prev, totalSales, totalOrders: snapshot.size } as Stats));
+        setLoading(false);
+    });
+
+    const unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
+        setStats(prev => ({ ...prev, totalCustomers: snapshot.size } as Stats));
+        setLoading(false);
+    });
+
+    return () => {
+        unsubscribeOrders();
+        unsubscribeUsers();
+    };
+  }, []);
+
   return (
     <div className="space-y-8">
       <div>
@@ -24,8 +60,14 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ 0,00</div>
-            <p className="text-xs text-muted-foreground">Nenhuma venda registrada ainda.</p>
+            {loading ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+                <>
+                    <div className="text-2xl font-bold">R$ {stats?.totalSales.toFixed(2).replace('.', ',') || '0,00'}</div>
+                    <p className="text-xs text-muted-foreground">Soma de todas as vendas.</p>
+                </>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -34,8 +76,14 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Nenhum pedido recebido.</p>
+             {loading ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+                <>
+                    <div className="text-2xl font-bold">{stats?.totalOrders || 0}</div>
+                    <p className="text-xs text-muted-foreground">Total de pedidos recebidos.</p>
+                </>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -44,18 +92,30 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Nenhum cliente registrado.</p>
+             {loading ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+                <>
+                    <div className="text-2xl font-bold">{stats?.totalCustomers || 0}</div>
+                    <p className="text-xs text-muted-foreground">Total de clientes registrados.</p>
+                </>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      <Card>
+       <Card>
         <CardHeader>
-            <CardTitle>Nenhum dado para exibir</CardTitle>
+            <CardTitle>Visão Geral</CardTitle>
         </CardHeader>
         <CardContent>
-            <p className="text-muted-foreground">Quando os pedidos começarem a chegar, os gráficos e tabelas aparecerão aqui.</p>
+            {loading ? (
+                <p className="text-muted-foreground">Carregando dados...</p>
+            ) : (
+                <p className="text-muted-foreground">
+                    {stats?.totalOrders === 0 ? "Quando os pedidos começarem a chegar, os gráficos e tabelas aparecerão aqui." : "Gráficos e relatórios detalhados aparecerão aqui em breve."}
+                </p>
+            )}
         </CardContent>
       </Card>
     </div>

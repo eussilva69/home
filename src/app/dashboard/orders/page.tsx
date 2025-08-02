@@ -49,7 +49,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         const fromPostalCode = "38401104"; // CEP de origem fixo
         const toPostalCode = order.shipping.cep.replace(/\D/g, '');
 
-        let url = `https://www.melhorenvio.com.br/app/shipment/calculator?from[postal_code]=${fromPostalCode}&to[postal_code]=${toPostalCode}`;
+        let url = `https://app.melhorenvio.com.br/calculadora?from[postal_code]=${fromPostalCode}&to[postal_code]=${toPostalCode}`;
 
         order.items.forEach((item, index) => {
             url += `&products[${index}][id]=${item.id}&products[${index}][width]=${item.width}&products[${index}][height]=${item.height}&products[${index}][length]=${item.length}&products[${index}][weight]=${item.weight}&products[${index}][insurance_value]=${item.price}&products[${index}][quantity]=${item.quantity}`;

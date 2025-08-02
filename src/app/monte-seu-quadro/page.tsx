@@ -63,17 +63,18 @@ const ImageUploadSlot = ({ imagePreview, onUploadClick, onDrop, onDragOver, onDr
     return (
         <div
             className={cn(
-                "w-full h-full relative flex items-center justify-center bg-secondary/30 border-2 border-dashed rounded-lg transition-colors",
+                "w-full h-full relative flex items-center justify-center bg-secondary/30 rounded-lg transition-colors",
+                !imagePreview && "border-2 border-dashed",
                 isDragging ? "border-primary bg-primary/10" : "border-border"
             )}
             onDrop={(e) => onDrop(e, index)}
             onDragOver={onDragOver}
             onDragEnter={onDragEnter}
             onDragLeave={onDragLeave}
-            style={{ aspectRatio: aspectRatio || '1 / 1' }}
+            style={{ aspectRatio: aspectRatio || '1 / 1.25' }}
         >
             {imagePreview ? (
-                <Image src={imagePreview} alt="Prévia da imagem" layout="fill" objectFit="contain" className="p-2"/>
+                <Image src={imagePreview} alt="Prévia da imagem" layout="fill" objectFit="cover" className="rounded-md" />
             ) : (
                  <div className="text-center text-muted-foreground p-4 cursor-pointer" onClick={() => onUploadClick(index)}>
                     <Upload className="mx-auto h-8 w-8 mb-2" />
@@ -161,7 +162,9 @@ export default function MonteSeuQuadro() {
 
     const handleImageChange = (event: ChangeEvent<HTMLInputElement>, index: number) => {
         const file = event.target.files?.[0];
-        processFile(file, index);
+        if (file) {
+          processFile(file, index);
+        }
     };
 
     const handleImageRemove = (index: number) => {
@@ -186,7 +189,9 @@ export default function MonteSeuQuadro() {
         e.stopPropagation();
         setIsDragging(false);
         const file = e.dataTransfer.files?.[0];
-        processFile(file, index);
+        if (file) {
+          processFile(file, index);
+        }
     };
 
     const handleAddToCart = () => {
@@ -238,7 +243,17 @@ export default function MonteSeuQuadro() {
                                                      aspectRatio: imageAspectRatios[index] ? `${imageAspectRatios[index]}` : '1 / 1.25'
                                                 }}>
                                                      <div className="relative w-full h-full">
-                                                        <ImageUploadSlot index={index} imagePreview={imagePreviews[index]} onUploadClick={handleUploadClick} onDrop={handleDrop} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} isDragging={isDragging} aspectRatio={imageAspectRatios[index]} />
+                                                        <ImageUploadSlot 
+                                                            index={index} 
+                                                            imagePreview={imagePreviews[index]} 
+                                                            onUploadClick={handleUploadClick} 
+                                                            onDrop={handleDrop} 
+                                                            onDragOver={handleDragOver} 
+                                                            onDragEnter={handleDragEnter} 
+                                                            onDragLeave={handleDragLeave} 
+                                                            isDragging={isDragging} 
+                                                            aspectRatio={imageAspectRatios[index]} 
+                                                        />
                                                         {imagePreviews[index] && (
                                                             <>
                                                                 {glassOption === 'com-vidro' && <div className="absolute inset-0 w-full h-full" style={{ background: 'linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15))' }} />}

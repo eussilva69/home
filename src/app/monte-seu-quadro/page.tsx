@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useMemo, ChangeEvent, DragEvent } from 'react';
+import { useState, useMemo, ChangeEvent, DragEvent, useCallback } from 'react';
 import Image from 'next/image';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Ruler, Palette, UploadCloud, X, Loader2, Eye, Image as ImageIcon, Frame, Repeat, Columns } from 'lucide-react';
+import { ShoppingCart, Ruler, Palette, UploadCloud, X, Loader2, Eye, Image as ImageIcon, Frame, Repeat, Columns, Copy } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/hooks/use-cart';
@@ -58,6 +58,8 @@ const frameStyles = {
 
 const environmentImage = "https://http2.mlstatic.com/D_NQ_NP_988953-MLB72022418120_102023-O.webp";
 
+type ImageMode = 'global' | 'split' | 'individual';
+
 export default function MonteSeuQuadroPage() {
     const { addToCart } = useCart();
     const { toast } = useToast();
@@ -68,12 +70,15 @@ export default function MonteSeuQuadroPage() {
     const [selectedFrameStyle, setSelectedFrameStyle] = useState(Object.keys(frameStyles)[0]);
     const [withGlass, setWithGlass] = useState(false);
     const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
-    const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
-    const [imageMode, setImageMode] = useState<'repeat' | 'split'>('repeat');
 
+    const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([null]);
+    const [uploading, setUploading] = useState<(boolean | null)[]>([null]);
+    const [dragging, setDragging] = useState<(boolean | null)[]>([null]);
+    
+    const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
+    const [imageMode, setImageMode] = useState<ImageMode>('global');
+
+    const frameCount = useMemo(() => arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1, [arrangement]);
 
     const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
     const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
@@ -84,13 +89,19 @@ export default function MonteSeuQuadroPage() {
         const newSizes = pricingData[key];
         setAvailableSizes(newSizes);
         setSelectedSize(newSizes[0].tamanho);
+        
+        const newFrameCount = key === 'Trio' ? 3 : key === 'Dupla' ? 2 : 1;
+        setImagePreviews(Array(newFrameCount).fill(null));
+        setUploading(Array(newFrameCount).fill(false));
+        setDragging(Array(newFrameCount).fill(false));
+        
         if (key === 'Solo') {
-            setImageMode('repeat');
+            setImageMode('global');
         }
     };
 
-    const handleImageUpload = async (file: File) => {
-        setIsUploading(true);
+    const handleImageUpload = async (file: File, index: number) => {
+        setUploading(prev => prev.map((u, i) => i === index ? true : u));
         const formData = new FormData();
         formData.append("image", file);
 
@@ -101,7 +112,12 @@ export default function MonteSeuQuadroPage() {
             });
             const data = await response.json();
             if (data.success) {
-                setImagePreview(data.data.url);
+                const imageUrl = data.data.url;
+                if (imageMode === 'individual') {
+                    setImagePreviews(prev => prev.map((p, i) => i === index ? imageUrl : p));
+                } else {
+                    setImagePreviews(Array(frameCount).fill(imageUrl));
+                }
                 toast({ title: "Sucesso!", description: "Sua imagem foi enviada." });
             } else {
                 throw new Error(data.error.message);
@@ -109,32 +125,43 @@ export default function MonteSeuQuadroPage() {
         } catch (error) {
             toast({ variant: "destructive", title: "Erro no Upload", description: "Não foi possível enviar sua imagem. Tente novamente." });
         } finally {
-            setIsUploading(false);
+            setUploading(prev => prev.map((u, i) => i === index ? false : u));
         }
     };
 
-    const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const onFileChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
         if (e.target.files && e.target.files[0]) {
-            handleImageUpload(e.target.files[0]);
+            handleImageUpload(e.target.files[0], index);
+            e.target.value = ''; // Reset input to allow re-uploading the same file
         }
     };
 
-    const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
+    const handleDrop = (e: DragEvent<HTMLDivElement>, index: number) => {
+        e.preventDefault(); e.stopPropagation();
+        setDragging(prev => prev.map((d, i) => i === index ? false : d));
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleImageUpload(e.dataTransfer.files[0]);
+            handleImageUpload(e.dataTransfer.files[0], index);
         }
     };
     
-    const handleDragOver = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); };
-    const handleDragEnter = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
-    const handleDragLeave = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
+    const handleDragEvent = (e: DragEvent<HTMLDivElement>, isEntering: boolean, index: number) => {
+        e.preventDefault(); e.stopPropagation();
+        setDragging(prev => prev.map((d, i) => i === index ? isEntering : d));
+    };
 
+    const handleRemoveImage = (e: React.MouseEvent, index: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (imageMode === 'individual') {
+            setImagePreviews(prev => prev.map((p, i) => i === index ? null : p));
+        } else {
+            setImagePreviews(Array(frameCount).fill(null));
+        }
+    };
 
     const handleAddToCart = () => {
-        if (!imagePreview) {
+        const hasImage = imagePreviews.some(p => p !== null);
+        if (!hasImage) {
             toast({ variant: "destructive", title: "Imagem Faltando", description: "Por favor, envie uma imagem para o seu quadro." });
             return;
         }
@@ -144,7 +171,7 @@ export default function MonteSeuQuadroPage() {
             id: `custom-${arrangement}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}-${Date.now()}`,
             name: "Quadro Personalizado",
             price: finalPrice,
-            image: imagePreview,
+            image: imagePreviews[0]!,
             quantity: 1,
             options: `Personalizado: ${arrangement}, ${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
             weight: selectedPriceInfo.weight,
@@ -155,7 +182,7 @@ export default function MonteSeuQuadroPage() {
         addToCart(itemToAdd);
     };
     
-    const FrameComponent = ({ children, style, imageStyle = {} }: { children: React.ReactNode; style: string; imageStyle?: React.CSSProperties }) => {
+    const FrameComponent = ({ children }: { children: React.ReactNode; }) => {
         const frameColor = frames[selectedFrame as keyof typeof frames].color;
         
         const frameStyleOptions: {[key: string]: React.CSSProperties} = {
@@ -180,7 +207,7 @@ export default function MonteSeuQuadroPage() {
                 className="relative w-48 aspect-[4/5] p-2 transition-all duration-300"
                 style={{ 
                     backgroundColor: frameColor,
-                    ...frameStyleOptions[style] 
+                    ...frameStyleOptions[selectedFrameStyle] 
                 }}
             >
                 <div className="relative w-full h-full bg-white overflow-hidden">
@@ -194,37 +221,39 @@ export default function MonteSeuQuadroPage() {
     };
 
     const renderFrames = () => {
-        const count = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
         return (
-            <div 
-              className="flex justify-center items-center gap-4"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-            >
-                {[...Array(count)].map((_, i) => {
+            <div className="flex justify-center items-center gap-4">
+                {[...Array(frameCount)].map((_, i) => {
+                     const imageSrc = imagePreviews[imageMode === 'individual' ? i : 0];
                      const imageStyle: React.CSSProperties = {};
-                     if (imageMode === 'split' && count > 1) {
-                         imageStyle.objectPosition = `${(i * 100) / (count - 1)}% 50%`;
+                     if (imageMode === 'split' && frameCount > 1) {
+                         imageStyle.objectPosition = `${(i * 100) / (frameCount - 1)}% 50%`;
                      }
 
                     return (
-                    <label key={i} htmlFor="image-upload" className="cursor-pointer">
-                        <FrameComponent style={selectedFrameStyle}>
-                        {imagePreview ? (
+                    <label 
+                        key={i}
+                        htmlFor={`image-upload-${i}`}
+                        className="cursor-pointer"
+                        onDrop={(e) => handleDrop(e, i)}
+                        onDragOver={(e) => handleDragEvent(e, true, i)}
+                        onDragEnter={(e) => handleDragEvent(e, true, i)}
+                        onDragLeave={(e) => handleDragEvent(e, false, i)}
+                    >
+                        <FrameComponent>
+                        {imageSrc ? (
                             <>
-                                <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" style={imageStyle}/>
-                                 <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => { e.preventDefault(); setImagePreview(null)}}>
+                                <Image src={imageSrc} alt={`Pré-visualização ${i+1}`} layout="fill" objectFit="cover" style={imageStyle}/>
+                                 <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => handleRemoveImage(e, i)}>
                                     <X className="h-4 w-4"/>
                                 </Button>
                             </>
-                        ) : isUploading ? (
+                        ) : uploading[i] ? (
                             <div className="w-full h-full flex items-center justify-center bg-gray-100">
                                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                             </div>
                         ) : (
-                            <div className={cn("w-full h-full flex flex-col items-center justify-center bg-gray-100 text-muted-foreground", isDragging && "border-primary border-2 border-dashed")}>
+                            <div className={cn("w-full h-full flex flex-col items-center justify-center bg-gray-100 text-muted-foreground", dragging[i] && "border-primary border-2 border-dashed")}>
                                 <UploadCloud className="h-8 w-8 mb-2" />
                                 <span className="text-xs text-center">Arraste ou clique para enviar</span>
                             </div>
@@ -233,7 +262,26 @@ export default function MonteSeuQuadroPage() {
                      </label>
                     )
                 })}
-                <input id="image-upload" type="file" className="sr-only" onChange={onFileChange} accept="image/*" />
+                 <input 
+                    id={`image-upload-0`}
+                    type="file" 
+                    className="sr-only" 
+                    onChange={(e) => onFileChange(e, 0)} 
+                    accept="image/*" 
+                    multiple={false}
+                />
+                 {frameCount > 1 && [...Array(frameCount-1)].map((_, i) => (
+                      <input 
+                        key={i+1}
+                        id={`image-upload-${i+1}`}
+                        type="file" 
+                        className="sr-only" 
+                        onChange={(e) => onFileChange(e, i+1)} 
+                        accept="image/*" 
+                        multiple={false}
+                        disabled={imageMode !== 'individual'}
+                     />
+                 ))}
             </div>
         )
     }
@@ -307,19 +355,26 @@ export default function MonteSeuQuadroPage() {
                         <AccordionItem value="item-image-mode">
                            <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><ImageIcon/> Aplicação da Imagem</AccordionTrigger>
                            <AccordionContent>
-                                <RadioGroup value={imageMode} onValueChange={(v) => setImageMode(v as any)} className="grid grid-cols-2 gap-3">
+                                <RadioGroup value={imageMode} onValueChange={(v) => setImageMode(v as any)} className="grid grid-cols-3 gap-3">
                                     <div>
-                                        <RadioGroupItem value="repeat" id="mode-repeat" className="sr-only" />
-                                        <Label htmlFor="mode-repeat" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'repeat' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
+                                        <RadioGroupItem value="global" id="mode-global" className="sr-only" />
+                                        <Label htmlFor="mode-global" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'global' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
                                             <Repeat className="h-5 w-5 mb-1"/>
-                                            Repetir em todos
+                                            Global
                                         </Label>
                                     </div>
                                      <div>
                                         <RadioGroupItem value="split" id="mode-split" className="sr-only" />
                                         <Label htmlFor="mode-split" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'split' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
                                             <Columns className="h-5 w-5 mb-1"/>
-                                            Dividir entre quadros
+                                            Split
+                                        </Label>
+                                    </div>
+                                    <div>
+                                        <RadioGroupItem value="individual" id="mode-individual" className="sr-only" />
+                                        <Label htmlFor="mode-individual" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'individual' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
+                                            <Copy className="h-5 w-5 mb-1"/>
+                                            Individual
                                         </Label>
                                     </div>
                                 </RadioGroup>
@@ -389,8 +444,8 @@ export default function MonteSeuQuadroPage() {
                     </AccordionItem>
                   </Accordion>
 
-                  <Button size="lg" className="w-full mt-8 text-base h-12" onClick={handleAddToCart} disabled={!imagePreview || isUploading}>
-                     {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2" />}
+                  <Button size="lg" className="w-full mt-8 text-base h-12" onClick={handleAddToCart} disabled={uploading.some(u => u)}>
+                     {uploading.some(u => u) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2" />}
                      Adicionar ao Carrinho
                   </Button>
                 </CardContent>
@@ -402,5 +457,3 @@ export default function MonteSeuQuadroPage() {
     </div>
     );
 }
-
-    

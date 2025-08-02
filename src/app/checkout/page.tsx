@@ -149,7 +149,7 @@ export default function CheckoutPage() {
   }, [cepValue, form, toast, showAddressForm]);
 
 
-  const handleSuccessfulPayment = async (paymentId?: number) => {
+  const handleSuccessfulPayment = useCallback(async (paymentId?: number) => {
     stopPolling();
   
     const formData = form.getValues();
@@ -188,7 +188,7 @@ export default function CheckoutPage() {
     setPaymentResult({ success: true, paymentId });
     clearCart();
     setStep(6); // Final success step
-  };
+  }, [form, selectedShipping, cartItems, paymentMethod, totalDisplay, subtotal, shippingCost, clearCart, toast]);
   
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -201,7 +201,7 @@ export default function CheckoutPage() {
          toast({ variant: 'destructive', title: 'Pagamento não aprovado', description: 'Por favor, tente novamente ou use outra forma de pagamento.' });
          router.replace('/checkout');
     }
-  }, [router, toast, clearCart]);
+  }, [router, toast, handleSuccessfulPayment]);
 
 
   useEffect(() => {

@@ -10,6 +10,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import {
   Table,
   TableBody,
@@ -101,25 +102,35 @@ export default function OrdersPage() {
                       </TableRow>
                     ) : (
                       orders.map(order => (
-                        <TableRow key={order.id}>
+                        <TableRow key={order.id} className="cursor-pointer hover:bg-muted/50">
                           <TableCell>
-                            {order.createdAt?.toDate().toLocaleDateString('pt-BR')}
+                            <Link href={`/dashboard/orders/${order.id}`} className="block w-full h-full">
+                                {order.createdAt?.toDate().toLocaleDateString('pt-BR')}
+                            </Link>
                           </TableCell>
                           <TableCell>
-                            <div className="font-medium">{`${order.customer.firstName} ${order.customer.lastName}`}</div>
-                            <div className="text-xs text-muted-foreground">{order.customer.email}</div>
+                             <Link href={`/dashboard/orders/${order.id}`} className="block w-full h-full">
+                                <div className="font-medium">{`${order.customer.firstName} ${order.customer.lastName}`}</div>
+                                <div className="text-xs text-muted-foreground">{order.customer.email}</div>
+                             </Link>
                           </TableCell>
                            <TableCell>
-                            <div className="text-sm">{order.shipping.address}</div>
-                            <div className="text-xs text-muted-foreground">{`${order.shipping.city}, ${order.shipping.state} - ${order.shipping.cep}`}</div>
+                            <Link href={`/dashboard/orders/${order.id}`} className="block w-full h-full">
+                                <div className="text-sm truncate max-w-xs">{order.shipping.address}</div>
+                                <div className="text-xs text-muted-foreground">{`${order.shipping.city}, ${order.shipping.state} - ${order.shipping.cep}`}</div>
+                            </Link>
                           </TableCell>
                           <TableCell className="text-right">
-                            R$ {order.payment.total.toFixed(2).replace('.', ',')}
+                             <Link href={`/dashboard/orders/${order.id}`} className="block w-full h-full">
+                                R$ {order.payment.total.toFixed(2).replace('.', ',')}
+                             </Link>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={order.status === 'Aprovado' ? 'default' : 'secondary'}>
-                              {order.status}
-                            </Badge>
+                             <Link href={`/dashboard/orders/${order.id}`} className="block w-full h-full">
+                                <Badge variant={order.status === 'Aprovado' ? 'default' : 'secondary'}>
+                                {order.status}
+                                </Badge>
+                            </Link>
                           </TableCell>
                         </TableRow>
                       ))

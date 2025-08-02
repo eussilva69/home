@@ -115,6 +115,11 @@ export const OrderDetailsSchema = z.object({
     cep: z.string(),
     complement: z.string().optional(),
     details: z.any(),
+     // Dimensões do pacote
+    weight: z.number(),
+    width: z.number(),
+    height: z.number(),
+    length: z.number(),
   }),
   items: z.array(CartItemSchema),
   payment: z.object({

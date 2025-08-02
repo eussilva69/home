@@ -106,14 +106,31 @@ export async function getPaymentStatus(paymentId: number) {
     }
 }
 
-export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'createdAt'>) {
+export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'createdAt' | 'shipping'> & { shipping: Omit<OrderDetails['shipping'], 'weight' | 'width' | 'height' | 'length'> }) {
     try {
         const ordersCollectionRef = collection(firestore, 'orders');
-        const docRef = await addDoc(ordersCollectionRef, {
+
+        // Calcula as dimensões totais do pacote
+        const totalWeight = orderDetails.items.reduce((acc, item) => acc + (item.weight * item.quantity), 0);
+        const maxHeight = Math.max(...orderDetails.items.map(item => item.height));
+        const totalWidth = orderDetails.items.reduce((acc, item) => acc + (item.width * item.quantity), 0); // Empilhamento lado a lado
+        const maxLength = Math.max(...orderDetails.items.map(item => item.length));
+
+
+        const finalOrderDetails = {
             ...orderDetails,
+            shipping: {
+                ...orderDetails.shipping,
+                weight: totalWeight,
+                height: maxHeight,
+                width: totalWidth,
+                length: maxLength,
+            },
             createdAt: serverTimestamp(),
-            status: 'Aprovado'
-        });
+            status: 'Aprovado' // ou 'Pendente', dependendo da lógica
+        };
+
+        const docRef = await addDoc(ordersCollectionRef, finalOrderDetails);
         return { success: true, orderId: docRef.id };
     } catch (error: any) {
         console.error("Erro ao salvar pedido no Firestore:", error);
@@ -296,5 +313,32 @@ export async function getUserData(userId: string) {
     } catch (error) {
         console.error("Erro ao buscar dados do usuário:", error);
         return { success: false, message: "Erro ao buscar dados do usuário." };
+    }
+}
+
+// Função para buscar um pedido específico
+export async function getOrderById(orderId: string) {
+    try {
+      const orderRef = doc(firestore, 'orders', orderId);
+      const docSnap = await getDoc(orderRef);
+      if (docSnap.exists()) {
+        return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
+      }
+      return { success: false, message: 'Pedido não encontrado.' };
+    } catch (error) {
+      console.error('Erro ao buscar pedido:', error);
+      return { success: false, message: 'Erro ao buscar dados do pedido.' };
+    }
+}
+
+// Função para atualizar o código de rastreio
+export async function updateTrackingCode(orderId: string, trackingCode: string) {
+    try {
+        const orderRef = doc(firestore, 'orders', orderId);
+        await setDoc(orderRef, { trackingCode }, { merge: true });
+        return { success: true };
+    } catch (error) {
+        console.error("Erro ao atualizar código de rastreio:", error);
+        return { success: false, message: "Falha ao atualizar o código de rastreio." };
     }
 }

@@ -26,21 +26,17 @@ export type ShippingInfo = {
 
 type CartContextType = {
   cartItems: CartItemType[];
-  shipping: ShippingInfo;
   addToCart: (item: CartItemType) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
-  updateShipping: (shippingInfo: ShippingInfo) => void;
   clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextType>({
   cartItems: [],
-  shipping: null,
   addToCart: () => {},
   removeFromCart: () => {},
   updateQuantity: () => {},
-  updateShipping: () => {},
   clearCart: () => {},
 });
 
@@ -62,19 +58,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const [cartItems, setCartItems] = useState<CartItemType[]>(() => getInitialState('cart', []));
-  const [shipping, setShipping] = useState<ShippingInfo>(() => getInitialState('shipping', null));
   
   useEffect(() => {
     if(isClient) {
       localStorage.setItem('cart', JSON.stringify(cartItems));
     }
   }, [cartItems]);
-  
-  useEffect(() => {
-    if(isClient) {
-      localStorage.setItem('shipping', JSON.stringify(shipping));
-    }
-  }, [shipping]);
 
 
   const addToCart = (itemToAdd: CartItemType) => {
@@ -96,10 +85,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const removeFromCart = (id: string) => {
     setCartItems(prevItems => {
         const newItems = prevItems.filter(item => item.id !== id);
-        // If cart becomes empty, also clear shipping
-        if (newItems.length === 0) {
-            setShipping(null);
-        }
         return newItems;
     });
     toast({
@@ -118,27 +103,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       prevItems.map(item => (item.id === id ? { ...item, quantity } : item))
     );
   };
-  
-  const updateShipping = (shippingInfo: ShippingInfo) => {
-    setShipping(shippingInfo);
-  };
 
   const clearCart = () => {
     setCartItems([]);
-    setShipping(null);
     if(isClient) {
       localStorage.removeItem('cart');
-      localStorage.removeItem('shipping');
+      localStorage.removeItem('shipping'); // Also clear shipping on cart clear
     }
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, shipping, addToCart, removeFromCart, updateQuantity, updateShipping, clearCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
   );
 };
 
 export const useCart = () => useContext(CartContext);
-
-    

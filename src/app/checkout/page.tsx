@@ -9,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { User, Package, Loader2, CheckCircle, QrCode, Copy, CreditCard, AlertTriangle } from 'lucide-react';
-import { processPixPayment, processRedirectPayment, getPaymentStatus } from '../actions';
+import { User, Package, Loader2, CheckCircle, QrCode, Copy, CreditCard, AlertTriangle, Truck } from 'lucide-react';
+import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping } from '../actions';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
@@ -40,15 +40,20 @@ export default function CheckoutPage() {
   const [paymentResult, setPaymentResult] = useState<CreatePaymentOutput | null>(null);
   const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string, paymentId: number } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix');
+  const [cep, setCep] = useState('');
+  const [shippingOptions, setShippingOptions] = useState<any[]>([]);
+  const [selectedShipping, setSelectedShipping] = useState<any | null>(null);
+  const [isLoadingShipping, setIsLoadingShipping] = useState(false);
+  const [errorShipping, setErrorShipping] = useState<string | null>(null);
 
   const { toast } = useToast();
-  const { cartItems, shipping, clearCart } = useCart();
+  const { cartItems, clearCart } = useCart();
   const router = useRouter();
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const subtotal = useMemo(() => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0), [cartItems]);
-  const shippingCost = useMemo(() => shipping?.price || 0, [shipping]);
-
+  const shippingCost = useMemo(() => selectedShipping ? parseFloat(selectedShipping.price) : 0, [selectedShipping]);
+  
   const pixDiscount = 0.10; // 10%
   const cardFee = 0.0499; // 4.99%
 
@@ -115,6 +120,49 @@ export default function CheckoutPage() {
         }
     }, 5000);
   }
+  
+  const handleCalculateShipping = async () => {
+    if (cep.replace(/\D/g, '').length !== 8) {
+      setErrorShipping('CEP inválido. Por favor, digite 8 números.');
+      return;
+    }
+    setIsLoadingShipping(true);
+    setErrorShipping(null);
+    setShippingOptions([]);
+    setSelectedShipping(null);
+
+    try {
+      const result = await calculateShipping(cep, cartItems);
+      if (result.success && result.options) {
+        if (result.options.length === 0) {
+            setErrorShipping('Nenhuma opção de frete encontrada para este CEP.');
+        } else {
+            setShippingOptions(result.options);
+        }
+      } else {
+        setErrorShipping(result.message || 'Não foi possível calcular o frete.');
+      }
+    } catch (error) {
+      setErrorShipping('Ocorreu um erro inesperado ao calcular o frete.');
+    } finally {
+      setIsLoadingShipping(false);
+    }
+  };
+  
+  const handleSelectShipping = (optionId: string) => {
+      const option = shippingOptions.find(opt => opt.id.toString() === optionId);
+      if (option) {
+          const shippingInfo = {
+            id: option.id,
+            name: option.name,
+            price: parseFloat(option.price),
+            company: option.company.name,
+          };
+          setSelectedShipping(shippingInfo);
+          setErrorShipping(null); // Clear error on selection
+      }
+  };
+
 
   const handleGeneratePix = async (formData: CheckoutFormValues) => {
      setIsProcessing(true);
@@ -156,7 +204,7 @@ export default function CheckoutPage() {
     if (shippingCost > 0) {
       serviceItems.push({
         id: 'shipping',
-        title: `Frete (${shipping?.name} - ${shipping?.company})`,
+        title: `Frete (${selectedShipping?.name} - ${selectedShipping?.company})`,
         quantity: 1,
         unit_price: shippingCost,
         currency_id: 'BRL',
@@ -215,19 +263,6 @@ export default function CheckoutPage() {
   }
 
   const renderContent = () => {
-    if (cartItems.length > 0 && !shipping) {
-        return (
-            <div className="text-center">
-                <AlertTriangle className="h-24 w-24 mx-auto text-yellow-500 mb-4"/>
-                <h1 className="font-headline text-4xl font-bold mb-4">Frete não calculado!</h1>
-                <p className="text-muted-foreground mb-8">Por favor, volte ao carrinho para calcular o frete antes de prosseguir.</p>
-                <Button onClick={() => router.push('/cart')} size="lg">
-                    Voltar para o Carrinho
-                </Button>
-            </div>
-        )
-    }
-
     if (paymentResult?.success) {
         return (
           <div className="text-center">
@@ -291,6 +326,56 @@ export default function CheckoutPage() {
                     </CardContent>
                 </Card>
 
+                {/* Entrega */}
+                <Card className="rounded-2xl shadow-lg" id="shipping-section">
+                    <CardHeader>
+                        <CardTitle className="text-xl flex items-center gap-2"><Truck className="h-5 w-5 text-gray-600"/> Entrega</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Label htmlFor="cep">Calcular Frete</Label>
+                        <div className="flex items-start gap-2 mt-2">
+                            <Input 
+                                id="cep"
+                                placeholder="Digite seu CEP" 
+                                value={cep} 
+                                onChange={(e) => setCep(e.target.value.replace(/\D/g, '').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 9))} 
+                                maxLength={9}
+                                className="max-w-xs border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-black"
+                            />
+                            <Button onClick={handleCalculateShipping} disabled={isLoadingShipping} className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+                              {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular'}
+                            </Button>
+                        </div>
+                        {errorShipping && <p className="text-sm text-red-600 mt-2">{errorShipping}</p>}
+                        
+                        {!isLoadingShipping && shippingOptions.length > 0 && (
+                            <div className="mt-6">
+                                <h3 className="text-md font-medium mb-3">Opções de entrega:</h3>
+                                <RadioGroup value={selectedShipping?.id.toString()} onValueChange={handleSelectShipping}>
+                                    <div className="space-y-3">
+                                        {shippingOptions.map((option) => (
+                                            <Label key={option.id} htmlFor={option.id.toString()} className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-100 has-[:checked]:bg-black/5 has-[:checked]:border-black transition-all">
+                                                <div className="flex items-center gap-3">
+                                                    <RadioGroupItem value={option.id.toString()} id={option.id.toString()} />
+                                                    <div className="flex items-center gap-2">
+                                                        <Image src={option.company.picture} alt={option.company.name} width={20} height={20} className="rounded-full"/>
+                                                        <span className="font-semibold text-gray-800">{option.name}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="font-bold text-gray-900">R$ {parseFloat(option.price).toFixed(2).replace('.', ',')}</span>
+                                                    <p className="text-xs text-gray-500">Prazo: {option.delivery_time} dias úteis</p>
+                                                </div>
+                                            </Label>
+                                        ))}
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+
                  {/* Informações Pessoais */}
                 <Card className="rounded-2xl shadow-lg">
                     <CardHeader>
@@ -337,7 +422,7 @@ export default function CheckoutPage() {
                         ))}
                          {shippingCost > 0 && (
                             <div className="flex justify-between text-sm">
-                                <span className="">Frete ({shipping?.name})</span>
+                                <span className="">Frete ({selectedShipping?.name})</span>
                                 <span>R$ {shippingCost.toFixed(2).replace('.',',')}</span>
                             </div>
                         )}
@@ -363,10 +448,13 @@ export default function CheckoutPage() {
                 </Card>
 
                  <div className="text-center">
-                    <Button type="submit" size="lg" className="w-full max-w-xs h-12 text-lg rounded-xl" disabled={isProcessing || cartItems.length === 0}>
+                    <Button type="submit" size="lg" className="w-full max-w-xs h-12 text-lg rounded-xl" disabled={isProcessing || cartItems.length === 0 || !selectedShipping}>
                          {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
                          Finalizar Pedido
                     </Button>
+                    {!selectedShipping && cartItems.length > 0 && (
+                        <p className="text-sm text-red-600 mt-2">Por favor, calcule e selecione o frete para continuar.</p>
+                    )}
                 </div>
 
             </form>

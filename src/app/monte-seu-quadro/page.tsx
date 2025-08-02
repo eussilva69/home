@@ -200,9 +200,9 @@ export default function MonteSeuQuadroPage() {
             <h1 className="text-3xl md:text-5xl font-bold text-primary">Monte seu Quadro</h1>
             <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Crie uma peça única com a sua imagem e do seu jeito.</p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Visualização */}
-          <div className="flex flex-col gap-4">
+          <div className="lg:col-span-3 flex flex-col gap-4">
               <div className="flex items-center justify-center gap-2 mb-4">
                   <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
                       <Eye className="mr-2 h-4 w-4" /> No Ambiente
@@ -230,7 +230,7 @@ export default function MonteSeuQuadroPage() {
           </div>
 
           {/* Opções */}
-          <div className="space-y-6">
+          <div className="lg:col-span-2 space-y-6">
               <Card className="shadow-lg">
                 <CardContent className="p-6">
                   <p className="text-3xl font-bold text-primary mb-6">

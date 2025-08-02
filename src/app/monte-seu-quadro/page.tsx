@@ -59,7 +59,7 @@ const getFrameCount = (arrangement: FrameArrangement) => {
     return 1;
 };
 
-const ImageUploadSlot = ({ imagePreview, onUploadClick, onDrop, onDragOver, onDragEnter, onDragLeave, isDragging, index }: any) => {
+const ImageUploadSlot = ({ imagePreview, onUploadClick, onDrop, onDragOver, onDragEnter, onDragLeave, isDragging, index, aspectRatio }: any) => {
     return (
         <div
             className={cn(
@@ -70,9 +70,10 @@ const ImageUploadSlot = ({ imagePreview, onUploadClick, onDrop, onDragOver, onDr
             onDragOver={onDragOver}
             onDragEnter={onDragEnter}
             onDragLeave={onDragLeave}
+            style={{ aspectRatio: aspectRatio || '1 / 1' }}
         >
             {imagePreview ? (
-                <Image src={imagePreview} alt="Prévia da imagem" layout="fill" objectFit="contain" className="p-8" />
+                <Image src={imagePreview} alt="Prévia da imagem" layout="fill" objectFit="contain" className="p-2"/>
             ) : (
                  <div className="text-center text-muted-foreground p-4 cursor-pointer" onClick={() => onUploadClick(index)}>
                     <Upload className="mx-auto h-8 w-8 mb-2" />
@@ -87,6 +88,7 @@ export default function MonteSeuQuadro() {
     const { addToCart } = useCart();
     const [arrangement, setArrangement] = useState<FrameArrangement>('Solo');
     const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([]);
+    const [imageAspectRatios, setImageAspectRatios] = useState<(number | null)[]>([]);
     const [frameStyle, setFrameStyle] = useState('moderna');
     const [glassOption, setGlassOption] = useState('sem-vidro');
     const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -111,6 +113,13 @@ export default function MonteSeuQuadro() {
             }
             return newPreviews;
         });
+        setImageAspectRatios(currentRatios => {
+            const newRatios = Array(newFrameCount).fill(null);
+            for (let i = 0; i < Math.min(currentRatios.length, newFrameCount); i++) {
+                newRatios[i] = currentRatios[i];
+            }
+            return newRatios;
+        });
     }, [arrangement]);
 
     const availableSizes = pricingData[arrangement];
@@ -123,19 +132,36 @@ export default function MonteSeuQuadro() {
         return () => clearTimeout(timer);
     }, [finalPrice]);
 
-    const handleImageChange = (event: ChangeEvent<HTMLInputElement>, index: number) => {
-        const file = event.target.files?.[0];
+    const processFile = (file: File, index: number) => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
+                const dataUrl = reader.result as string;
+
+                const img = document.createElement('img');
+                img.onload = () => {
+                    const aspectRatio = img.width / img.height;
+                    setImageAspectRatios(ratios => {
+                        const newRatios = [...ratios];
+                        newRatios[index] = aspectRatio;
+                        return newRatios;
+                    });
+                };
+                img.src = dataUrl;
+                
                 setImagePreviews(previews => {
                     const newPreviews = [...previews];
-                    newPreviews[index] = reader.result as string;
+                    newPreviews[index] = dataUrl;
                     return newPreviews;
                 });
             };
             reader.readAsDataURL(file);
         }
+    }
+
+    const handleImageChange = (event: ChangeEvent<HTMLInputElement>, index: number) => {
+        const file = event.target.files?.[0];
+        processFile(file, index);
     };
 
     const handleImageRemove = (index: number) => {
@@ -143,6 +169,11 @@ export default function MonteSeuQuadro() {
             const newPreviews = [...previews];
             newPreviews[index] = null;
             return newPreviews;
+        });
+        setImageAspectRatios(ratios => {
+            const newRatios = [...ratios];
+            newRatios[index] = null;
+            return newRatios;
         });
     };
     
@@ -155,17 +186,7 @@ export default function MonteSeuQuadro() {
         e.stopPropagation();
         setIsDragging(false);
         const file = e.dataTransfer.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                 setImagePreviews(previews => {
-                    const newPreviews = [...previews];
-                    newPreviews[index] = reader.result as string;
-                    return newPreviews;
-                });
-            };
-            reader.readAsDataURL(file);
-        }
+        processFile(file, index);
     };
 
     const handleAddToCart = () => {
@@ -205,18 +226,19 @@ export default function MonteSeuQuadro() {
                                     <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}><Eye className="mr-2" /> Ver no Ambiente</Button>
                                     <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}><ImageIcon className="mr-2" /> Apenas o Quadro</Button>
                                 </div>
-                                <div className={cn("w-full relative rounded-lg bg-secondary/50 overflow-hidden", viewMode === 'environment' ? "aspect-video" : "aspect-square")}>
+                                <div className={cn("w-full relative rounded-lg bg-secondary/50 overflow-hidden", viewMode === 'environment' ? "aspect-video" : "aspect-auto")}>
                                      {viewMode === 'environment' && <Image src={environmentImage} alt="Ambiente" layout="fill" objectFit="cover" className="brightness-75" />}
-                                    <div className={cn("absolute w-full h-full flex items-center justify-center p-4", viewMode === 'environment' && "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2")}>
+                                    <div className={cn("relative flex items-center justify-center p-4", viewMode === 'environment' ? "absolute w-full h-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "")}>
                                         <div className="flex items-center justify-center gap-4 w-full h-full max-w-4xl" style={{ transform: viewMode === 'environment' ? 'scale(0.8)' : 'none' }}>
                                             {Array.from({ length: frameCount }).map((_, index) => (
-                                                <div key={index} className="w-full h-full p-2" style={{
+                                                <div key={index} className="w-full h-full flex items-center justify-center" style={{
                                                      border: `${frameWidth}px ${frameStyles[frameStyle as keyof typeof frameStyles] || 'solid'} ${frameColor}`,
                                                      boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-                                                     backgroundColor: 'white'
+                                                     backgroundColor: 'white',
+                                                     aspectRatio: imageAspectRatios[index] ? `${imageAspectRatios[index]}` : '1 / 1.25'
                                                 }}>
                                                      <div className="relative w-full h-full">
-                                                        <ImageUploadSlot index={index} imagePreview={imagePreviews[index]} onUploadClick={handleUploadClick} onDrop={handleDrop} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} isDragging={isDragging} />
+                                                        <ImageUploadSlot index={index} imagePreview={imagePreviews[index]} onUploadClick={handleUploadClick} onDrop={handleDrop} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} isDragging={isDragging} aspectRatio={imageAspectRatios[index]} />
                                                         {imagePreviews[index] && (
                                                             <>
                                                                 {glassOption === 'com-vidro' && <div className="absolute inset-0 w-full h-full" style={{ background: 'linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15))' }} />}

@@ -34,24 +34,31 @@ export default function MyOrdersPage() {
   
   useEffect(() => {
       const fetchOrders = async () => {
-          if (user) {
+          if (user?.email) {
             setIsLoadingOrders(true);
-            const q = query(
-                collection(firestore, 'orders'), 
-                where("customer.email", "==", user.email),
-                orderBy('createdAt', 'desc')
-            );
-            const querySnapshot = await getDocs(q);
-            const fetchedOrders = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-            } as OrderDocument));
-            setOrders(fetchedOrders);
-            setIsLoadingOrders(false);
+            try {
+                const q = query(
+                    collection(firestore, 'orders'), 
+                    where("customer.email", "==", user.email),
+                    orderBy('createdAt', 'desc')
+                );
+                const querySnapshot = await getDocs(q);
+                const fetchedOrders = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                } as OrderDocument));
+                setOrders(fetchedOrders);
+            } catch (error) {
+                console.error("Erro ao buscar pedidos:", error);
+            } finally {
+                setIsLoadingOrders(false);
+            }
+          } else if (!loading) {
+             setIsLoadingOrders(false);
           }
       }
       fetchOrders();
-  }, [user]);
+  }, [user, loading]);
 
   if (loading || !user) {
     return (
@@ -103,7 +110,7 @@ export default function MyOrdersPage() {
                                 {orders.length > 0 ? (
                                     orders.map(order => (
                                         <TableRow key={order.id}>
-                                            <TableCell>{order.createdAt.toDate().toLocaleDateString('pt-BR')}</TableCell>
+                                            <TableCell>{order.createdAt?.toDate().toLocaleDateString('pt-BR') ?? 'Data indisponível'}</TableCell>
                                             <TableCell>
                                                 <Badge variant={order.status === 'Aprovado' ? 'default' : 'secondary'}>
                                                     {order.status}

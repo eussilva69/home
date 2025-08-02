@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { products } from '@/lib/mock-data';
@@ -73,6 +73,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
   const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
+  
+  const frameCount = useMemo(() => {
+    if (product.arrangement === 'Trio') return 3;
+    if (product.arrangement === 'Dupla') return 2;
+    return 1;
+  }, [product.arrangement]);
+
 
   const handleAddToCart = () => {
     if (!product || !selectedPriceInfo || !finalPrice) return;
@@ -104,6 +111,47 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
   };
 
+  const FrameComponent = ({ children }: { children: React.ReactNode; }) => {
+    const frameColor = frames[selectedFrame as keyof typeof frames].color;
+    const frameStyle = {
+      backgroundColor: frameColor,
+      boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
+      padding: '10px',
+    };
+    
+    return (
+      <div className="relative" style={{ width: 'min(75vw, 150px)', aspectRatio: '3/4' }}>
+        <div className="w-full h-full" style={frameStyle}>
+            <div className="relative w-full h-full bg-white overflow-hidden">
+                {children}
+            </div>
+            {withGlass && (
+                <div className="absolute inset-2.5 bg-black/10 backdrop-blur-[1px]"/>
+            )}
+        </div>
+      </div>
+    );
+  };
+  
+  const renderFrames = () => {
+    return (
+      <div className="flex justify-center items-center gap-4">
+        {[...Array(frameCount)].map((_, i) => (
+          <FrameComponent key={i}>
+            <Image
+                src={product.image}
+                alt={product.name}
+                data-ai-hint={product.hint}
+                fill
+                style={{ objectFit: 'cover' }}
+            />
+          </FrameComponent>
+        ))}
+      </div>
+    );
+  };
+
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -131,56 +179,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         style={{ objectFit: 'cover' }}
                         className="brightness-75"
                     />
-                    <div
-                        className="absolute"
-                        style={{
-                            top: '30%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%) rotate(-2deg)',
-                            width: 'min(30vw, 200px)',
-                            aspectRatio: '3/4',
-                            backgroundColor: '#fff',
-                            boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.35)',
-                            border: `10px solid ${frames[selectedFrame as keyof typeof frames].color}`,
-                        }}
-                        >
-                        <Image
-                            src={product.image}
-                            alt={product.name}
-                            data-ai-hint={product.hint}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            className="p-1.5"
-                        />
-                        {withGlass && (
-                            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
-                        )}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                       {renderFrames()}
                     </div>
                 </div>
             ) : (
                 <div className="relative aspect-square w-full flex items-center justify-center bg-secondary/30 rounded-lg shadow-lg p-4 md:p-8">
-                     <div
-                        className="relative"
-                        style={{
-                            width: 'min(75vw, 320px)',
-                            aspectRatio: product.arrangement === 'Dupla' ? '8/5' : (product.arrangement === 'Trio' ? '12/5' : '3/4'),
-                            backgroundColor: '#fff',
-                            boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-                            border: `10px solid ${frames[selectedFrame as keyof typeof frames].color}`,
-                        }}
-                        >
-                        <Image
-                            src={product.image}
-                            alt={product.name}
-                            data-ai-hint={product.hint}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            className="p-2"
-                        />
-                        {withGlass && (
-                            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
-                        )}
-                    </div>
+                     {renderFrames()}
                 </div>
             )}
           </div>

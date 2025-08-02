@@ -248,14 +248,19 @@ export default function MonteSeuQuadroPage() {
                      <AccordionItem value="item-1">
                         <AccordionTrigger className="text-base font-semibold">Arranjo</AccordionTrigger>
                         <AccordionContent>
-                           <Select value={arrangement} onValueChange={handleArrangementChange}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Solo">Solo (1 quadro)</SelectItem>
-                                    <SelectItem value="Dupla">Dupla (2 quadros)</SelectItem>
-                                    <SelectItem value="Trio">Trio (3 quadros)</SelectItem>
-                                </SelectContent>
-                            </Select>
+                           <RadioGroup value={arrangement} onValueChange={(v) => handleArrangementChange(v as any)} className="grid grid-cols-3 gap-3">
+                                {Object.keys(pricingData).map((key) => (
+                                    <div key={key}>
+                                        <RadioGroupItem value={key} id={`arrangement-${key}`} className="sr-only" />
+                                        <Label
+                                            htmlFor={`arrangement-${key}`}
+                                            className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12", arrangement === key ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}
+                                        >
+                                            {key}
+                                        </Label>
+                                    </div>
+                                ))}
+                            </RadioGroup>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-2">
@@ -333,4 +338,3 @@ export default function MonteSeuQuadroPage() {
     </div>
     );
 }
-

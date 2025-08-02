@@ -8,10 +8,10 @@ import { Loader2 } from 'lucide-react';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import CustomerDashboard from '@/components/dashboard/customer-dashboard';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
-
-export default function PersonalDataPage() {
+export default function ExchangesPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -41,7 +41,6 @@ export default function PersonalDataPage() {
     { href: '/dashboard/exchanges', label: 'Trocas e devoluções', icon: 'ArrowLeftRight' },
   ];
 
-
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <Header />
@@ -49,7 +48,19 @@ export default function PersonalDataPage() {
         <div className="flex flex-col md:flex-row gap-8">
           <DashboardSidebar links={customerLinks} isAdmin={false} />
           <main className="flex-1">
-            <CustomerDashboard user={user} />
+             <h1 className="text-2xl font-semibold mb-6">Trocas e Devoluções</h1>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Política de Trocas</CardTitle>
+                  <CardDescription>Precisa trocar ou devolver um item? Veja como proceder.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Para iniciar um processo de troca ou devolução, entre em contato com nosso suporte ao cliente com o número do seu pedido em mãos.
+                  </p>
+                  <Button>Entrar em Contato</Button>
+                </CardContent>
+              </Card>
           </main>
         </div>
       </div>

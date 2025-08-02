@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { User, Package, Loader2, CheckCircle, QrCode, Copy, CreditCard, AlertTriangle, Truck } from 'lucide-react';
+import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, Edit, ChevronRight, User, MailIcon, MapPin } from 'lucide-react';
 import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping } from '../actions';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -22,12 +22,13 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 
 const checkoutSchema = z.object({
+  email: z.string().email("E-mail inválido."),
   firstName: z.string().min(2, "Nome é obrigatório."),
   lastName: z.string().min(2, "Sobrenome é obrigatório."),
-  email: z.string().email("E-mail inválido."),
   docType: z.string().min(2, "Tipo de documento é obrigatório."),
   docNumber: z.string().min(8, "Número do documento é obrigatório."),
 });
@@ -35,7 +36,27 @@ const checkoutSchema = z.object({
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 type PaymentMethod = 'pix' | 'card';
 
+const StepCard = ({ title, step, currentStep, onEdit, children, isCompleted }: { title: string; step: number; currentStep: number; onEdit: (s: number) => void; children: React.ReactNode; isCompleted: boolean; }) => {
+    if (currentStep < step) return null;
+
+    return (
+        <Card className="rounded-2xl shadow-lg">
+            <CardHeader className="flex flex-row justify-between items-center">
+                <CardTitle className="text-xl">{step}. {title}</CardTitle>
+                {isCompleted && currentStep > step && (
+                    <Button variant="ghost" size="sm" onClick={() => onEdit(step)}><Edit className="mr-2 h-4 w-4" /> Editar</Button>
+                )}
+            </CardHeader>
+            <CardContent>
+                {children}
+            </CardContent>
+        </Card>
+    )
+};
+
+
 export default function CheckoutPage() {
+  const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentResult, setPaymentResult] = useState<CreatePaymentOutput | null>(null);
   const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string, paymentId: number } | null>(null);
@@ -81,6 +102,7 @@ export default function CheckoutPage() {
     stopPolling();
     setPaymentResult({ success: true, paymentId });
     clearCart();
+    setStep(6); // Final success step
   };
 
   useEffect(() => {
@@ -159,7 +181,7 @@ export default function CheckoutPage() {
             company: option.company.name,
           };
           setSelectedShipping(shippingInfo);
-          setErrorShipping(null); // Clear error on selection
+          setErrorShipping(null); 
       }
   };
 
@@ -184,6 +206,7 @@ export default function CheckoutPage() {
      if (result.success && result.qrCode && result.qrCodeBase64 && result.paymentId) {
         setPixData({ qrCode: result.qrCode, qrCodeBase64: result.qrCodeBase64, paymentId: result.paymentId });
         startPollingPaymentStatus(result.paymentId);
+        setStep(6); // Go to Pix display step
      } else {
          toast({ variant: 'destructive', title: 'Erro no Pix', description: result.message || 'Não foi possível gerar o QR Code do Pix.' });
      }
@@ -242,12 +265,8 @@ export default function CheckoutPage() {
     }
   };
 
-  const onFormSubmit = (data: CheckoutFormValues) => {
-    if (paymentMethod === 'pix') {
-      handleGeneratePix(data);
-    } else {
-      handleRedirectPayment(data);
-    }
+  const onFinalSubmit = () => {
+    form.handleSubmit(paymentMethod === 'pix' ? handleGeneratePix : handleRedirectPayment)();
   }
 
   const copyToClipboard = () => {
@@ -256,103 +275,141 @@ export default function CheckoutPage() {
           toast({ title: 'Copiado!', description: 'Código Pix copiado para la área de transferência.' });
       }
   }
-
-  const handleBackFromPix = () => {
-    stopPolling();
-    setPixData(null);
+  
+  const handleEditStep = (stepNumber: number) => {
+      if (step > stepNumber) {
+          setStep(stepNumber);
+      }
+  }
+  
+  const isStepComplete = (stepNumber: number) => {
+      switch(stepNumber) {
+          case 1: return form.getValues('email') !== '';
+          case 2: return form.getValues('firstName') !== '' && form.getValues('lastName') !== '' && form.getValues('docNumber') !== '';
+          case 3: return !!selectedShipping;
+          case 4: return true;
+          default: return false;
+      }
   }
 
   const renderContent = () => {
-    if (paymentResult?.success) {
-        return (
-          <div className="text-center">
-              <CheckCircle className="h-24 w-24 mx-auto text-green-500 mb-4"/>
-              <h1 className="font-headline text-4xl font-bold mb-4">Pagamento Aprovado!</h1>
-              <p className="text-muted-foreground mb-2">Obrigado pela sua compra!</p>
-              {paymentResult.paymentId && <p className="text-sm text-muted-foreground mb-8">ID do Pagamento: {paymentResult.paymentId}</p>}
-              <Button onClick={() => router.push('/')} size="lg">
-                  Voltar para a Loja
-              </Button>
-          </div>
-        )
+    if (step === 6) { // Final State Screen (Success or Pix QR)
+        if (paymentResult?.success) {
+            return (
+              <div className="text-center">
+                  <CheckCircle className="h-24 w-24 mx-auto text-green-500 mb-4"/>
+                  <h1 className="font-headline text-4xl font-bold mb-4">Pagamento Aprovado!</h1>
+                  <p className="text-muted-foreground mb-2">Obrigado pela sua compra!</p>
+                  {paymentResult.paymentId && <p className="text-sm text-muted-foreground mb-8">ID do Pagamento: {paymentResult.paymentId}</p>}
+                  <Button onClick={() => router.push('/')} size="lg">
+                      Voltar para a Loja
+                  </Button>
+              </div>
+            )
+        }
+
+        if (pixData) {
+           return (
+              <div className="text-center max-w-md mx-auto">
+                  <h1 className="font-headline text-4xl font-bold mb-4">Pague com Pix</h1>
+                  <p className="text-muted-foreground mb-8">Escaneie o QR Code abaixo com o app do seu banco.</p>
+                  <div className="flex justify-center mb-6">
+                    <QRCode value={pixData.qrCode} size={256} />
+                  </div>
+                   <p className="text-muted-foreground mb-4">Ou copie o código:</p>
+                  <div className="flex justify-center items-center gap-2 w-full mb-8">
+                      <Input readOnly value={pixData.qrCode} className="text-center text-xs truncate"/>
+                      <Button onClick={copyToClipboard} size="icon" variant="outline"><Copy className="h-4 w-4"/></Button>
+                  </div>
+                  <div className="flex justify-center items-center gap-2 text-primary">
+                      <Loader2 className="h-5 w-5 animate-spin"/>
+                      <span className="font-semibold">Aguardando pagamento...</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">(ID do Pedido: {pixData.paymentId})</p>
+              </div>
+           )
+        }
     }
 
-    if (pixData) {
-       return (
-          <div className="text-center max-w-md mx-auto">
-              <h1 className="font-headline text-4xl font-bold mb-4">Pague com Pix</h1>
-              <p className="text-muted-foreground mb-8">Escaneie o QR Code abaixo com o app do seu banco.</p>
-              <div className="flex justify-center mb-6">
-                <QRCode value={pixData.qrCode} size={256} />
-              </div>
-               <p className="text-muted-foreground mb-4">Ou copie o código:</p>
-              <div className="flex justify-center items-center gap-2 w-full mb-8">
-                  <Input readOnly value={pixData.qrCode} className="text-center text-xs truncate"/>
-                  <Button onClick={copyToClipboard} size="icon" variant="outline"><Copy className="h-4 w-4"/></Button>
-              </div>
-              <div className="flex justify-center items-center gap-2 text-primary">
-                  <Loader2 className="h-5 w-5 animate-spin"/>
-                  <span className="font-semibold">Aguardando pagamento...</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">(ID do Pedido: {pixData.paymentId})</p>
-               <Button onClick={handleBackFromPix} size="lg" variant="ghost" className="mt-8">
-                  Escolher outra forma de pagamento
-              </Button>
-          </div>
-       )
-    }
-
+    // Multi-step form
     return (
         <FormProvider {...form}>
-            <form onSubmit={form.handleSubmit(onFormSubmit)} className="max-w-2xl mx-auto space-y-8">
-                {/* Forma de Pagamento */}
-                <Card className="rounded-2xl shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="text-xl">Escolha a forma de pagamento:</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
-                            <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
-                                <RadioGroupItem value="pix" id="pix" />
-                                <span className="font-medium">
-                                Pix <span className="text-green-600 font-semibold">(Ganhe {pixDiscount*100}% de desconto!)</span>
-                                </span>
-                            </Label>
-                             <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
-                                <RadioGroupItem value="card" id="card" />
-                                <span className="font-medium">Cartão de Crédito</span>
-                            </Label>
-                        </RadioGroup>
-                    </CardContent>
-                </Card>
+            <form onSubmit={(e) => e.preventDefault()} className="max-w-2xl mx-auto space-y-6">
+                
+                <StepCard title="Identificação" step={1} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(1)}>
+                    {step === 1 ? (
+                         <>
+                            <FormField control={form.control} name="email" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Seu melhor e-mail</FormLabel>
+                                    <FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <Button onClick={async () => {
+                                const isValid = await form.trigger('email');
+                                if (isValid) setStep(2);
+                            }} className="mt-4">
+                                Continuar <ChevronRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </>
+                    ) : (
+                        <p className="text-muted-foreground flex items-center gap-2"><MailIcon className="h-4 w-4" /> {form.getValues('email')}</p>
+                    )}
+                </StepCard>
 
-                {/* Entrega */}
-                <Card className="rounded-2xl shadow-lg" id="shipping-section">
-                    <CardHeader>
-                        <CardTitle className="text-xl flex items-center gap-2"><Truck className="h-5 w-5 text-gray-600"/> Entrega</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Label htmlFor="cep">Calcular Frete</Label>
-                        <div className="flex items-start gap-2 mt-2">
-                            <Input 
-                                id="cep"
-                                placeholder="Digite seu CEP" 
-                                value={cep} 
-                                onChange={(e) => setCep(e.target.value.replace(/\D/g, '').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 9))} 
-                                maxLength={9}
-                                className="max-w-xs border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-black"
-                            />
-                            <Button onClick={handleCalculateShipping} disabled={isLoadingShipping} className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">
-                              {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular'}
+                <StepCard title="Informações Pessoais" step={2} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(2)}>
+                    {step === 2 ? (
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Seu nome</FormLabel><FormControl><Input placeholder="Digite seu nome" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Seu sobrenome</FormLabel><FormControl><Input placeholder="Digite seu sobrenome" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="docType" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tipo de Documento</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
+                                            <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="docNumber" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Número do Documento</FormLabel>
+                                        <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+                             <Button onClick={async () => {
+                                const isValid = await form.trigger(['firstName', 'lastName', 'docType', 'docNumber']);
+                                if (isValid) setStep(3);
+                            }} className="mt-4">
+                                Continuar <ChevronRight className="ml-2 h-4 w-4" />
                             </Button>
                         </div>
-                        {errorShipping && <p className="text-sm text-red-600 mt-2">{errorShipping}</p>}
-                        
-                        {!isLoadingShipping && shippingOptions.length > 0 && (
-                            <div className="mt-6">
-                                <h3 className="text-md font-medium mb-3">Opções de entrega:</h3>
-                                <RadioGroup value={selectedShipping?.id.toString()} onValueChange={handleSelectShipping}>
-                                    <div className="space-y-3">
+                    ) : (
+                        <p className="text-muted-foreground flex items-center gap-2"><User className="h-4 w-4" /> {form.getValues('firstName')} {form.getValues('lastName')}</p>
+                    )}
+                </StepCard>
+
+                <StepCard title="Entrega" step={3} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(3)}>
+                     {step === 3 ? (
+                        <>
+                            <Label htmlFor="cep">Calcular Frete</Label>
+                            <div className="flex items-start gap-2 mt-2">
+                                <Input id="cep" placeholder="Digite seu CEP" value={cep} onChange={(e) => setCep(e.target.value.replace(/\D/g, '').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 9))} maxLength={9} className="max-w-xs" />
+                                <Button onClick={handleCalculateShipping} disabled={isLoadingShipping}>
+                                {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular'}
+                                </Button>
+                            </div>
+                            {errorShipping && <p className="text-sm text-red-600 mt-2">{errorShipping}</p>}
+                            
+                            {!isLoadingShipping && shippingOptions.length > 0 && (
+                                <div className="mt-6">
+                                    <RadioGroup value={selectedShipping?.id.toString()} onValueChange={handleSelectShipping} className="space-y-3">
                                         {shippingOptions.map((option) => (
                                             <Label key={option.id} htmlFor={option.id.toString()} className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-100 has-[:checked]:bg-black/5 has-[:checked]:border-black transition-all">
                                                 <div className="flex items-center gap-3">
@@ -368,95 +425,93 @@ export default function CheckoutPage() {
                                                 </div>
                                             </Label>
                                         ))}
-                                    </div>
-                                </RadioGroup>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                                    </RadioGroup>
+                                </div>
+                            )}
+                             <Button onClick={() => { if (selectedShipping) setStep(4); }} className="mt-4" disabled={!selectedShipping}>
+                                Continuar <ChevronRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </>
+                     ) : (
+                         <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> CEP {cep} - {selectedShipping?.name} (R$ {selectedShipping?.price.toFixed(2).replace('.',',')})</p>
+                     )}
+                </StepCard>
 
-
-                 {/* Informações Pessoais */}
-                <Card className="rounded-2xl shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="text-xl font-semibold">Informações Pessoais</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Seu nome</FormLabel><FormControl><Input placeholder="Digite seu nome" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Seu sobrenome</FormLabel><FormControl><Input placeholder="Digite seu sobrenome" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        </div>
-                        <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <FormField control={form.control} name="docType" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Tipo de Documento</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                                        <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
-                                    </Select>
-                                </FormItem>
-                            )} />
-                            <FormField control={form.control} name="docNumber" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Número do Documento</FormLabel>
-                                    <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Resumo do Pedido */}
-                 <Card className="rounded-2xl shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="text-xl font-semibold">Resumo do Pedido</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        {cartItems.map(item => (
-                            <div key={item.id} className="flex justify-between text-sm">
-                                <span>{item.name} <span className="text-muted-foreground">x{item.quantity}</span></span>
-                                <span>R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</span>
-                            </div>
-                        ))}
-                         {shippingCost > 0 && (
-                            <div className="flex justify-between text-sm">
-                                <span className="">Frete ({selectedShipping?.name})</span>
-                                <span>R$ {shippingCost.toFixed(2).replace('.',',')}</span>
-                            </div>
-                        )}
-                        {paymentMethod === 'pix' && (
-                            <div className="flex justify-between text-sm text-green-600 font-semibold">
-                                <span>Desconto Pix ({pixDiscount*100}%)</span>
-                                <span>- R$ {(subtotal * pixDiscount).toFixed(2).replace('.', ',')}</span>
-                            </div>
-                        )}
-                         {paymentMethod === 'card' && (
-                            <div className="flex justify-between text-sm">
-                                <span>Taxa Cartão ({(cardFee*100).toFixed(2)}%)</span>
-                                <span>+ R$ {((subtotal + shippingCost) * cardFee).toFixed(2).replace('.', ',')}</span>
-                            </div>
-                        )}
-
-                        <Separator />
-                        <div className="flex justify-between text-lg font-bold">
-                            <span>Total</span>
-                            <span>R$ {totalDisplay.toFixed(2).replace('.',',')}</span>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                 <div className="text-center">
-                    <Button type="submit" size="lg" className="w-full max-w-xs h-12 text-lg rounded-xl" disabled={isProcessing || cartItems.length === 0 || !selectedShipping}>
-                         {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
-                         Finalizar Pedido
-                    </Button>
-                    {!selectedShipping && cartItems.length > 0 && (
-                        <p className="text-sm text-red-600 mt-2">Por favor, calcule e selecione o frete para continuar.</p>
+                <StepCard title="Forma de Pagamento" step={4} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(4)}>
+                    {step === 4 ? (
+                        <>
+                             <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
+                                <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
+                                    <RadioGroupItem value="pix" id="pix" />
+                                    <span className="font-medium">
+                                    Pix <span className="text-green-600 font-semibold">(Ganhe {pixDiscount*100}% de desconto!)</span>
+                                    </span>
+                                </Label>
+                                <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
+                                    <RadioGroupItem value="card" id="card" />
+                                    <span className="font-medium">Cartão de Crédito</span>
+                                </Label>
+                            </RadioGroup>
+                             <Button onClick={() => setStep(5)} className="mt-4">
+                                Revisar Pedido <ChevronRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </>
+                    ) : (
+                         <p className="text-muted-foreground flex items-center gap-2">
+                           {paymentMethod === 'pix' ? <QrCode className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+                           {paymentMethod === 'pix' ? 'Pix' : 'Cartão de Crédito'}
+                        </p>
                     )}
-                </div>
+                </StepCard>
 
+                {step === 5 && (
+                    <Card className="rounded-2xl shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="text-xl font-semibold">Resumo do Pedido</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            {cartItems.map(item => (
+                                <div key={item.id} className="flex justify-between text-sm">
+                                    <span>{item.name} <span className="text-muted-foreground">x{item.quantity}</span></span>
+                                    <span>R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</span>
+                                </div>
+                            ))}
+                            {shippingCost > 0 && (
+                                <div className="flex justify-between text-sm">
+                                    <span className="">Frete ({selectedShipping?.name})</span>
+                                    <span>R$ {shippingCost.toFixed(2).replace('.',',')}</span>
+                                </div>
+                            )}
+                            {paymentMethod === 'pix' && (
+                                <div className="flex justify-between text-sm text-green-600 font-semibold">
+                                    <span>Desconto Pix ({pixDiscount*100}%)</span>
+                                    <span>- R$ {(subtotal * pixDiscount).toFixed(2).replace('.', ',')}</span>
+                                </div>
+                            )}
+                            {paymentMethod === 'card' && (
+                                <div className="flex justify-between text-sm">
+                                    <span>Taxa Cartão ({(cardFee*100).toFixed(2)}%)</span>
+                                    <span>+ R$ {((subtotal + shippingCost) * cardFee).toFixed(2).replace('.', ',')}</span>
+                                </div>
+                            )}
+
+                            <Separator />
+                            <div className="flex justify-between text-lg font-bold">
+                                <span>Total</span>
+                                <span>R$ {totalDisplay.toFixed(2).replace('.',',')}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+                 
+                 {step === 5 && (
+                    <div className="text-center">
+                        <Button onClick={onFinalSubmit} size="lg" className="w-full max-w-xs h-12 text-lg rounded-xl" disabled={isProcessing}>
+                            {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
+                            Finalizar Pedido
+                        </Button>
+                    </div>
+                 )}
             </form>
         </FormProvider>
     );
@@ -473,3 +528,5 @@ export default function CheckoutPage() {
     </div>
   )
 }
+
+    

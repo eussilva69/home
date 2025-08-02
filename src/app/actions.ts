@@ -7,11 +7,11 @@ import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import type { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types';
 import type { PreferenceCreateData } from 'mercadopago/dist/clients/preference/create/types';
 import { randomUUID } from 'crypto';
-import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails } from '@/lib/schemas';
+import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address } from '@/lib/schemas';
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc } from 'firebase/firestore';
 
 
 // Adicione o Access Token do vendedor
@@ -106,7 +106,7 @@ export async function getPaymentStatus(paymentId: number) {
     }
 }
 
-export async function saveOrder(orderDetails: OrderDetails) {
+export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'createdAt'>) {
     try {
         const ordersCollectionRef = collection(firestore, 'orders');
         const docRef = await addDoc(ordersCollectionRef, {
@@ -195,4 +195,106 @@ export async function logoutAction() {
   } catch (error) {
     return { error: 'Falha ao fazer logout.' };
   }
+}
+
+// Funções de Gerenciamento de Endereço
+
+export async function addOrUpdateAddress(userId: string, address: Address) {
+    try {
+        const userRef = doc(firestore, 'users', userId);
+        const addressesRef = collection(userRef, 'addresses');
+        
+        let addressId = address.id;
+        
+        // Se for um novo endereço principal, desmarca os outros
+        if (address.isDefault) {
+            const q = query(addressesRef, where("isDefault", "==", true));
+            const querySnapshot = await getDocs(q);
+            const batch = writeBatch(firestore);
+            querySnapshot.forEach(doc => {
+                batch.update(doc.ref, { isDefault: false });
+            });
+            await batch.commit();
+        }
+
+        if (addressId) {
+            // Atualiza endereço existente
+            const addressRef = doc(addressesRef, addressId);
+            await setDoc(addressRef, { ...address, id: addressId }, { merge: true });
+        } else {
+            // Adiciona novo endereço
+            const newAddressRef = doc(addressesRef); // Gera ID automaticamente
+            addressId = newAddressRef.id;
+            await setDoc(newAddressRef, { ...address, id: addressId });
+        }
+        
+        return { success: true, addressId };
+    } catch (error) {
+        console.error("Erro ao salvar endereço:", error);
+        return { success: false, message: 'Falha ao salvar o endereço.' };
+    }
+}
+
+export async function getUserAddresses(userId: string): Promise<Address[]> {
+    try {
+        const addressesRef = collection(firestore, 'users', userId, 'addresses');
+        const snapshot = await getDocs(addressesRef);
+        if (snapshot.empty) {
+            return [];
+        }
+        return snapshot.docs.map(doc => doc.data() as Address);
+    } catch (error) {
+        console.error("Erro ao buscar endereços:", error);
+        return [];
+    }
+}
+
+export async function deleteAddress(userId: string, addressId: string) {
+    try {
+        const addressRef = doc(firestore, 'users', userId, 'addresses', addressId);
+        await addressRef.delete();
+        return { success: true };
+    } catch (error) {
+        console.error("Erro ao deletar endereço:", error);
+        return { success: false, message: 'Falha ao deletar o endereço.' };
+    }
+}
+
+export async function setDefaultAddress(userId: string, addressId: string) {
+    const addressesRef = collection(firestore, 'users', userId, 'addresses');
+    const batch = writeBatch(firestore);
+
+    try {
+        // Remove 'isDefault' de qualquer outro endereço
+        const q = query(addressesRef, where("isDefault", "==", true));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(doc => {
+            batch.update(doc.ref, { isDefault: false });
+        });
+
+        // Define o novo endereço como padrão
+        const newDefaultRef = doc(addressesRef, addressId);
+        batch.update(newDefaultRef, { isDefault: true });
+
+        await batch.commit();
+        return { success: true };
+    } catch (error) {
+        console.error("Erro ao definir endereço padrão:", error);
+        return { success: false, message: 'Falha ao definir o endereço como padrão.' };
+    }
+}
+
+// Função para buscar usuário no Firestore
+export async function getUserData(userId: string) {
+    try {
+        const userDocRef = doc(firestore, 'users', userId);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+            return { success: true, data: docSnap.data() };
+        }
+        return { success: false, message: "Usuário não encontrado." };
+    } catch (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
+        return { success: false, message: "Erro ao buscar dados do usuário." };
+    }
 }

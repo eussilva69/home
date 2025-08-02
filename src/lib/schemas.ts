@@ -124,6 +124,22 @@ export const OrderDetailsSchema = z.object({
     shippingCost: z.number(),
     paymentId: z.number().optional(),
   }),
+  status: z.string(),
+  createdAt: z.any(),
 });
-
 export type OrderDetails = z.infer<typeof OrderDetailsSchema>;
+
+
+export const AddressSchema = z.object({
+  id: z.string().optional(),
+  nickname: z.string().min(2, "O apelido é obrigatório."),
+  cep: z.string().min(8, "CEP é obrigatório."),
+  street: z.string().min(2, "Rua é obrigatória."),
+  number: z.string().min(1, "Número é obrigatório."),
+  complement: z.string().optional(),
+  neighborhood: z.string().min(2, "Bairro é obrigatório."),
+  city: z.string().min(2, "Cidade é obrigatória."),
+  state: z.string().min(2, "Estado é obrigatório."),
+  isDefault: z.boolean().optional(),
+});
+export type Address = z.infer<typeof AddressSchema>;

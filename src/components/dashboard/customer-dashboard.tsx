@@ -6,8 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Edit, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+import { getUserData } from '@/app/actions';
 
 type CustomerDashboardProps = {
   user: User;
@@ -26,13 +25,12 @@ export default function CustomerDashboard({ user }: CustomerDashboardProps) {
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const docSnap = await getDoc(userDocRef);
-        if (docSnap.exists()) {
-          setUserData(docSnap.data() as UserData);
+        const result = await getUserData(user.uid);
+        if (result.success && result.data) {
+          setUserData(result.data as UserData);
         } else {
-          // Fallback if firestore doc doesn't exist for some reason
-          setUserData({
+           // Fallback if firestore doc doesn't exist for some reason
+           setUserData({
             name: user.displayName || 'Não informado',
             email: user.email || 'Não informado',
             cpf: 'Não informado',

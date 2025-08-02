@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from "@/components/ui/button";
@@ -9,15 +9,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, Edit, ChevronRight, User, MailIcon, MapPin, Home } from 'lucide-react';
-import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder } from '../actions';
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, Edit, ChevronRight, User, MailIcon, Home, Check } from 'lucide-react';
+import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses } from '../actions';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import QRCode from 'qrcode.react';
-import type { CreatePaymentOutput } from '@/lib/schemas';
+import type { CreatePaymentOutput, Address } from '@/lib/schemas';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { checkoutSchema } from '@/lib/schemas';
+import { useAuth } from '@/hooks/use-auth';
+import { Badge } from '@/components/ui/badge';
 
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
@@ -50,15 +52,21 @@ const StepCard = ({ title, step, currentStep, onEdit, children, isCompleted }: {
 
 
 export default function CheckoutPage() {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentResult, setPaymentResult] = useState<CreatePaymentOutput | null>(null);
   const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string, paymentId: number } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix');
+  
   const [shippingOptions, setShippingOptions] = useState<any[]>([]);
   const [selectedShipping, setSelectedShipping] = useState<any | null>(null);
   const [isLoadingShipping, setIsLoadingShipping] = useState(false);
   const [errorShipping, setErrorShipping] = useState<string | null>(null);
+  
+  const [userAddresses, setUserAddresses] = useState<Address[]>([]);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+
 
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
@@ -95,9 +103,28 @@ export default function CheckoutPage() {
   }, []);
   
   const cepValue = form.watch('cep');
+  
+  const fetchAddresses = useCallback(async () => {
+    if (user) {
+      const addresses = await getUserAddresses(user.uid);
+      addresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
+      setUserAddresses(addresses);
+      // If no address form is open, try to pre-fill with default
+      if (!showAddressForm && addresses.length > 0) {
+        const defaultAddress = addresses.find(a => a.isDefault) || addresses[0];
+        handleSelectAddress(defaultAddress);
+      } else if (addresses.length === 0) {
+        setShowAddressForm(true); // Force form if no addresses
+      }
+    }
+  }, [user, showAddressForm]);
 
   useEffect(() => {
-    const fetchAddress = async () => {
+    fetchAddresses();
+  }, [fetchAddresses]);
+
+  useEffect(() => {
+    const fetchAddressFromCep = async () => {
         const cleanCep = cepValue.replace(/\D/g, '');
         if (cleanCep.length === 8) {
             try {
@@ -116,8 +143,10 @@ export default function CheckoutPage() {
             }
         }
     };
-    fetchAddress();
-  }, [cepValue, form, toast]);
+    if (showAddressForm) {
+      fetchAddressFromCep();
+    }
+  }, [cepValue, form, toast, showAddressForm]);
 
 
   const handleSuccessfulPayment = async (paymentId?: number) => {
@@ -137,7 +166,7 @@ export default function CheckoutPage() {
         city: formData.city,
         state: formData.state,
         cep: formData.cep,
-        complement: formData.complement,
+        complement: formData.complement || "",
         details: selectedShipping,
       },
       items: cartItems,
@@ -161,7 +190,6 @@ export default function CheckoutPage() {
     setStep(6); // Final success step
   };
   
-
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
@@ -200,8 +228,8 @@ export default function CheckoutPage() {
     }, 5000);
   }
   
-  const handleCalculateShipping = async () => {
-    const cep = form.getValues('cep');
+  const handleCalculateShipping = async (cepToCalculate?: string) => {
+    const cep = cepToCalculate || form.getValues('cep');
     if (cep.replace(/\D/g, '').length !== 8) {
       setErrorShipping('CEP inválido. Por favor, digite 8 números.');
       return;
@@ -243,6 +271,17 @@ export default function CheckoutPage() {
       }
   };
 
+  const handleSelectAddress = (address: Address) => {
+    form.setValue('cep', address.cep);
+    form.setValue('street', address.street);
+    form.setValue('number', address.number);
+    form.setValue('complement', address.complement || '');
+    form.setValue('neighborhood', address.neighborhood);
+    form.setValue('city', address.city);
+    form.setValue('state', address.state);
+    setShowAddressForm(false);
+    handleCalculateShipping(address.cep);
+  };
 
   const handleGeneratePix = async (formData: CheckoutFormValues) => {
      setIsProcessing(true);
@@ -456,33 +495,54 @@ export default function CheckoutPage() {
                 <StepCard title="Entrega" step={3} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(3)}>
                      {step === 3 ? (
                         <div className="space-y-4">
-                            <div className="flex items-start gap-2">
-                                <FormField control={form.control} name="cep" render={({ field }) => (
-                                    <FormItem className="flex-1">
-                                        <FormLabel>CEP</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Digite seu CEP" {...field} maxLength={9} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                                <Button onClick={handleCalculateShipping} disabled={isLoadingShipping} className="mt-8">
-                                    {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular Frete'}
-                                </Button>
-                            </div>
+                            <p className="text-sm text-muted-foreground">Selecione um endereço salvo ou cadastre um novo.</p>
+                             <div className="space-y-2">
+                                {userAddresses.map(address => (
+                                    <button key={address.id} onClick={() => handleSelectAddress(address)} className={cn("w-full text-left p-3 border rounded-lg hover:bg-accent", form.getValues('cep') === address.cep && 'bg-accent border-primary')}>
+                                        <div className="flex justify-between items-center">
+                                            <span className="font-semibold">{address.nickname}</span>
+                                            {address.isDefault && <Badge>Padrão</Badge>}
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">{address.street}, {address.number}</p>
+                                    </button>
+                                ))}
+                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <FormField control={form.control} name="street" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Rua</FormLabel><FormControl><Input placeholder="Sua rua" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Número</FormLabel><FormControl><Input placeholder="Nº" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            </div>
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="complement" render={({ field }) => (<FormItem><FormLabel>Complemento (opcional)</FormLabel><FormControl><Input placeholder="Apto, bloco, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem><FormLabel>Bairro</FormLabel><FormControl><Input placeholder="Seu bairro" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            </div>
-                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <FormField control={form.control} name="city" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Cidade</FormLabel><FormControl><Input placeholder="Sua cidade" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input placeholder="UF" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            </div>
+                             <Button variant="link" onClick={() => setShowAddressForm(!showAddressForm)}>
+                                {showAddressForm ? 'Cancelar' : 'Cadastrar outro endereço'}
+                            </Button>
+
+                             {showAddressForm && (
+                                <div className="space-y-4 pt-4 border-t">
+                                    <div className="flex items-start gap-2">
+                                        <FormField control={form.control} name="cep" render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                                <FormLabel>CEP</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="Digite seu CEP" {...field} maxLength={9} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )} />
+                                        <Button onClick={() => handleCalculateShipping()} disabled={isLoadingShipping} className="mt-8">
+                                            {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular Frete'}
+                                        </Button>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <FormField control={form.control} name="street" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Rua</FormLabel><FormControl><Input placeholder="Sua rua" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Número</FormLabel><FormControl><Input placeholder="Nº" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormField control={form.control} name="complement" render={({ field }) => (<FormItem><FormLabel>Complemento (opcional)</FormLabel><FormControl><Input placeholder="Apto, bloco, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem><FormLabel>Bairro</FormLabel><FormControl><Input placeholder="Seu bairro" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <FormField control={form.control} name="city" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Cidade</FormLabel><FormControl><Input placeholder="Sua cidade" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                        <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input placeholder="UF" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    </div>
+                                </div>
+                            )}
 
                             {errorShipping && <p className="text-sm text-red-600 mt-2">{errorShipping}</p>}
                             
@@ -494,7 +554,7 @@ export default function CheckoutPage() {
                                                 <div className="flex items-center gap-3">
                                                     <RadioGroupItem value={option.id.toString()} id={option.id.toString()} />
                                                     <div className="flex items-center gap-2">
-                                                        <Image src={option.company.picture} alt={option.company.name} width={20} height={20} className="rounded-full"/>
+                                                        {option.company.picture && <Image src={option.company.picture} alt={option.company.name} width={20} height={20} className="rounded-full"/>}
                                                         <span className="font-semibold text-gray-800">{option.name}</span>
                                                     </div>
                                                 </div>

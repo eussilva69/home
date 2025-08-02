@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, Edit, ChevronRight, User, MailIcon, MapPin } from 'lucide-react';
+import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, Edit, ChevronRight, User, MailIcon, MapPin, Home } from 'lucide-react';
 import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping } from '../actions';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -24,14 +24,8 @@ import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
+import { checkoutSchema } from '@/lib/schemas';
 
-const checkoutSchema = z.object({
-  email: z.string().email("E-mail inválido."),
-  firstName: z.string().min(2, "Nome é obrigatório."),
-  lastName: z.string().min(2, "Sobrenome é obrigatório."),
-  docType: z.string().min(2, "Tipo de documento é obrigatório."),
-  docNumber: z.string().min(8, "Número do documento é obrigatório."),
-});
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 type PaymentMethod = 'pix' | 'card';
@@ -61,7 +55,6 @@ export default function CheckoutPage() {
   const [paymentResult, setPaymentResult] = useState<CreatePaymentOutput | null>(null);
   const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string, paymentId: number } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix');
-  const [cep, setCep] = useState('');
   const [shippingOptions, setShippingOptions] = useState<any[]>([]);
   const [selectedShipping, setSelectedShipping] = useState<any | null>(null);
   const [isLoadingShipping, setIsLoadingShipping] = useState(false);
@@ -84,7 +77,10 @@ export default function CheckoutPage() {
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { firstName: '', lastName: '', email: '', docType: 'CPF', docNumber: '' }
+    defaultValues: { 
+        firstName: '', lastName: '', email: '', docType: 'CPF', docNumber: '',
+        cep: '', street: '', number: '', complement: '', neighborhood: '', city: '', state: ''
+    }
   });
 
   const stopPolling = () => {
@@ -97,6 +93,32 @@ export default function CheckoutPage() {
   useEffect(() => {
     return () => stopPolling();
   }, []);
+  
+  const cepValue = form.watch('cep');
+
+  useEffect(() => {
+    const fetchAddress = async () => {
+        const cleanCep = cepValue.replace(/\D/g, '');
+        if (cleanCep.length === 8) {
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+                const data = await response.json();
+                if (!data.erro) {
+                    form.setValue('street', data.logradouro);
+                    form.setValue('neighborhood', data.bairro);
+                    form.setValue('city', data.localidade);
+                    form.setValue('state', data.uf);
+                } else {
+                    toast({ title: 'CEP não encontrado', variant: 'destructive'});
+                }
+            } catch (error) {
+                toast({ title: 'Erro ao buscar CEP', variant: 'destructive'});
+            }
+        }
+    };
+    fetchAddress();
+  }, [cepValue, form, toast]);
+
 
   const handleSuccessfulPayment = (paymentId?: number) => {
     stopPolling();
@@ -144,6 +166,7 @@ export default function CheckoutPage() {
   }
   
   const handleCalculateShipping = async () => {
+    const cep = form.getValues('cep');
     if (cep.replace(/\D/g, '').length !== 8) {
       setErrorShipping('CEP inválido. Por favor, digite 8 números.');
       return;
@@ -286,7 +309,7 @@ export default function CheckoutPage() {
       switch(stepNumber) {
           case 1: return form.getValues('email') !== '';
           case 2: return form.getValues('firstName') !== '' && form.getValues('lastName') !== '' && form.getValues('docNumber') !== '';
-          case 3: return !!selectedShipping;
+          case 3: return !!selectedShipping && form.getValues('street') !== '';
           case 4: return true;
           default: return false;
       }
@@ -397,14 +420,35 @@ export default function CheckoutPage() {
 
                 <StepCard title="Entrega" step={3} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(3)}>
                      {step === 3 ? (
-                        <>
-                            <Label htmlFor="cep">Calcular Frete</Label>
-                            <div className="flex items-start gap-2 mt-2">
-                                <Input id="cep" placeholder="Digite seu CEP" value={cep} onChange={(e) => setCep(e.target.value.replace(/\D/g, '').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 9))} maxLength={9} className="max-w-xs" />
-                                <Button onClick={handleCalculateShipping} disabled={isLoadingShipping}>
-                                {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular'}
+                        <div className="space-y-4">
+                            <div className="flex items-start gap-2">
+                                <FormField control={form.control} name="cep" render={({ field }) => (
+                                    <FormItem className="flex-1">
+                                        <FormLabel>CEP</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Digite seu CEP" {...field} maxLength={9} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <Button onClick={handleCalculateShipping} disabled={isLoadingShipping} className="mt-8">
+                                    {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular Frete'}
                                 </Button>
                             </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <FormField control={form.control} name="street" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Rua</FormLabel><FormControl><Input placeholder="Sua rua" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Número</FormLabel><FormControl><Input placeholder="Nº" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="complement" render={({ field }) => (<FormItem><FormLabel>Complemento (opcional)</FormLabel><FormControl><Input placeholder="Apto, bloco, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem><FormLabel>Bairro</FormLabel><FormControl><Input placeholder="Seu bairro" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <FormField control={form.control} name="city" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Cidade</FormLabel><FormControl><Input placeholder="Sua cidade" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input placeholder="UF" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+
                             {errorShipping && <p className="text-sm text-red-600 mt-2">{errorShipping}</p>}
                             
                             {!isLoadingShipping && shippingOptions.length > 0 && (
@@ -428,12 +472,20 @@ export default function CheckoutPage() {
                                     </RadioGroup>
                                 </div>
                             )}
-                             <Button onClick={() => { if (selectedShipping) setStep(4); }} className="mt-4" disabled={!selectedShipping}>
+                             <Button onClick={async () => { 
+                                const isValid = await form.trigger(['cep', 'street', 'number', 'neighborhood', 'city', 'state']);
+                                if (isValid && selectedShipping) setStep(4);
+                                if (!selectedShipping) setErrorShipping('Por favor, selecione uma opção de frete.');
+                             }} className="mt-4" disabled={!selectedShipping}>
                                 Continuar <ChevronRight className="ml-2 h-4 w-4" />
                             </Button>
-                        </>
+                        </div>
                      ) : (
-                         <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> CEP {cep} - {selectedShipping?.name} (R$ {selectedShipping?.price.toFixed(2).replace('.',',')})</p>
+                         <div className="text-muted-foreground flex flex-col gap-1">
+                            <p className="flex items-center gap-2"><Home className="h-4 w-4" />{form.getValues('street')}, {form.getValues('number')} - {form.getValues('neighborhood')}</p>
+                            <p className="flex items-center gap-2 ml-6">{form.getValues('city')} - {form.getValues('state')}, {form.getValues('cep')}</p>
+                            <p className="flex items-center gap-2 mt-2"><Truck className="h-4 w-4" />{selectedShipping?.name} (R$ {selectedShipping?.price.toFixed(2).replace('.',',')})</p>
+                         </div>
                      )}
                 </StepCard>
 
@@ -528,5 +580,3 @@ export default function CheckoutPage() {
     </div>
   )
 }
-
-    

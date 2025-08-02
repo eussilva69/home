@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const loginSchema = z.object({
@@ -70,3 +71,18 @@ export const CreatePaymentOutputSchema = z.object({
     message: z.string().optional(),
 });
 export type CreatePaymentOutput = z.infer<typeof CreatePaymentOutputSchema>;
+
+export const checkoutSchema = z.object({
+  email: z.string().email("E-mail inválido."),
+  firstName: z.string().min(2, "Nome é obrigatório."),
+  lastName: z.string().min(2, "Sobrenome é obrigatório."),
+  docType: z.string().min(2, "Tipo de documento é obrigatório."),
+  docNumber: z.string().min(8, "Número do documento é obrigatório."),
+  cep: z.string().min(8, "CEP é obrigatório."),
+  street: z.string().min(2, "Rua é obrigatória."),
+  number: z.string().min(1, "Número é obrigatório."),
+  complement: z.string().optional(),
+  neighborhood: z.string().min(2, "Bairro é obrigatório."),
+  city: z.string().min(2, "Cidade é obrigatória."),
+  state: z.string().min(2, "Estado é obrigatório."),
+});

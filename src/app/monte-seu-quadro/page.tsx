@@ -44,10 +44,10 @@ const pricingData = {
 };
 
 const frames = {
-    black: { label: 'Preta', color: '#000000' },
-    white: { label: 'Branca', color: '#FFFFFF' },
-    hazel_oak: { label: 'Carvalho Avelã', color: '#C19A6B' },
-    ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
+    black: { label: 'Preta', color: '#000000', rusticBorder: '#1a1a1a' },
+    white: { label: 'Branca', color: '#FFFFFF', rusticBorder: '#f0f0f0' },
+    hazel_oak: { label: 'Carvalho Avelã', color: '#C19A6B', rusticBorder: '#c9a57f' },
+    ebony_oak: { label: 'Carvalho Ébano', color: '#55453E', rusticBorder: '#635149' },
 };
 
 const frameStyles = {
@@ -150,16 +150,41 @@ export default function MonteSeuQuadroPage() {
         addToCart(itemToAdd);
     };
     
-    const FrameComponent = ({ children }: { children: React.ReactNode; }) => (
-        <div className="relative w-48 aspect-[4/5] p-2" style={{ backgroundColor: frames[selectedFrame as keyof typeof frames].color, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
-            <div className="relative w-full h-full bg-white">
-                {children}
+    const FrameComponent = ({ children, style }: { children: React.ReactNode; style: string }) => {
+        const frameColor = frames[selectedFrame as keyof typeof frames].color;
+        
+        const frameStyleOptions: {[key: string]: React.CSSProperties} = {
+            moderna: {
+                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+                borderStyle: 'solid',
+            },
+            classica: {
+                boxShadow: '0 8px 24px rgba(0,0,0,0.2), inset 0 0 0 3px rgba(0,0,0,0.1)',
+                borderStyle: 'solid',
+            },
+            rustica: {
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                border: `2px solid ${frames[selectedFrame as keyof typeof frames].rusticBorder}`,
+            }
+        };
+
+        return (
+            <div 
+                className="relative w-48 aspect-[4/5] p-2" 
+                style={{ 
+                    backgroundColor: frameColor,
+                    ...frameStyleOptions[style] 
+                }}
+            >
+                <div className="relative w-full h-full bg-white">
+                    {children}
+                </div>
+                 {withGlass && (
+                    <div className="absolute inset-2 bg-black/10 backdrop-blur-[1px]"/>
+                )}
             </div>
-             {withGlass && (
-                <div className="absolute inset-2 bg-black/10 backdrop-blur-[1px]"/>
-            )}
-        </div>
-    );
+        )
+    };
 
     const renderFrames = () => {
         const count = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
@@ -173,7 +198,7 @@ export default function MonteSeuQuadroPage() {
             >
                 {[...Array(count)].map((_, i) => (
                     <label key={i} htmlFor="image-upload" className="cursor-pointer">
-                        <FrameComponent>
+                        <FrameComponent style={selectedFrameStyle}>
                         {imagePreview ? (
                             <>
                                 <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" />

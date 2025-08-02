@@ -47,7 +47,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
     };
 
     const handleGenerateShippingLabel = () => {
-        const url = 'https://app.melhorenvio.com.br/calculator';
+        const url = 'https://app.melhorenvio.com.br/calculadora';
         window.open(url, '_blank');
     };
     

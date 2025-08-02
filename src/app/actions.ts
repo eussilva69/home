@@ -7,9 +7,12 @@ import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import type { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types';
 import type { PreferenceCreateData } from 'mercadopago/dist/clients/preference/create/types';
 import { randomUUID } from 'crypto';
-import type { CreatePixPaymentInput, CreatePreferenceInput } from '@/lib/schemas';
+import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails } from '@/lib/schemas';
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
+import { firestore } from '@/lib/firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+
 
 // Adicione o Access Token do vendedor
 const MERCADO_PAGO_ACCESS_TOKEN = 'APP_USR-669430014263398-080114-d9ae331ae39f4d3412d982254159a3ac-1118229328';
@@ -103,6 +106,20 @@ export async function getPaymentStatus(paymentId: number) {
     }
 }
 
+export async function saveOrder(orderDetails: OrderDetails) {
+    try {
+        const ordersCollectionRef = collection(firestore, 'orders');
+        const docRef = await addDoc(ordersCollectionRef, {
+            ...orderDetails,
+            createdAt: serverTimestamp(),
+            status: 'Aprovado'
+        });
+        return { success: true, orderId: docRef.id };
+    } catch (error: any) {
+        console.error("Erro ao salvar pedido no Firestore:", error);
+        return { success: false, message: 'Falha ao registrar o pedido no banco de dados.' };
+    }
+}
 
 // Funções de orquestração chamadas pelo frontend
 export async function processPixPayment(input: CreatePixPaymentInput) {

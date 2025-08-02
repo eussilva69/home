@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, Edit, ChevronRight, User, MailIcon, MapPin, Home } from 'lucide-react';
-import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping } from '../actions';
+import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder } from '../actions';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
@@ -120,12 +120,47 @@ export default function CheckoutPage() {
   }, [cepValue, form, toast]);
 
 
-  const handleSuccessfulPayment = (paymentId?: number) => {
+  const handleSuccessfulPayment = async (paymentId?: number) => {
     stopPolling();
+  
+    const formData = form.getValues();
+    const orderDetails = {
+      customer: {
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        docType: formData.docType,
+        docNumber: formData.docNumber,
+      },
+      shipping: {
+        address: `${formData.street}, ${formData.number}, ${formData.neighborhood}`,
+        city: formData.city,
+        state: formData.state,
+        cep: formData.cep,
+        complement: formData.complement,
+        details: selectedShipping,
+      },
+      items: cartItems,
+      payment: {
+        method: paymentMethod,
+        total: totalDisplay,
+        subtotal: subtotal,
+        shippingCost: shippingCost,
+        paymentId: paymentId,
+      },
+    };
+  
+    const result = await saveOrder(orderDetails);
+    if (!result.success) {
+      toast({ variant: 'destructive', title: 'Erro no Pedido', description: result.message });
+      // Mesmo com erro ao salvar, o pagamento foi aprovado, então prossiga com o fluxo do usuário
+    }
+  
     setPaymentResult({ success: true, paymentId });
     clearCart();
     setStep(6); // Final success step
   };
+  
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);

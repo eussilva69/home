@@ -86,3 +86,44 @@ export const checkoutSchema = z.object({
   city: z.string().min(2, "Cidade é obrigatória."),
   state: z.string().min(2, "Estado é obrigatório."),
 });
+
+const CartItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  price: z.number(),
+  quantity: z.number(),
+  image: z.string(),
+  options: z.string(),
+  weight: z.number(),
+  width: z.number(),
+  height: z.number(),
+  length: z.number(),
+});
+
+export const OrderDetailsSchema = z.object({
+  customer: z.object({
+    email: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    docType: z.string(),
+    docNumber: z.string(),
+  }),
+  shipping: z.object({
+    address: z.string(),
+    city: z.string(),
+    state: z.string(),
+    cep: z.string(),
+    complement: z.string().optional(),
+    details: z.any(),
+  }),
+  items: z.array(CartItemSchema),
+  payment: z.object({
+    method: z.string(),
+    total: z.number(),
+    subtotal: z.number(),
+    shippingCost: z.number(),
+    paymentId: z.number().optional(),
+  }),
+});
+
+export type OrderDetails = z.infer<typeof OrderDetailsSchema>;

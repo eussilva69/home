@@ -40,7 +40,7 @@ export default function DashboardPage() {
   
   const adminLinks = [
       { href: '/dashboard', label: 'Início', icon: 'Home' },
-      { href: '#', label: 'Pedidos', icon: 'Package' },
+      { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' },
       { href: '#', label: 'Produtos', icon: 'Box' },
       { href: '#', label: 'Clientes', icon: 'Users' },
     ];
@@ -55,6 +55,38 @@ export default function DashboardPage() {
 
   const isRootDashboard = pathname === '/dashboard';
 
+  const renderContent = () => {
+    if (isAdmin) {
+      if (isRootDashboard) {
+        return <AdminDashboard user={user} />;
+      }
+      // Outras páginas do admin podem ser renderizadas aqui com base no pathname
+      return null; 
+    } else {
+      // Se não for admin e estiver na raiz do dashboard
+      if (isRootDashboard) {
+        return (
+          <div>
+            <h1 className="text-2xl font-semibold mb-6">Minha Conta</h1>
+            <Card>
+              <CardHeader>
+                <CardTitle>Bem-vindo(a)!</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Use o menu ao lado para navegar pelas seções da sua conta.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      }
+       // Renderiza outras páginas do cliente aqui, se necessário
+      return null;
+    }
+  };
+
+
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <Header />
@@ -62,23 +94,7 @@ export default function DashboardPage() {
         <div className="flex flex-col md:flex-row gap-8">
           <DashboardSidebar links={isAdmin ? adminLinks : customerLinks} isAdmin={isAdmin} />
           <main className="flex-1">
-            {isAdmin ? <AdminDashboard user={user} /> : (
-              isRootDashboard && (
-                <div>
-                  <h1 className="text-2xl font-semibold mb-6">Minha Conta</h1>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Bem-vindo(a)!</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">
-                        Use o menu ao lado para navegar pelas seções da sua conta.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              )
-            )}
+            {renderContent()}
           </main>
         </div>
       </div>

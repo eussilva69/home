@@ -15,6 +15,7 @@ export type CartItemType = {
   width: number;
   height: number;
   length: number;
+  customImages?: string[]; // Array of custom image URLs
 };
 
 export type ShippingInfo = {
@@ -71,7 +72,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const existingItem = prevItems.find(item => item.id === itemToAdd.id);
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === itemToAdd.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === itemToAdd.id ? { ...item, quantity: item.quantity + itemToAdd.quantity } : item
         );
       }
       return [...prevItems, { ...itemToAdd }];
@@ -120,3 +121,5 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useCart = () => useContext(CartContext);
+
+    

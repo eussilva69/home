@@ -171,13 +171,14 @@ export default function MonteSeuQuadroPage() {
             id: `custom-${arrangement}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}-${Date.now()}`,
             name: "Quadro Personalizado",
             price: finalPrice,
-            image: imagePreviews[0]!,
+            image: imagePreviews[0]!, // Use a primeira imagem como miniatura do carrinho
             quantity: 1,
             options: `Personalizado: ${arrangement}, ${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
             weight: selectedPriceInfo.weight,
             width: selectedPriceInfo.width,
             height: selectedPriceInfo.height,
             length: selectedPriceInfo.length,
+            customImages: imagePreviews.filter(p => p !== null) as string[], // Salva todas as imagens
         };
         addToCart(itemToAdd);
     };
@@ -457,3 +458,5 @@ export default function MonteSeuQuadroPage() {
     </div>
     );
 }
+
+    

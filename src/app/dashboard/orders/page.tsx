@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { Loader2, ChevronDown, Package, User, MapPin, CreditCard, Box, Weight, Ruler, ArrowUpRight, PlusCircle } from 'lucide-react';
+import { Loader2, ChevronDown, Package, User, MapPin, CreditCard, Box, Weight, Ruler, ArrowUpRight, PlusCircle, Download } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { updateTrackingCode } from '@/app/actions';
 import Link from 'next/link';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
@@ -61,11 +62,52 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
                                 <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Package className="h-5 w-5"/> Itens do Pedido</CardTitle></CardHeader>
                                 <CardContent>
                                 {order.items.map(item => (
-                                    <div key={item.id} className="flex items-center gap-4 py-2 border-b last:border-none">
-                                        <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md bg-white" />
+                                    <div key={item.id} className="flex items-start gap-4 py-2 border-b last:border-none">
+                                        <div className="relative w-16 h-16">
+                                            <Image 
+                                               src={item.customImages && item.customImages.length > 0 ? item.customImages[0] : item.image} 
+                                               alt={item.name} 
+                                               width={64} height={64} 
+                                               className="rounded-md bg-white object-cover"
+                                            />
+                                            {item.customImages && item.customImages.length > 0 && (
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <a href={item.customImages[0]} download target="_blank" rel="noopener noreferrer" className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full p-1.5 hover:bg-primary/80">
+                                                                <Download className="h-3 w-3" />
+                                                            </a>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Baixar Imagem</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            )}
+                                        </div>
+
                                         <div className="flex-grow">
                                             <p className="font-semibold">{item.name}</p>
                                             <p className="text-sm text-muted-foreground">{item.options}</p>
+                                            {item.customImages && item.customImages.length > 1 && (
+                                                <div className="flex gap-2 mt-2">
+                                                    {item.customImages.slice(1).map((imgUrl, index) => (
+                                                         <TooltipProvider key={index}>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <a href={imgUrl} download target="_blank" rel="noopener noreferrer" className="relative w-8 h-8">
+                                                                         <Image src={imgUrl} alt={`Imagem extra ${index+1}`} width={32} height={32} className="rounded-md object-cover"/>
+                                                                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                                                            <Download className="h-4 w-4 text-white"/>
+                                                                         </div>
+                                                                    </a>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent><p>Baixar Imagem {index + 2}</p></TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="text-right">
                                             <p>{item.quantity} x R$ {item.price.toFixed(2).replace('.',',')}</p>
@@ -163,7 +205,7 @@ export default function OrdersPage() {
             return {
                 id: doc.id,
                 ...data,
-                createdAt: createdAtTimestamp.toDate().toISOString(),
+                createdAt: createdAtTimestamp ? createdAtTimestamp.toDate().toISOString() : new Date().toISOString(),
                 trackingCode: data.trackingCode || ''
             } as OrderDocument
           });
@@ -268,3 +310,5 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+    

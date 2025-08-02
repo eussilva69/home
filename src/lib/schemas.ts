@@ -12,7 +12,7 @@ export const registerSchema = z.object({
   email: z.string().email('Por favor, insira um email válido.'),
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres.'),
   confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
+}).refine((data) => data.password === data.password, {
   message: "As senhas não correspondem.",
   path: ["confirmPassword"],
 });
@@ -98,6 +98,7 @@ const CartItemSchema = z.object({
   width: z.number(),
   height: z.number(),
   length: z.number(),
+  customImages: z.array(z.string()).optional(), // Adicionado para imagens personalizadas
 });
 
 export const OrderDetailsSchema = z.object({
@@ -162,3 +163,5 @@ export const ProductSchema = z.object({
   arrangement: z.string(),
 });
 export type Product = z.infer<typeof ProductSchema>;
+
+    

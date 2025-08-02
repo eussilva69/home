@@ -1,7 +1,6 @@
 
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster";
-import ExitIntentPopup from "@/components/ui/exit-intent-popup";
 import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
 import "./globals.css";
@@ -28,7 +27,6 @@ export default function RootLayout({
           <CartProvider>
             {children}
             <Toaster />
-            <ExitIntentPopup />
           </CartProvider>
         </AuthProvider>
       </body>

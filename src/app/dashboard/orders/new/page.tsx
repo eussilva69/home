@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useMemo, useCallback, Fragment } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, PlusCircle, Trash2, User, Home, Package, Truck, Search } from 'lucide-react';
+import { Loader2, Trash2, User, Home, Package, Truck, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { calculateShipping, saveOrder } from '@/app/actions';
 import { products as allProducts } from '@/lib/mock-data';
@@ -23,8 +23,9 @@ import type { CartItemType } from '@/hooks/use-cart';
 import Image from 'next/image';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { firestore } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import ProductConfigDialog from '@/components/dashboard/orders/product-config-dialog';
+import type { Product } from '@/lib/schemas';
+
 
 const newOrderSchema = z.object({
   // Customer
@@ -50,7 +51,7 @@ export default function NewOrderPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItemType[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -58,6 +59,9 @@ export default function NewOrderPage() {
   const [selectedShipping, setSelectedShipping] = useState<any | null>(null);
   const [isLoadingShipping, setIsLoadingShipping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
+  const [productToConfig, setProductToConfig] = useState<Product | null>(null);
 
   const form = useForm<NewOrderFormValues>({
     resolver: zodResolver(newOrderSchema),
@@ -74,40 +78,32 @@ export default function NewOrderPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      // In a real app, you'd fetch from Firestore, but we use mock data here
-      setProducts(allProducts);
-    };
-    fetchProducts();
+    // In a real app, you'd fetch from Firestore, but we use mock data here
+    setProducts(allProducts as Product[]);
   }, []);
   
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return [];
     return products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 5);
   }, [searchTerm, products]);
-
-  const addToCart = (product: any) => {
-    setCart(currentCart => {
-      const existingItem = currentCart.find(item => item.id === product.id);
-      if (existingItem) {
-        return currentCart.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
-      }
-      // This needs to be a full CartItemType
-      const cartItem: CartItemType = {
-        id: product.id,
-        name: product.name,
-        price: product.price, // Make sure your product object has a price
-        quantity: 1,
-        image: product.image,
-        options: `${product.arrangement} - ${product.category}`,
-        weight: 1, // Add appropriate dimension/weight data
-        width: 20,
-        height: 30,
-        length: 2,
-      };
-      return [...currentCart, cartItem];
-    });
+  
+  const handleSelectProduct = (product: Product) => {
+    setProductToConfig(product);
+    setIsConfigDialogOpen(true);
     setSearchTerm('');
+  };
+
+
+  const addToCart = (configuredItem: CartItemType) => {
+    setCart(currentCart => {
+      // Manual orders can have multiple versions of the same product with different configs
+      const uniqueId = `${configuredItem.id}-${Date.now()}`;
+      return [...currentCart, {...configuredItem, id: uniqueId }];
+    });
+    toast({
+        title: "Item Adicionado!",
+        description: `${configuredItem.name} foi adicionado ao pedido.`
+    });
   };
 
   const updateQuantity = (id: string, newQuantity: number) => {
@@ -118,6 +114,11 @@ export default function NewOrderPage() {
       return currentCart.map(item => item.id === id ? { ...item, quantity: newQuantity } : item);
     });
   };
+  
+  const removeFromCart = (id: string) => {
+    setCart(currentCart => currentCart.filter(item => item.id !== id));
+  };
+
 
   const subtotal = useMemo(() => cart.reduce((acc, item) => acc + item.price * item.quantity, 0), [cart]);
   const shippingCost = useMemo(() => selectedShipping ? parseFloat(selectedShipping.price) : 0, [selectedShipping]);
@@ -247,6 +248,7 @@ export default function NewOrderPage() {
   }
 
   return (
+    <>
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <Header />
       <div className="flex-grow container mx-auto p-4 md:p-8">
@@ -281,8 +283,8 @@ export default function NewOrderPage() {
                          <FormField control={form.control} name="complement" render={({ field }) => (<FormItem><FormLabel>Complemento</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Bairro</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>Cidade</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>Cidade</FormLabel><FormControl><Input {...field} readOnly/></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input {...field} readOnly/></FormControl><FormMessage /></FormItem>)} />
                          </div>
                       </CardContent>
                     </Card>
@@ -328,7 +330,7 @@ export default function NewOrderPage() {
                             {filteredProducts.length > 0 && (
                                 <div className="absolute z-10 w-full bg-background border rounded-md mt-1 shadow-lg max-h-60 overflow-auto">
                                     {filteredProducts.map(p => (
-                                        <div key={p.id} onClick={() => addToCart(p)} className="p-2 hover:bg-accent cursor-pointer text-sm">
+                                        <div key={p.id} onClick={() => handleSelectProduct(p)} className="p-2 hover:bg-accent cursor-pointer text-sm">
                                             {p.name}
                                         </div>
                                     ))}
@@ -338,21 +340,25 @@ export default function NewOrderPage() {
 
                         <Separator />
                         
-                        <div className="space-y-4 max-h-80 overflow-y-auto">
+                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
                            {cart.length > 0 ? cart.map(item => (
-                               <div key={item.id} className="flex items-center gap-4 text-sm">
-                                   <Image src={item.image} alt={item.name} width={48} height={48} className="rounded-md" />
+                               <div key={item.id} className="flex items-start gap-4 text-sm p-2 rounded-md border">
+                                   <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md" />
                                    <div className="flex-grow">
-                                       <p className="font-medium">{item.name}</p>
-                                       <p>R$ {item.price.toFixed(2).replace('.',',')}</p>
+                                       <p className="font-semibold">{item.name}</p>
+                                       <p className="text-xs text-muted-foreground">{item.options}</p>
+                                       <p className="font-medium mt-1">R$ {item.price.toFixed(2).replace('.',',')}</p>
                                    </div>
-                                   <div className="flex items-center gap-2">
-                                       <Input type="number" value={item.quantity} onChange={e => updateQuantity(item.id, parseInt(e.target.value, 10))} className="w-16 h-8" />
-                                       <Button type="button" variant="ghost" size="icon" onClick={() => updateQuantity(item.id, 0)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                   <div className="flex flex-col items-end gap-2">
+                                       <Input type="number" value={item.quantity} onChange={e => updateQuantity(item.id, parseInt(e.target.value, 10))} className="w-16 h-8 text-center" />
+                                       <Button type="button" variant="ghost" size="icon" onClick={() => removeFromCart(item.id)} className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive"/></Button>
                                    </div>
                                </div>
                            )) : (
-                               <p className="text-muted-foreground text-center text-sm py-4">O carrinho está vazio.</p>
+                               <div className="text-muted-foreground text-center text-sm py-8 border-2 border-dashed rounded-lg">
+                                  <p>O carrinho está vazio.</p>
+                                  <p className="text-xs">Use a busca acima para adicionar produtos.</p>
+                                </div>
                            )}
                         </div>
                       </CardContent>
@@ -383,5 +389,12 @@ export default function NewOrderPage() {
         </div>
       </div>
     </div>
+    <ProductConfigDialog
+        isOpen={isConfigDialogOpen}
+        onOpenChange={setIsConfigDialogOpen}
+        product={productToConfig}
+        onAddToCart={addToCart}
+    />
+    </>
   );
 }

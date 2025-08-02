@@ -148,3 +148,17 @@ export const AddressSchema = z.object({
   isDefault: z.boolean().optional(),
 });
 export type Address = z.infer<typeof AddressSchema>;
+
+export const ProductSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  price: z.number(),
+  image: z.string(),
+  image_alt: z.string(),
+  artwork_image: z.string(),
+  hint: z.string(),
+  hint_alt: z.string(),
+  category: z.string(),
+  arrangement: z.string(),
+});
+export type Product = z.infer<typeof ProductSchema>;

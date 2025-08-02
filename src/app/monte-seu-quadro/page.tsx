@@ -8,7 +8,7 @@ import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Ruler, Palette, UploadCloud, X, Loader2, Eye, Image as ImageIcon, Frame } from 'lucide-react';
+import { ShoppingCart, Ruler, Palette, UploadCloud, X, Loader2, Eye, Image as ImageIcon, Frame, Repeat, Columns } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/hooks/use-cart';
@@ -72,6 +72,8 @@ export default function MonteSeuQuadroPage() {
     const [isUploading, setIsUploading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
+    const [imageMode, setImageMode] = useState<'repeat' | 'split'>('repeat');
+
 
     const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
     const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
@@ -82,6 +84,9 @@ export default function MonteSeuQuadroPage() {
         const newSizes = pricingData[key];
         setAvailableSizes(newSizes);
         setSelectedSize(newSizes[0].tamanho);
+        if (key === 'Solo') {
+            setImageMode('repeat');
+        }
     };
 
     const handleImageUpload = async (file: File) => {
@@ -150,7 +155,7 @@ export default function MonteSeuQuadroPage() {
         addToCart(itemToAdd);
     };
     
-    const FrameComponent = ({ children, style }: { children: React.ReactNode; style: string }) => {
+    const FrameComponent = ({ children, style, imageStyle = {} }: { children: React.ReactNode; style: string; imageStyle?: React.CSSProperties }) => {
         const frameColor = frames[selectedFrame as keyof typeof frames].color;
         
         const frameStyleOptions: {[key: string]: React.CSSProperties} = {
@@ -178,7 +183,7 @@ export default function MonteSeuQuadroPage() {
                     ...frameStyleOptions[style] 
                 }}
             >
-                <div className="relative w-full h-full bg-white">
+                <div className="relative w-full h-full bg-white overflow-hidden">
                     {children}
                 </div>
                  {withGlass && (
@@ -198,12 +203,18 @@ export default function MonteSeuQuadroPage() {
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
             >
-                {[...Array(count)].map((_, i) => (
+                {[...Array(count)].map((_, i) => {
+                     const imageStyle: React.CSSProperties = {};
+                     if (imageMode === 'split' && count > 1) {
+                         imageStyle.objectPosition = `${(i * 100) / (count - 1)}% 50%`;
+                     }
+
+                    return (
                     <label key={i} htmlFor="image-upload" className="cursor-pointer">
                         <FrameComponent style={selectedFrameStyle}>
                         {imagePreview ? (
                             <>
-                                <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" />
+                                <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" style={imageStyle}/>
                                  <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => { e.preventDefault(); setImagePreview(null)}}>
                                     <X className="h-4 w-4"/>
                                 </Button>
@@ -220,7 +231,8 @@ export default function MonteSeuQuadroPage() {
                         )}
                         </FrameComponent>
                      </label>
-                ))}
+                    )
+                })}
                 <input id="image-upload" type="file" className="sr-only" onChange={onFileChange} accept="image/*" />
             </div>
         )
@@ -290,6 +302,31 @@ export default function MonteSeuQuadroPage() {
                             </RadioGroup>
                         </AccordionContent>
                     </AccordionItem>
+
+                    {arrangement !== 'Solo' && (
+                        <AccordionItem value="item-image-mode">
+                           <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><ImageIcon/> Aplicação da Imagem</AccordionTrigger>
+                           <AccordionContent>
+                                <RadioGroup value={imageMode} onValueChange={(v) => setImageMode(v as any)} className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <RadioGroupItem value="repeat" id="mode-repeat" className="sr-only" />
+                                        <Label htmlFor="mode-repeat" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'repeat' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
+                                            <Repeat className="h-5 w-5 mb-1"/>
+                                            Repetir em todos
+                                        </Label>
+                                    </div>
+                                     <div>
+                                        <RadioGroupItem value="split" id="mode-split" className="sr-only" />
+                                        <Label htmlFor="mode-split" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'split' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
+                                            <Columns className="h-5 w-5 mb-1"/>
+                                            Dividir entre quadros
+                                        </Label>
+                                    </div>
+                                </RadioGroup>
+                           </AccordionContent>
+                       </AccordionItem>
+                    )}
+
                     <AccordionItem value="item-2">
                         <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Ruler/> Tamanho</AccordionTrigger>
                         <AccordionContent>
@@ -365,3 +402,5 @@ export default function MonteSeuQuadroPage() {
     </div>
     );
 }
+
+    

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, ChangeEvent, DragEvent } from 'react';
@@ -7,7 +8,7 @@ import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Ruler, Palette, UploadCloud, X, Loader2, Eye, Image as ImageIcon } from 'lucide-react';
+import { ShoppingCart, Ruler, Palette, UploadCloud, X, Loader2, Eye, Image as ImageIcon, Frame } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/hooks/use-cart';
@@ -49,6 +50,12 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
+const frameStyles = {
+    moderna: "Moderna",
+    classica: "Clássica",
+    rustica: "Rústica",
+}
+
 const environmentImage = "https://http2.mlstatic.com/D_NQ_NP_988953-MLB72022418120_102023-O.webp";
 
 export default function MonteSeuQuadroPage() {
@@ -58,6 +65,7 @@ export default function MonteSeuQuadroPage() {
     const [arrangement, setArrangement] = useState<keyof typeof pricingData>('Solo');
     const [availableSizes, setAvailableSizes] = useState(pricingData['Solo']);
     const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
+    const [selectedFrameStyle, setSelectedFrameStyle] = useState(Object.keys(frameStyles)[0]);
     const [withGlass, setWithGlass] = useState(false);
     const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -266,6 +274,21 @@ export default function MonteSeuQuadroPage() {
                         </AccordionContent>
                     </AccordionItem>
                      <AccordionItem value="item-3">
+                        <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Frame/> Estilo da Moldura</AccordionTrigger>
+                        <AccordionContent>
+                             <RadioGroup value={selectedFrameStyle} onValueChange={setSelectedFrameStyle} className="grid grid-cols-3 gap-3">
+                                {Object.entries(frameStyles).map(([key, label]) => (
+                                    <div key={key}>
+                                        <RadioGroupItem value={key} id={`style-${key}`} className="sr-only" />
+                                        <Label htmlFor={`style-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12", selectedFrameStyle === key ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
+                                            {label}
+                                        </Label>
+                                    </div>
+                                ))}
+                            </RadioGroup>
+                        </AccordionContent>
+                    </AccordionItem>
+                     <AccordionItem value="item-4">
                         <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Palette/> Cor da Moldura</AccordionTrigger>
                         <AccordionContent>
                             <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
@@ -280,7 +303,7 @@ export default function MonteSeuQuadroPage() {
                             </RadioGroup>
                         </AccordionContent>
                     </AccordionItem>
-                     <AccordionItem value="item-4">
+                     <AccordionItem value="item-5">
                         <AccordionTrigger className="text-base font-semibold">Acabamento</AccordionTrigger>
                         <AccordionContent>
                            <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-3">
@@ -309,6 +332,5 @@ export default function MonteSeuQuadroPage() {
       <Footer />
     </div>
     );
-
-    
+}
 

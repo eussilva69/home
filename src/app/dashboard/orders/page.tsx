@@ -47,13 +47,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
     };
 
     const handleGenerateShippingLabel = () => {
-        const fromPostalCode = "38401104"; // CEP de origem fixo
-        const toPostalCode = order.shipping.cep.replace(/\D/g, '');
-
-        let url = `https://app.melhorenvio.com.br/calculator?from[postal_code]=${fromPostalCode}&to[postal_code]=${toPostalCode}`;
-        
-        url += `&package[weight]=${order.shipping.weight}&package[width]=${order.shipping.width}&package[height]=${order.shipping.height}&package[length]=${order.shipping.length}&package[insurance_value]=${order.payment.subtotal}`;
-        
+        const url = 'https://app.melhorenvio.com.br/calculator';
         window.open(url, '_blank');
     };
     

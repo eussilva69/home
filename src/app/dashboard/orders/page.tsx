@@ -51,8 +51,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         const toPostalCode = order.shipping.cep.replace(/\D/g, '');
 
         let url = `https://app.melhorenvio.com.br/calculator?from[postal_code]=${fromPostalCode}&to[postal_code]=${toPostalCode}`;
-
-        // Usando 'package' em vez de 'volumes' ou 'products' para a calculadora
+        
         url += `&package[weight]=${order.shipping.weight}&package[width]=${order.shipping.width}&package[height]=${order.shipping.height}&package[length]=${order.shipping.length}&package[insurance_value]=${order.payment.subtotal}`;
         
         window.open(url, '_blank');

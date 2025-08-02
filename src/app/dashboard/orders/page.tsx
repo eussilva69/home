@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { Loader2, ChevronDown, Package, User, MapPin, CreditCard, Box, Weight, Ruler } from 'lucide-react';
+import { Loader2, ChevronDown, Package, User, MapPin, CreditCard, Box, Weight, Ruler, ArrowUpRight } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +43,19 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
             toast({ title: 'Erro', description: result.message, variant: 'destructive' });
         }
         setIsSaving(false);
+    };
+
+    const handleGenerateShippingLabel = () => {
+        const fromPostalCode = "38401104"; // CEP de origem fixo
+        const toPostalCode = order.shipping.cep.replace(/\D/g, '');
+
+        let url = `https://www.melhorenvio.com.br/app/shipment/calculator?from[postal_code]=${fromPostalCode}&to[postal_code]=${toPostalCode}`;
+
+        order.items.forEach((item, index) => {
+            url += `&products[${index}][id]=${item.id}&products[${index}][width]=${item.width}&products[${index}][height]=${item.height}&products[${index}][length]=${item.length}&products[${index}][weight]=${item.weight}&products[${index}][insurance_value]=${item.price}&products[${index}][quantity]=${item.quantity}`;
+        });
+        
+        window.open(url, '_blank');
     };
     
     return (
@@ -122,6 +135,9 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
                                             </Button>
                                         </div>
                                     </div>
+                                     <Button onClick={handleGenerateShippingLabel} variant="outline" className="w-full">
+                                        Gerar Frete no Melhor Envio <ArrowUpRight className="ml-2 h-4 w-4" />
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </div>

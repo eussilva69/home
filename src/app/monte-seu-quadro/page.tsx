@@ -144,12 +144,12 @@ export default function MonteSeuQuadroPage() {
     };
     
     const FrameComponent = ({ children }: { children: React.ReactNode }) => (
-        <div className="relative w-full aspect-[4/5] p-4" style={{ backgroundColor: frames[selectedFrame as keyof typeof frames].color, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+        <div className="relative w-full aspect-[4/5] p-2" style={{ backgroundColor: frames[selectedFrame as keyof typeof frames].color, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
             <div className="relative w-full h-full bg-white">
                 {children}
             </div>
              {withGlass && (
-                <div className="absolute inset-4 bg-black/10 backdrop-blur-[1px]"/>
+                <div className="absolute inset-2 bg-black/10 backdrop-blur-[1px]"/>
             )}
         </div>
     );
@@ -157,17 +157,19 @@ export default function MonteSeuQuadroPage() {
     const renderFrames = () => {
         const count = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
         return (
-            <div className={`grid grid-cols-${count} gap-4`}>
+            <div className="flex justify-center items-center gap-4">
                 {[...Array(count)].map((_, i) => (
-                    <FrameComponent key={i}>
-                       {imagePreview ? (
-                            <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" />
-                       ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                            <span className="text-muted-foreground text-xs text-center">Sua arte aqui</span>
-                          </div>
-                       )}
-                    </FrameComponent>
+                    <div key={i} className="w-full">
+                        <FrameComponent>
+                           {imagePreview ? (
+                                <Image src={imagePreview} alt="Pré-visualização do quadro" layout="fill" objectFit="cover" />
+                           ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                <span className="text-muted-foreground text-xs text-center">Sua arte aqui</span>
+                              </div>
+                           )}
+                        </FrameComponent>
+                    </div>
                 ))}
             </div>
         )
@@ -325,4 +327,5 @@ export default function MonteSeuQuadroPage() {
       <Footer />
     </div>
     );
-}
+
+    

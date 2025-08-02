@@ -17,6 +17,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, UserPlus, AlertCircle } from 'lucide-react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
+import { auth, firestore } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+
 
 type FormData = z.infer<typeof registerSchema>;
 
@@ -41,15 +45,37 @@ export default function RegisterPage() {
     setError(null);
     setSuccess(null);
     startTransition(async () => {
-      // Register action will be here
-      console.log('Register attempt with:', values);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setSuccess("Conta criada com sucesso! Redirecionando para a página inicial...");
-      
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
+      try {
+        // 1. Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+        const user = userCredential.user;
+
+        // 2. Update user profile with name
+        await updateProfile(user, { displayName: values.name });
+
+        // 3. Save user data to Firestore
+        const userDocRef = doc(firestore, "users", user.uid);
+        await setDoc(userDocRef, {
+            uid: user.uid,
+            name: values.name,
+            email: values.email,
+            cpf: values.cpf,
+            createdAt: serverTimestamp()
+        });
+
+        setSuccess("Conta criada com sucesso! Redirecionando para o login...");
+        
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000);
+
+      } catch (authError: any) {
+        if (authError.code === 'auth/email-already-in-use') {
+            setError('Este e-mail já está sendo utilizado por outra conta.');
+        } else {
+            setError('Ocorreu um erro inesperado ao criar sua conta. Tente novamente.');
+        }
+      }
     });
   };
 

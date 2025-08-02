@@ -18,9 +18,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-interface OrderDocument extends OrderDetails {
+interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
-  createdAt: Timestamp;
+  createdAt: string; // From Timestamp to string
   trackingCode?: string;
 }
 
@@ -46,7 +46,11 @@ export default function OrderDetailsPage() {
         getOrderById(orderId)
           .then(result => {
             if (result.success && result.data) {
-              const fetchedOrder = result.data as OrderDocument;
+              const fetchedOrderData = result.data as any; // Cast to any to handle timestamp
+              const fetchedOrder: OrderDocument = {
+                  ...fetchedOrderData,
+                  createdAt: (fetchedOrderData.createdAt as Timestamp).toDate().toISOString(), // Convert here
+              };
               setOrder(fetchedOrder);
               setTrackingCode(fetchedOrder.trackingCode || '');
             } else {
@@ -93,6 +97,8 @@ export default function OrderDetailsPage() {
     { href: '#', label: 'Produtos', icon: 'Box' },
     { href: '#', label: 'Clientes', icon: 'Users' },
   ];
+  
+  const orderDate = new Date(order.createdAt);
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
@@ -104,7 +110,7 @@ export default function OrderDetailsPage() {
             <div>
               <h1 className="text-2xl font-semibold">Detalhes do Pedido #{order.id.slice(0, 7)}</h1>
               <p className="text-muted-foreground">
-                Feito em {order.createdAt.toDate().toLocaleDateString('pt-BR')} às {order.createdAt.toDate().toLocaleTimeString('pt-BR')}
+                Feito em {orderDate.toLocaleDateString('pt-BR')} às {orderDate.toLocaleTimeString('pt-BR')}
               </p>
             </div>
 

@@ -39,14 +39,22 @@ export default function MyOrdersPage() {
             try {
                 const q = query(
                     collection(firestore, 'orders'), 
-                    where("customer.email", "==", user.email),
-                    orderBy('createdAt', 'desc')
+                    where("customer.email", "==", user.email)
                 );
                 const querySnapshot = await getDocs(q);
                 const fetchedOrders = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
                 } as OrderDocument));
+
+                // Sort client-side to avoid composite index requirement
+                fetchedOrders.sort((a, b) => {
+                    if (a.createdAt && b.createdAt) {
+                        return b.createdAt.toMillis() - a.createdAt.toMillis();
+                    }
+                    return 0;
+                });
+
                 setOrders(fetchedOrders);
             } catch (error) {
                 console.error("Erro ao buscar pedidos:", error);

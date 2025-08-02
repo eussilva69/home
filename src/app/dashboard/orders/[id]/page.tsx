@@ -41,21 +41,25 @@ export default function OrderDetailsPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!user || !isAdmin) {
+        // Apenas admins podem ver esta página
         router.push('/login');
       } else if (orderId) {
         getOrderById(orderId)
           .then(result => {
             if (result.success && result.data) {
               const fetchedOrderData = result.data as any;
+              // Converte o Timestamp do Firestore para uma string ISO
               const fetchedOrder: OrderDocument = {
                   ...fetchedOrderData,
                   id: fetchedOrderData.id,
-                  createdAt: fetchedOrderData.createdAt.toDate().toISOString(),
+                  createdAt: (fetchedOrderData.createdAt as Timestamp).toDate().toISOString(),
               };
               setOrder(fetchedOrder);
               setTrackingCode(fetchedOrder.trackingCode || '');
             } else {
               console.error(result.message);
+              // Define o pedido como nulo para mostrar a mensagem "não encontrado"
+              setOrder(null);
             }
           })
           .finally(() => setLoading(false));
@@ -78,16 +82,24 @@ export default function OrderDetailsPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <div className="flex flex-col min-h-screen">
+          <Header />
+          <div className="flex-grow flex items-center justify-center">
+             <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+          <Footer />
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Pedido não encontrado.</p>
+      <div className="flex flex-col min-h-screen">
+          <Header />
+          <div className="flex-grow flex items-center justify-center">
+             <p className="text-xl text-muted-foreground">Pedido não encontrado.</p>
+          </div>
+          <Footer />
       </div>
     );
   }
@@ -99,6 +111,7 @@ export default function OrderDetailsPage() {
     { href: '#', label: 'Clientes', icon: 'Users' },
   ];
   
+  // Cria um objeto Date a partir da string ISO para formatação
   const orderDate = new Date(order.createdAt);
 
   return (
@@ -147,7 +160,7 @@ export default function OrderDetailsPage() {
                             <div>
                                 <h3 className="font-semibold mb-2">Endereço de Entrega</h3>
                                 <p>{order.shipping.address}</p>
-                                <p>{order.shipping.complement}</p>
+                                {order.shipping.complement && <p>{order.shipping.complement}</p>}
                                 <p>{order.shipping.city}, {order.shipping.state} - {order.shipping.cep}</p>
                             </div>
                         </CardContent>

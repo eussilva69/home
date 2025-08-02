@@ -11,7 +11,7 @@ import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Addres
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
-import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc, deleteDoc } from 'firebase/firestore';
 
 
 // Adicione o Access Token do vendedor
@@ -269,7 +269,7 @@ export async function getUserAddresses(userId: string): Promise<Address[]> {
 export async function deleteAddress(userId: string, addressId: string) {
     try {
         const addressRef = doc(firestore, 'users', userId, 'addresses', addressId);
-        await addressRef.delete();
+        await deleteDoc(addressRef);
         return { success: true };
     } catch (error) {
         console.error("Erro ao deletar endereço:", error);

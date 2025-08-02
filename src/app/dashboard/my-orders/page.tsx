@@ -11,13 +11,16 @@ import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { firestore } from '@/lib/firebase';
-import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, orderBy } from 'firebase/firestore';
 import type { OrderDetails } from '@/lib/schemas';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
   createdAt: string; // Changed from Timestamp to string to avoid serialization error
+  trackingCode?: string;
 }
 
 export default function MyOrdersPage() {
@@ -39,7 +42,8 @@ export default function MyOrdersPage() {
             try {
                 const q = query(
                     collection(firestore, 'orders'), 
-                    where("customer.email", "==", user.email)
+                    where("customer.email", "==", user.email),
+                    orderBy("createdAt", "desc")
                 );
                 const querySnapshot = await getDocs(q);
                 const fetchedOrders = querySnapshot.docs.map(doc => {
@@ -51,12 +55,6 @@ export default function MyOrdersPage() {
                         createdAt: createdAtTimestamp.toDate().toISOString(), // Convert Timestamp to ISO string
                     } as OrderDocument
                 });
-
-                // Sort client-side to avoid composite index requirement
-                fetchedOrders.sort((a, b) => {
-                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                });
-
                 setOrders(fetchedOrders);
             } catch (error) {
                 console.error("Erro ao buscar pedidos:", error);
@@ -113,6 +111,7 @@ export default function MyOrdersPage() {
                                 <TableRow>
                                 <TableHead>Data</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Rastreio</TableHead>
                                 <TableHead className="text-right">Total</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -126,12 +125,21 @@ export default function MyOrdersPage() {
                                                     {order.status}
                                                 </Badge>
                                             </TableCell>
+                                            <TableCell>
+                                                {order.trackingCode ? (
+                                                    <a href={`https://www.melhorenvio.com.br/rastreio/${order.trackingCode}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
+                                                        {order.trackingCode}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-muted-foreground">N/A</span>
+                                                )}
+                                            </TableCell>
                                             <TableCell className="text-right">R$ {order.payment.total.toFixed(2).replace('.', ',')}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                                        <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
                                             Você ainda não fez nenhum pedido.
                                         </TableCell>
                                     </TableRow>

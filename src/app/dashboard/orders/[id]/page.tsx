@@ -46,10 +46,11 @@ export default function OrderDetailsPage() {
         getOrderById(orderId)
           .then(result => {
             if (result.success && result.data) {
-              const fetchedOrderData = result.data as any; // Cast to any to handle timestamp
+              const fetchedOrderData = result.data as any;
               const fetchedOrder: OrderDocument = {
                   ...fetchedOrderData,
-                  createdAt: (fetchedOrderData.createdAt as Timestamp).toDate().toISOString(), // Convert here
+                  id: fetchedOrderData.id,
+                  createdAt: fetchedOrderData.createdAt.toDate().toISOString(),
               };
               setOrder(fetchedOrder);
               setTrackingCode(fetchedOrder.trackingCode || '');

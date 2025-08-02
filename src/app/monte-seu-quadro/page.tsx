@@ -44,10 +44,10 @@ const pricingData = {
 };
 
 const frames = {
-    black: { label: 'Preta', color: '#000000', rusticBorder: '#1a1a1a' },
-    white: { label: 'Branca', color: '#FFFFFF', rusticBorder: '#f0f0f0' },
-    hazel_oak: { label: 'Carvalho Avelã', color: '#C19A6B', rusticBorder: '#c9a57f' },
-    ebony_oak: { label: 'Carvalho Ébano', color: '#55453E', rusticBorder: '#635149' },
+    black: { label: 'Preta', color: '#000000', rusticBorder: 'rgba(255,255,255,0.1)' },
+    white: { label: 'Branca', color: '#FFFFFF', rusticBorder: 'rgba(0,0,0,0.1)' },
+    hazel_oak: { label: 'Carvalho Avelã', color: '#C19A6B', rusticBorder: '#d4b18c' },
+    ebony_oak: { label: 'Carvalho Ébano', color: '#55453E', rusticBorder: '#6d5a52' },
 };
 
 const frameStyles = {
@@ -155,22 +155,24 @@ export default function MonteSeuQuadroPage() {
         
         const frameStyleOptions: {[key: string]: React.CSSProperties} = {
             moderna: {
-                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-                borderStyle: 'solid',
+                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
+                border: 'none',
             },
             classica: {
-                boxShadow: '0 8px 24px rgba(0,0,0,0.2), inset 0 0 0 3px rgba(0,0,0,0.1)',
-                borderStyle: 'solid',
+                boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.3), inset 0px 0px 0px 4px rgba(0, 0, 0, 0.15)',
+                border: 'none',
             },
             rustica: {
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                border: `2px solid ${frames[selectedFrame as keyof typeof frames].rusticBorder}`,
+                 boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)',
+                 border: `1px solid ${frames[selectedFrame as keyof typeof frames].rusticBorder}`,
+                 backgroundImage: 'linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.02) 75%, transparent 75%, transparent 100%)',
+                 backgroundSize: '8px 8px'
             }
         };
 
         return (
             <div 
-                className="relative w-48 aspect-[4/5] p-2" 
+                className="relative w-48 aspect-[4/5] p-2 transition-all duration-300"
                 style={{ 
                     backgroundColor: frameColor,
                     ...frameStyleOptions[style] 

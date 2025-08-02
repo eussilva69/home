@@ -97,6 +97,12 @@ export default function CheckoutPage() {
         pollingIntervalRef.current = null;
     }
   }
+  
+  useEffect(() => {
+    if (user?.email) {
+      form.setValue('email', user.email);
+    }
+  }, [user, form]);
 
   useEffect(() => {
     return () => stopPolling();

@@ -174,7 +174,7 @@ export const collections = [
   { slug: 'abstrato', name: 'Abstrato', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS667S4SsyCpYH6HuZ_ysVwnzFHV4_nHbdkcA&s', hint: 'abstract' },
   { slug: 'frases-tipografia', name: 'Frases/Tipografia', image: 'https://i.pinimg.com/736x/56/de/96/56de96ac38decccabbbf516fb85b025a.jpg', hint: 'typography' },
   { slug: 'botanico', name: 'Botânico', image: 'https://i.pinimg.com/236x/93/30/12/933012248c7da55d48e93e14ee8134f9.jpg', hint: 'botanical' },
-  { slug: 'geek', name: 'Geek', image: 'https://media.cdnandroid.com/item_images/1078699/imagen-anime-wallpaper-geek-0ori.jpg', hint: 'game controller' },
+  { slug: 'geek', name: 'Geek', image: 'https://i.ibb.co/21gyDj9v/imagem-2025-08-03-192551359.png', hint: 'game controller' },
   { slug: 'fotografia', name: 'Fotografia', image: 'https://a-static.mlcdn.com.br/800x560/quadro-arte-abstrata-cidade-europeia-ki-art-quadros-decorativos/oliststore/mgl8fkfftqb5zmnn/55c04a7ccb3cede0d14df1da0a3f991e.jpeg', hint: 'camera' },
   { slug: 'infantil', name: 'Infantil', image: 'https://blog-leiturinha-novo.s3.us-east-1.amazonaws.com/production/uploads/2023/05/babyshark.jpg', hint: 'hedgehog' },
   { slug: 'fashion', name: 'Fashion', image: 'https://cdn.11.vuzi.com.br/goquadros/product/404401.webp', hint: 'fashion' },

@@ -9,7 +9,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye, Image as ImageIcon } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
 import ProductCard from '@/components/shared/product-card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -50,8 +50,6 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
-const environmentImage = "https://http2.mlstatic.com/D_NQ_NP_988953-MLB72022418120_102023-O.webp";
-
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
   
@@ -68,9 +66,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
   const [withGlass, setWithGlass] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
-  const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
-
-  const frameCount = useMemo(() => product.arrangement === 'Trio' ? 3 : product.arrangement === 'Dupla' ? 2 : 1, [product.arrangement]);
   
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
   const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
@@ -104,36 +99,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       height: h_cm * scaleFactor
     };
   };
-
-  const FrameComponent = ({ children }: { children: React.ReactNode; }) => {
-    const frameColor = frames[selectedFrame as keyof typeof frames].color;
-
-    return (
-        <div 
-            className="relative w-48 aspect-[4/5] p-[25px] transition-all duration-300 shadow-lg"
-            style={{ backgroundColor: frameColor }}
-        >
-            <div className="relative w-full h-full bg-white overflow-hidden">
-                {children}
-            </div>
-             {withGlass && (
-                <div className="absolute inset-[25px] bg-black/10 backdrop-blur-[1px]"/>
-            )}
-        </div>
-    )
-  };
-
-  const renderFrames = () => {
-    return (
-        <div className="flex justify-center items-center gap-4">
-            {[...Array(frameCount)].map((_, i) => (
-                <FrameComponent key={i}>
-                    <Image src={product.artwork_image} alt={product.name} layout="fill" objectFit="cover" />
-                </FrameComponent>
-            ))}
-        </div>
-    )
-  }
+  
+  const displayedImage = (product as any).imagesByColor?.[selectedFrame] || product.image;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -142,28 +109,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-center gap-2 mb-4">
-                <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
-                    <Eye className="mr-2 h-4 w-4" /> No Ambiente
-                </Button>
-                <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
-                    <ImageIcon className="mr-2 h-4 w-4" /> Somente o Quadro
-                </Button>
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
+                <Image 
+                    src={displayedImage} 
+                    alt={`${product.name} com moldura ${frames[selectedFrame as keyof typeof frames].label}`}
+                    layout="fill"
+                    objectFit="cover"
+                    className="transition-opacity duration-300"
+                />
             </div>
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
-                 {viewMode === 'environment' ? (
-                     <>
-                        <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90"/>
-                        <div className="relative">
-                            {renderFrames()}
-                        </div>
-                     </>
-                 ) : (
-                     <div className="p-4">
-                         {renderFrames()}
-                     </div>
-                 )}
-            </div>
+            {/* Thumbnail images could go here */}
           </div>
 
           {/* Product Details */}
@@ -198,7 +153,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
                   <Info className="h-4 w-4"/> Escolha um tamanho para ver a escala real.
               </p>
-              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {availableSizes.map(({ tamanho }) => {
                   const { width, height } = getFrameDimensions(tamanho);
                   

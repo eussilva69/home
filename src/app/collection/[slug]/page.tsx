@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -23,6 +24,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
   const collection = collections.find((c) => c.slug === params.slug);
   
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+  const [allCollectionProducts, setAllCollectionProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -33,13 +35,21 @@ export default function CollectionPage({ params }: { params: { slug: string } })
   useEffect(() => {
     if (collection) {
       const collectionProducts = products.filter((p) => p.category === collection.name);
-      setFilteredProducts(collectionProducts);
+      setAllCollectionProducts(collectionProducts);
+      
+      const solos = collectionProducts.filter(p => p.arrangement === 'Solo').slice(0, 4);
+      const duplas = collectionProducts.filter(p => p.arrangement === 'Dupla').slice(0, 3);
+      const trios = collectionProducts.filter(p => p.arrangement === 'Trio').slice(0, 2);
+      
+      const initialProducts = [...solos, ...duplas, ...trios];
+      setFilteredProducts(initialProducts);
+      setDisplayedProducts(initialProducts);
     }
   }, [collection]);
   
   useEffect(() => {
     if (collection) {
-      let tempProducts = products.filter((p) => p.category === collection.name);
+      let tempProducts = allCollectionProducts;
 
       // Filter by price
       tempProducts = tempProducts.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
@@ -47,13 +57,19 @@ export default function CollectionPage({ params }: { params: { slug: string } })
       // Filter by arrangement
       if (arrangement !== 'todos') {
         tempProducts = tempProducts.filter(p => p.arrangement === arrangement);
+      } else {
+        // If 'todos', show the curated list first, then allow loading more
+        const solos = allCollectionProducts.filter(p => p.arrangement === 'Solo').slice(0, 4);
+        const duplas = allCollectionProducts.filter(p => p.arrangement === 'Dupla').slice(0, 3);
+        const trios = allCollectionProducts.filter(p => p.arrangement === 'Trio').slice(0, 2);
+        tempProducts = [...solos, ...duplas, ...trios];
       }
       
       setFilteredProducts(tempProducts);
       setDisplayedProducts(tempProducts.slice(0, PRODUCTS_PER_PAGE));
       setCurrentPage(1);
     }
-  }, [collection, priceRange, arrangement]);
+  }, [collection, priceRange, arrangement, allCollectionProducts]);
 
 
   if (!collection) {
@@ -63,15 +79,19 @@ export default function CollectionPage({ params }: { params: { slug: string } })
   const handleLoadMore = () => {
     setLoading(true);
     const nextPage = currentPage + 1;
-    const nextProducts = filteredProducts.slice(0, nextPage * PRODUCTS_PER_PAGE);
+    // When loading more, we use all products, not just the initial curated list
+    const nextProducts = allCollectionProducts
+        .filter(p => p.price >= priceRange[0] && p.price <= priceRange[1])
+        .slice(0, nextPage * PRODUCTS_PER_PAGE);
+
     setTimeout(() => {
       setDisplayedProducts(nextProducts);
       setCurrentPage(nextPage);
       setLoading(false);
     }, 500);
   };
-
-  const hasMoreProducts = displayedProducts.length < filteredProducts.length;
+  
+  const hasMoreProducts = displayedProducts.length < allCollectionProducts.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]).length;
 
   const arrangementOptions = ['Solo', 'Dupla', 'Trio'];
 

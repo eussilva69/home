@@ -9,7 +9,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye, Image as ImageIcon } from 'lucide-react';
 import ProductCard from '@/components/shared/product-card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -50,6 +50,8 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
+const environmentImage = "https://http2.mlstatic.com/D_NQ_NP_988953-MLB72022418120_102023-O.webp";
+
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
   
@@ -65,6 +67,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   
   const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
   const [withGlass, setWithGlass] = useState(false);
+  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+  const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
+
+  const frameCount = useMemo(() => product.arrangement === 'Trio' ? 3 : product.arrangement === 'Dupla' ? 2 : 1, [product.arrangement]);
   
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
   const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
@@ -72,16 +78,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const handleAddToCart = () => {
     if (!product || !selectedPriceInfo || !finalPrice) return;
     
-    // Supondo uma cor de moldura padrão, já que o seletor foi removido
-    const defaultFrame = 'black'; 
-
     const itemToAdd = {
-        id: `${product.id}-${selectedSize}-${defaultFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
+        id: `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
         name: product.name,
         price: finalPrice,
         image: product.image,
         quantity: 1,
-        options: `${selectedSize}, ${frames[defaultFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
+        options: `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
         weight: selectedPriceInfo.weight,
         width: selectedPriceInfo.width,
         height: selectedPriceInfo.height,
@@ -102,6 +105,36 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
   };
 
+  const FrameComponent = ({ children }: { children: React.ReactNode; }) => {
+    const frameColor = frames[selectedFrame as keyof typeof frames].color;
+
+    return (
+        <div 
+            className="relative w-48 aspect-[4/5] p-[25px] transition-all duration-300 shadow-lg"
+            style={{ backgroundColor: frameColor }}
+        >
+            <div className="relative w-full h-full bg-white overflow-hidden">
+                {children}
+            </div>
+             {withGlass && (
+                <div className="absolute inset-[25px] bg-black/10 backdrop-blur-[1px]"/>
+            )}
+        </div>
+    )
+  };
+
+  const renderFrames = () => {
+    return (
+        <div className="flex justify-center items-center gap-4">
+            {[...Array(frameCount)].map((_, i) => (
+                <FrameComponent key={i}>
+                    <Image src={product.artwork_image} alt={product.name} layout="fill" objectFit="cover" />
+                </FrameComponent>
+            ))}
+        </div>
+    )
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -109,14 +142,27 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
-             <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
-                <Image
-                    src={product.image}
-                    alt={product.name}
-                    data-ai-hint={product.hint}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                />
+            <div className="flex items-center justify-center gap-2 mb-4">
+                <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
+                    <Eye className="mr-2 h-4 w-4" /> No Ambiente
+                </Button>
+                <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
+                    <ImageIcon className="mr-2 h-4 w-4" /> Somente o Quadro
+                </Button>
+            </div>
+            <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
+                 {viewMode === 'environment' ? (
+                     <>
+                        <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90"/>
+                        <div className="relative">
+                            {renderFrames()}
+                        </div>
+                     </>
+                 ) : (
+                     <div className="p-4">
+                         {renderFrames()}
+                     </div>
+                 )}
             </div>
           </div>
 
@@ -126,6 +172,22 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <p className="text-xl md:text-2xl font-semibold mb-6">
                 {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione uma opção'}
             </p>
+            
+            {/* Frame Color Selector */}
+            <div className="mb-6 md:mb-8">
+              <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Palette/> Cor da Moldura</Label>
+              <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
+                  {Object.entries(frames).map(([key, { label, color }]) => (
+                      <div key={key}>
+                          <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
+                          <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all", selectedFrame === key ? 'border-primary' : 'border-transparent')}>
+                              <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} title={label}/>
+                          </Label>
+                      </div>
+                  ))}
+              </RadioGroup>
+            </div>
+
 
              {/* Size Selector */}
             <div className="mb-6 md:mb-8">
@@ -136,7 +198,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
                   <Info className="h-4 w-4"/> Escolha um tamanho para ver a escala real.
               </p>
-              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {availableSizes.map(({ tamanho }) => {
                   const { width, height } = getFrameDimensions(tamanho);
                   
@@ -158,7 +220,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         </div>
                         <div className='w-full text-center py-1'>
                           <span className="font-semibold text-sm">{tamanho}</span>
-                          <span className="block text-xs text-muted-foreground">
+                           <span className="block text-xs text-muted-foreground">
                             {product.arrangement}
                           </span>
                         </div>

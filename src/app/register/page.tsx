@@ -63,6 +63,13 @@ export default function RegisterPage() {
             createdAt: serverTimestamp()
         });
 
+        // 4. Send welcome email by calling the API route
+        await fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ destinatario: values.email }),
+        });
+
         setSuccess("Conta criada com sucesso! Redirecionando para o login...");
         
         setTimeout(() => {

@@ -116,7 +116,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     const frameStyle = {
       backgroundColor: frameColor,
       boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-      padding: '10px',
+      padding: '25px',
     };
     
     return (
@@ -126,7 +126,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {children}
             </div>
             {withGlass && (
-                <div className="absolute inset-2.5 bg-black/10 backdrop-blur-[1px]"/>
+                <div className="absolute inset-[25px] bg-black/10 backdrop-blur-[1px]"/>
             )}
         </div>
       </div>

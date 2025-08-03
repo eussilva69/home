@@ -9,7 +9,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Eye, Image as ImageIcon } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info } from 'lucide-react';
 import ProductCard from '@/components/shared/product-card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -65,32 +65,23 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   
   const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
   const [withGlass, setWithGlass] = useState(false);
-  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
   
-  const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>(
-    product.arrangement === 'Solo' ? 'environment' : 'frame_only'
-  );
-
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
   const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
-  
-  const frameCount = useMemo(() => {
-    if (product.arrangement === 'Trio') return 3;
-    if (product.arrangement === 'Dupla') return 2;
-    return 1;
-  }, [product.arrangement]);
-
 
   const handleAddToCart = () => {
     if (!product || !selectedPriceInfo || !finalPrice) return;
     
+    // Supondo uma cor de moldura padrão, já que o seletor foi removido
+    const defaultFrame = 'black'; 
+
     const itemToAdd = {
-        id: `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
+        id: `${product.id}-${selectedSize}-${defaultFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
         name: product.name,
         price: finalPrice,
         image: product.image,
         quantity: 1,
-        options: `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
+        options: `${selectedSize}, ${frames[defaultFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
         weight: selectedPriceInfo.weight,
         width: selectedPriceInfo.width,
         height: selectedPriceInfo.height,
@@ -111,47 +102,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
   };
 
-  const FrameComponent = ({ children }: { children: React.ReactNode; }) => {
-    const frameColor = frames[selectedFrame as keyof typeof frames].color;
-    const frameStyle = {
-      backgroundColor: frameColor,
-      boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-      padding: '25px',
-    };
-    
-    return (
-      <div className="relative" style={{ width: 'min(75vw, 150px)', aspectRatio: '3/4' }}>
-        <div className="w-full h-full" style={frameStyle}>
-            <div className="relative w-full h-full bg-white overflow-hidden">
-                {children}
-            </div>
-            {withGlass && (
-                <div className="absolute inset-[25px] bg-black/10 backdrop-blur-[1px]"/>
-            )}
-        </div>
-      </div>
-    );
-  };
-  
-  const renderFrames = () => {
-    return (
-      <div className="flex justify-center items-center gap-4">
-        {[...Array(frameCount)].map((_, i) => (
-          <FrameComponent key={i}>
-            <Image
-                src={product.image}
-                alt={product.name}
-                data-ai-hint={product.hint}
-                fill
-                style={{ objectFit: 'cover' }}
-            />
-          </FrameComponent>
-        ))}
-      </div>
-    );
-  };
-
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -159,35 +109,15 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
-             {product.arrangement === 'Solo' && (
-                <div className="flex items-center justify-center gap-2 mb-4">
-                    <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
-                        <Eye className="mr-2" /> No Ambiente
-                    </Button>
-                    <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
-                        <ImageIcon className="mr-2" /> Somente o Quadro
-                    </Button>
-                </div>
-             )}
-            {viewMode === 'environment' && product.arrangement === 'Solo' ? (
-                 <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
-                    <Image
-                        src={product.image_alt}
-                        alt={`${product.name} em um ambiente`}
-                        data-ai-hint={product.hint_alt}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        className="brightness-75"
-                    />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                       {renderFrames()}
-                    </div>
-                </div>
-            ) : (
-                <div className="relative aspect-square w-full flex items-center justify-center bg-secondary/30 rounded-lg shadow-lg p-4 md:p-8">
-                     {renderFrames()}
-                </div>
-            )}
+             <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
+                <Image
+                    src={product.image}
+                    alt={product.name}
+                    data-ai-hint={product.hint}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                />
+            </div>
           </div>
 
           {/* Product Details */}
@@ -238,28 +168,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 })}
               </RadioGroup>
             </div>
-
-            {/* Frame Selector */}
-            <div className="mb-6 md:mb-8">
-                <Label className="text-base md:text-lg font-medium mb-3 block">Cor da Moldura: <span className="font-bold">{frames[selectedFrame as keyof typeof frames].label}</span></Label>
-                <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-2">
-                    {Object.entries(frames).map(([key, { color }]) => (
-                        <div key={key}>
-                            <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
-                            <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-md border-2 p-1 transition-all", selectedFrame === key ? 'border-primary' : 'border-transparent')}>
-                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-md overflow-hidden border">
-                                    <div className="w-full h-full relative">
-                                        <div style={{ backgroundColor: color, width: '50%', height: '15px', position: 'absolute', top: 0, left: 0 }} />
-                                        <div style={{ backgroundColor: color, width: '15px', height: '50%', position: 'absolute', top: 0, left: 0 }} />
-                                        <div style={{ backgroundColor: '#f0f0f0', width: 'calc(100% - 15px)', height: 'calc(100% - 15px)', position: 'absolute', bottom: 0, right: 0 }} />
-                                    </div>
-                                </div>
-                            </Label>
-                        </div>
-                    ))}
-                </RadioGroup>
-            </div>
-
+            
             {/* Glass Selector */}
             <div className="mb-6 md:mb-8">
                 <Label className="text-base md:text-lg font-medium mb-3 block">Acabamento: <span className="font-bold">{withGlass ? 'Com Vidro' : 'Sem Vidro'}</span></Label>

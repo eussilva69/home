@@ -159,6 +159,12 @@ const nextConfig: NextConfig = {
         hostname: 'http2.mlstatic.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.cdnandroid.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

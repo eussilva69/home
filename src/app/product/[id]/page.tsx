@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { products } from '@/lib/mock-data';
@@ -9,7 +9,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye, Image as ImageIcon } from 'lucide-react';
 import ProductCard from '@/components/shared/product-card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -66,6 +66,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
   const [withGlass, setWithGlass] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+  const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
   
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
   const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
@@ -109,16 +110,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-center gap-2 mb-4">
+                <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
+                    <Eye className="mr-2 h-4 w-4" /> No Ambiente
+                </Button>
+                <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
+                    <ImageIcon className="mr-2 h-4 w-4" /> Somente o Quadro
+                </Button>
+            </div>
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
-                <Image 
-                    src={displayedImage} 
-                    alt={`${product.name} com moldura ${frames[selectedFrame as keyof typeof frames].label}`}
+                 <Image 
+                    src={viewMode === 'environment' ? product.image_alt : displayedImage}
+                    alt={viewMode === 'environment' ? product.name + ' no ambiente' : `${product.name} com moldura ${frames[selectedFrame as keyof typeof frames].label}`}
                     layout="fill"
                     objectFit="cover"
                     className="transition-opacity duration-300"
+                    key={viewMode === 'environment' ? product.image_alt : displayedImage} // força a recriação da imagem
                 />
             </div>
-            {/* Thumbnail images could go here */}
           </div>
 
           {/* Product Details */}

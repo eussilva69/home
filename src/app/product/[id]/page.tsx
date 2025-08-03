@@ -130,7 +130,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     src={displayedImage}
                     alt={viewMode === 'environment' ? product.name + ' no ambiente' : `${product.name} com moldura ${frames[selectedFrame as keyof typeof frames].label}`}
                     layout="fill"
-                    objectFit="cover"
+                    objectFit={viewMode === 'environment' ? 'cover' : 'contain'}
                     className="transition-opacity duration-300"
                     key={displayedImage} // força a recriação da imagem
                 />

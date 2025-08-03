@@ -17,14 +17,14 @@ export async function POST(req: NextRequest) {
 
   try {
     // Configurar transportador SMTP (Gmail com App Password)
-    // ATENÇÃO: Armazene estas credenciais em variáveis de ambiente em um projeto real.
+    // ATENÇÃO: As credenciais estão diretamente no código a pedido do usuário.
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
       auth: {
-        user: process.env.EMAIL_USER || "rodrigokanoyadani1@gmail.com", // e-mail remetente
-        pass: process.env.EMAIL_PASS || "ruty bvrr ovof pjgb",         // senha de app (não senha normal do Gmail)
+        user: "rodrigokanoyadani1@gmail.com", // e-mail remetente
+        pass: "ruty bvrr ovof pjgb",         // senha de app (não senha normal do Gmail)
       },
     });
 

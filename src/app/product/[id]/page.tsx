@@ -89,6 +89,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     addToCart(itemToAdd);
   };
 
+  const handleFrameChange = (value: string) => {
+    setSelectedFrame(value);
+    setViewMode('frame_only');
+  }
+
   const humanHeightPx = 120;
   const humanImage = "https://i.ibb.co/q3tBWm6C/pngwing-com.png";
 
@@ -101,7 +106,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
   };
   
-  const displayedImage = (product as any).imagesByColor?.[selectedFrame] || product.image;
+  const displayedImage = viewMode === 'environment' 
+    ? product.image_alt 
+    : (product as any).imagesByColor?.[selectedFrame] || product.image;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -120,12 +127,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </div>
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
                  <Image 
-                    src={viewMode === 'environment' ? product.image_alt : displayedImage}
+                    src={displayedImage}
                     alt={viewMode === 'environment' ? product.name + ' no ambiente' : `${product.name} com moldura ${frames[selectedFrame as keyof typeof frames].label}`}
                     layout="fill"
                     objectFit="cover"
                     className="transition-opacity duration-300"
-                    key={viewMode === 'environment' ? product.image_alt : displayedImage} // força a recriação da imagem
+                    key={displayedImage} // força a recriação da imagem
                 />
             </div>
           </div>
@@ -140,7 +147,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Frame Color Selector */}
             <div className="mb-6 md:mb-8">
               <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Palette/> Cor da Moldura</Label>
-              <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
+              <RadioGroup value={selectedFrame} onValueChange={handleFrameChange} className="flex items-center gap-3">
                   {Object.entries(frames).map(([key, { label, color }]) => (
                       <div key={key}>
                           <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
@@ -263,3 +270,5 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
+    

@@ -131,7 +131,8 @@ export const OrderDetailsSchema = z.object({
     paymentId: z.number().optional(),
   }),
   status: z.string(),
-  createdAt: z.any(), // Alterado para 'any' para lidar com Timestamp do Firebase
+  createdAt: z.any(), // Para Timestamp do Firebase
+  shippedAt: z.any().optional(), // Para Timestamp do Firebase de quando foi enviado
 });
 export type OrderDetails = z.infer<typeof OrderDetailsSchema>;
 
@@ -163,5 +164,3 @@ export const ProductSchema = z.object({
   arrangement: z.string(),
 });
 export type Product = z.infer<typeof ProductSchema>;
-
-    

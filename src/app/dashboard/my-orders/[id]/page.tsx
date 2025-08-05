@@ -1,10 +1,10 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { getOrderById } from '@/app/actions';
+import { getOrderById, updateOrderStatus } from '@/app/actions';
 import type { OrderDetails } from '@/lib/schemas';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
@@ -16,10 +16,13 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
+import { useToast } from '@/hooks/use-toast';
+import { Timestamp } from 'firebase/firestore';
 
-interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
+interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   id: string;
   createdAt: string; 
+  shippedAt?: string;
   trackingCode?: string;
 }
 
@@ -28,6 +31,7 @@ export default function OrderDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const orderId = params.id as string;
+  const { toast } = useToast();
 
   const [order, setOrder] = useState<OrderDocument | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +45,23 @@ export default function OrderDetailsPage() {
     { href: '/dashboard/exchanges', label: 'Trocas e devoluções', icon: 'ArrowLeftRight' as const },
   ];
 
+  const checkAndUpdateStatus = useCallback(async (orderData: any) => {
+    if (orderData.status === 'A caminho' && orderData.shippedAt && orderData.shipping.details.delivery_time) {
+        const shippedDate = (orderData.shippedAt as Timestamp).toDate();
+        const deliveryTime = orderData.shipping.details.delivery_time;
+        const estimatedDeliveryDate = new Date(shippedDate);
+        estimatedDeliveryDate.setDate(shippedDate.getDate() + deliveryTime);
+        
+        if (new Date() > estimatedDeliveryDate) {
+            await updateOrderStatus(orderData.id, 'Entregue');
+            toast({ title: 'Pedido Entregue!', description: 'O status do seu pedido foi atualizado.' });
+            return { ...orderData, status: 'Entregue' };
+        }
+    }
+    return orderData;
+  }, [toast]);
+
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -53,16 +74,20 @@ export default function OrderDetailsPage() {
         try {
           const result = await getOrderById(orderId);
           if (result.success && result.data) {
-             const orderData = result.data as any;
-             // Ensure the user is authorized to see this order
+             let orderData = result.data as any;
              if (orderData.customer.email !== user.email) {
                 setError('Você não tem permissão para ver este pedido.');
-             } else {
-                setOrder({
-                    ...orderData,
-                    createdAt: orderData.createdAt.toDate().toISOString(),
-                });
+                return;
              }
+             
+             orderData = await checkAndUpdateStatus(orderData);
+
+             setOrder({
+                 ...orderData,
+                 createdAt: orderData.createdAt.toDate().toISOString(),
+                 shippedAt: orderData.shippedAt?.toDate().toISOString(),
+             });
+
           } else {
             setError(result.message || 'Pedido não encontrado.');
           }
@@ -74,7 +99,7 @@ export default function OrderDetailsPage() {
       };
       fetchOrder();
     }
-  }, [orderId, user, authLoading, router]);
+  }, [orderId, user, authLoading, router, checkAndUpdateStatus]);
 
   if (loading || authLoading) {
     return (

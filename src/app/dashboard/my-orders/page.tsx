@@ -3,7 +3,7 @@
 
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Loader2, ChevronRight } from 'lucide-react';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import Header from '@/components/layout/header';
@@ -11,16 +11,18 @@ import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { firestore } from '@/lib/firebase';
-import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, writeBatch, doc } from 'firebase/firestore';
 import type { OrderDetails } from '@/lib/schemas';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 
-interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
+interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   id: string;
-  createdAt: string; // Changed from Timestamp to string to avoid serialization error
+  createdAt: string; 
   trackingCode?: string;
+  shippedAt?: string;
 }
 
 export default function MyOrdersPage() {
@@ -28,37 +30,82 @@ export default function MyOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<OrderDocument[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
+  const checkAndUpdateOrderStatus = useCallback(async (ordersToCheck: OrderDocument[]) => {
+    const batch = writeBatch(firestore);
+    let hasUpdates = false;
+
+    ordersToCheck.forEach(order => {
+        if (order.status === 'A caminho' && order.shippedAt && order.shipping.details.delivery_time) {
+            const shippedDate = new Date(order.shippedAt);
+            const deliveryTime = order.shipping.details.delivery_time;
+            const estimatedDeliveryDate = new Date(shippedDate);
+            estimatedDeliveryDate.setDate(shippedDate.getDate() + deliveryTime);
+            
+            if (new Date() > estimatedDeliveryDate) {
+                const orderRef = doc(firestore, 'orders', order.id);
+                batch.update(orderRef, { status: 'Entregue' });
+                hasUpdates = true;
+            }
+        }
+    });
+
+    if (hasUpdates) {
+        try {
+            await batch.commit();
+            toast({ title: 'Status de Pedidos Atualizado', description: 'Alguns pedidos foram marcados como "Entregue" automaticamente.' });
+            // Re-fetch orders after update
+            const fetchAgain = async () => {
+                 if (user?.email) {
+                    const q = query(collection(firestore, 'orders'), where("customer.email", "==", user.email));
+                    const querySnapshot = await getDocs(q);
+                    let fetchedOrders = querySnapshot.docs.map(doc => {
+                        const data = doc.data();
+                        const createdAtTimestamp = data.createdAt as Timestamp;
+                        const shippedAtTimestamp = data.shippedAt as Timestamp | undefined;
+                        return {
+                            id: doc.id,
+                            ...data,
+                            createdAt: createdAtTimestamp.toDate().toISOString(),
+                            shippedAt: shippedAtTimestamp?.toDate().toISOString(),
+                        } as OrderDocument;
+                    });
+                    fetchedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                    setOrders(fetchedOrders);
+                }
+            };
+            fetchAgain();
+        } catch (error) {
+            console.error("Erro ao atualizar status em lote:", error);
+        }
     }
-  }, [user, loading, router]);
-  
+  }, [user, toast]);
+
+
   useEffect(() => {
       const fetchOrders = async () => {
           if (user?.email) {
             setIsLoadingOrders(true);
             try {
-                const q = query(
-                    collection(firestore, 'orders'), 
-                    where("customer.email", "==", user.email)
-                );
+                const q = query(collection(firestore, 'orders'), where("customer.email", "==", user.email));
                 const querySnapshot = await getDocs(q);
                 let fetchedOrders = querySnapshot.docs.map(doc => {
                     const data = doc.data();
                     const createdAtTimestamp = data.createdAt as Timestamp;
+                    const shippedAtTimestamp = data.shippedAt as Timestamp | undefined;
                     return {
                         id: doc.id,
                         ...data,
-                        createdAt: createdAtTimestamp.toDate().toISOString(), // Convert Timestamp to ISO string
+                        createdAt: createdAtTimestamp.toDate().toISOString(),
+                        shippedAt: shippedAtTimestamp?.toDate().toISOString(),
                     } as OrderDocument
                 });
                 
-                // Sort orders by date client-side
                 fetchedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                
                 setOrders(fetchedOrders);
+                // Check statuses after fetching
+                checkAndUpdateOrderStatus(fetchedOrders);
             } catch (error) {
                 console.error("Erro ao buscar pedidos:", error);
             } finally {
@@ -68,8 +115,17 @@ export default function MyOrdersPage() {
              setIsLoadingOrders(false);
           }
       }
-      fetchOrders();
-  }, [user]);
+      if (!loading && user) {
+        fetchOrders();
+      }
+  }, [user, loading, checkAndUpdateOrderStatus]);
+  
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
 
     const getBadgeVariant = (status: string) => {
         switch (status) {
@@ -80,6 +136,7 @@ export default function MyOrdersPage() {
             case 'Cancelado':
                 return 'destructive'; // Reddish
             case 'Aprovado':
+            case 'Em separação':
                 return 'outline'; // Default
             default:
                 return 'secondary';

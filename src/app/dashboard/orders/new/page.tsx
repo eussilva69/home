@@ -174,6 +174,7 @@ export default function NewOrderPage() {
             name: option.name,
             price: parseFloat(option.price),
             company: option.company.name,
+            delivery_time: option.delivery_time,
           };
           setSelectedShipping(shippingInfo);
       }

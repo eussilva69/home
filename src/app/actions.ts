@@ -337,7 +337,8 @@ export async function updateTrackingCode(orderId: string, trackingCode: string) 
         const orderRef = doc(firestore, 'orders', orderId);
         await updateDoc(orderRef, { 
             trackingCode: trackingCode,
-            status: 'A caminho' // Atualiza o status automaticamente
+            status: 'A caminho', // Atualiza o status automaticamente
+            shippedAt: serverTimestamp() // Salva a data de envio
         });
         return { success: true };
     } catch (error) {

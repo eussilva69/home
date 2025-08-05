@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ShoppingCart, Ruler, Palette, UploadCloud, X, Loader2, Eye, Image as ImageIcon, Frame, Repeat, Columns, Copy } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { useCart } from '@/hooks/use-cart';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const IMG_UPLOAD_KEY = "7ecf5602b8f3c01d2df1b966c1d018af";
 
@@ -60,20 +59,55 @@ const environmentImage = "https://http2.mlstatic.com/D_NQ_NP_988953-MLB720224181
 
 type ImageMode = 'global' | 'split' | 'individual';
 
+const FrameComponent = ({ children, frameColor, frameStyle, withGlass }: { children: React.ReactNode; frameColor: string; frameStyle: string, withGlass: boolean }) => {
+    const styleOptions: {[key: string]: React.CSSProperties} = {
+        moderna: {
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
+            border: 'none',
+        },
+        classica: {
+            boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.3), inset 0px 0px 0px 4px rgba(0, 0, 0, 0.15)',
+            border: 'none',
+        },
+        rustica: {
+             boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)',
+             border: `1px solid ${frames[frameColor as keyof typeof frames]?.rusticBorder || 'transparent'}`,
+             backgroundImage: 'linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.02) 75%, transparent 75%, transparent 100%)',
+             backgroundSize: '8px 8px'
+        }
+    };
+
+    return (
+        <div 
+            className="relative w-48 aspect-[4/5] p-2 transition-all duration-300"
+            style={{ 
+                backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
+                ...styleOptions[frameStyle] 
+            }}
+        >
+            <div className="relative w-full h-full bg-white overflow-hidden">
+                {children}
+            </div>
+             {withGlass && (
+                <div className="absolute inset-2 bg-black/10 backdrop-blur-[1px]"/>
+            )}
+        </div>
+    )
+};
+
 export default function MonteSeuQuadroPage() {
     const { addToCart } = useCart();
     const { toast } = useToast();
 
     const [arrangement, setArrangement] = useState<keyof typeof pricingData>('Solo');
-    const [availableSizes, setAvailableSizes] = useState(pricingData['Solo']);
-    const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
+    const [selectedSize, setSelectedSize] = useState(pricingData['Solo'][0].tamanho);
     const [selectedFrameStyle, setSelectedFrameStyle] = useState(Object.keys(frameStyles)[0]);
     const [withGlass, setWithGlass] = useState(false);
     const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
 
     const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([null]);
-    const [uploading, setUploading] = useState<(boolean | null)[]>([null]);
-    const [dragging, setDragging] = useState<(boolean | null)[]>([null]);
+    const [uploading, setUploading] = useState<boolean[]>([]);
+    const [dragging, setDragging] = useState<boolean[]>([]);
     
     const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
     const [imageMode, setImageMode] = useState<ImageMode>('global');
@@ -81,30 +115,27 @@ export default function MonteSeuQuadroPage() {
     const frameCount = useMemo(() => arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1, [arrangement]);
 
     useEffect(() => {
-        const newFrameCount = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
-        setImagePreviews(Array(newFrameCount).fill(null));
-        setUploading(Array(newFrameCount).fill(false));
-        setDragging(Array(newFrameCount).fill(false));
+        setImagePreviews(Array(frameCount).fill(null));
+        setUploading(Array(frameCount).fill(false));
+        setDragging(Array(frameCount).fill(false));
+        setImageMode(arrangement === 'Solo' ? 'global' : 'individual');
+    }, [frameCount, arrangement]);
+    
+    const availableSizes = useMemo(() => pricingData[arrangement], [arrangement]);
+    
+    useEffect(() => {
+        setSelectedSize(availableSizes[0].tamanho);
+    }, [availableSizes]);
 
-        if (arrangement === 'Solo') {
-            setImageMode('global');
-        } else {
-            setImageMode('global'); // Reset to default when changing arrangement
-        }
-    }, [arrangement]);
-
-    const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
-    const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
+    const selectedPriceInfo = useMemo(() => availableSizes.find(s => s.tamanho === selectedSize), [availableSizes, selectedSize]);
+    const finalPrice = useMemo(() => withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro, [withGlass, selectedPriceInfo]);
 
     const handleArrangementChange = (value: string) => {
         const key = value as keyof typeof pricingData;
         setArrangement(key);
-        const newSizes = pricingData[key];
-        setAvailableSizes(newSizes);
-        setSelectedSize(newSizes[0].tamanho);
     };
 
-    const handleImageUpload = async (file: File, index: number) => {
+    const handleImageUpload = useCallback(async (file: File, index: number) => {
         setUploading(prev => prev.map((u, i) => i === index ? true : u));
         const formData = new FormData();
         formData.append("image", file);
@@ -127,11 +158,11 @@ export default function MonteSeuQuadroPage() {
                 throw new Error(data.error.message);
             }
         } catch (error) {
-            toast({ variant: "destructive", title: "Erro no Upload", description: "Não foi possível enviar sua imagem. Tente novamente." });
+            toast({ variant: "destructive", title: "Erro no Upload", description: "Não foi possível enviar sua imagem." });
         } finally {
-            setUploading(prev => prev.map((u, i) => i === index ? false : u));
+            setUploading(prev => prev.map((_, i) => i === index ? false : false));
         }
-    };
+    }, [imageMode, frameCount, toast]);
 
     const onFileChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
         if (e.target.files && e.target.files[0]) {
@@ -142,7 +173,7 @@ export default function MonteSeuQuadroPage() {
 
     const handleDrop = (e: DragEvent<HTMLDivElement>, index: number) => {
         e.preventDefault(); e.stopPropagation();
-        setDragging(prev => prev.map((d, i) => i === index ? false : d));
+        setDragging(prev => prev.map(() => false));
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             handleImageUpload(e.dataTransfer.files[0], index);
         }
@@ -150,7 +181,7 @@ export default function MonteSeuQuadroPage() {
     
     const handleDragEvent = (e: DragEvent<HTMLDivElement>, isEntering: boolean, index: number) => {
         e.preventDefault(); e.stopPropagation();
-        setDragging(prev => prev.map((d, i) => i === index ? isEntering : d));
+        setDragging(prev => prev.map((_, i) => i === index ? isEntering : false));
     };
 
     const handleRemoveImage = (e: React.MouseEvent, index: number) => {
@@ -187,44 +218,6 @@ export default function MonteSeuQuadroPage() {
         addToCart(itemToAdd);
     };
     
-    const FrameComponent = ({ children }: { children: React.ReactNode; }) => {
-        const frameColor = frames[selectedFrame as keyof typeof frames].color;
-        
-        const frameStyleOptions: {[key: string]: React.CSSProperties} = {
-            moderna: {
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
-                border: 'none',
-            },
-            classica: {
-                boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.3), inset 0px 0px 0px 4px rgba(0, 0, 0, 0.15)',
-                border: 'none',
-            },
-            rustica: {
-                 boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)',
-                 border: `1px solid ${frames[selectedFrame as keyof typeof frames].rusticBorder}`,
-                 backgroundImage: 'linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.02) 75%, transparent 75%, transparent 100%)',
-                 backgroundSize: '8px 8px'
-            }
-        };
-
-        return (
-            <div 
-                className="relative w-48 aspect-[4/5] p-2 transition-all duration-300"
-                style={{ 
-                    backgroundColor: frameColor,
-                    ...frameStyleOptions[selectedFrameStyle] 
-                }}
-            >
-                <div className="relative w-full h-full bg-white overflow-hidden">
-                    {children}
-                </div>
-                 {withGlass && (
-                    <div className="absolute inset-2 bg-black/10 backdrop-blur-[1px]"/>
-                )}
-            </div>
-        )
-    };
-
     const renderFrames = () => {
         return (
             <div className="flex justify-center items-center gap-4">
@@ -232,7 +225,13 @@ export default function MonteSeuQuadroPage() {
                      const imageSrc = imagePreviews[imageMode === 'individual' ? i : 0];
                      const imageStyle: React.CSSProperties = {};
                      if (imageMode === 'split' && frameCount > 1) {
-                         imageStyle.objectPosition = `${(i * 100) / (frameCount - 1)}% 50%`;
+                         const position = frameCount === 2 ? (i === 0 ? '0%' : '100%') : `${(i * 100) / (frameCount - 1)}%`;
+                         imageStyle.objectPosition = `${position} 50%`;
+                         imageStyle.objectFit = 'cover';
+                         imageStyle.width = `${frameCount * 100}%`;
+                         imageStyle.height = '100%';
+                         imageStyle.position = 'absolute';
+                         imageStyle.left = `-${i * 100}%`;
                      }
 
                     return (
@@ -245,46 +244,41 @@ export default function MonteSeuQuadroPage() {
                         onDragEnter={(e) => handleDragEvent(e, true, i)}
                         onDragLeave={(e) => handleDragEvent(e, false, i)}
                     >
-                        <FrameComponent>
-                        {imageSrc ? (
-                            <>
-                                <Image src={imageSrc} alt={`Pré-visualização ${i+1}`} layout="fill" objectFit="cover" style={imageStyle}/>
-                                 <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => handleRemoveImage(e, i)}>
-                                    <X className="h-4 w-4"/>
-                                </Button>
-                            </>
-                        ) : uploading[i] ? (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <FrameComponent frameColor={selectedFrame} frameStyle={selectedFrameStyle} withGlass={withGlass}>
+                            <div className="relative w-full h-full overflow-hidden">
+                                {imageSrc ? (
+                                    <>
+                                        <Image src={imageSrc} alt={`Pré-visualização ${i+1}`} layout="fill" objectFit={imageMode === 'split' ? 'none' : 'cover'} style={imageStyle}/>
+                                        <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => handleRemoveImage(e, i)}>
+                                            <X className="h-4 w-4"/>
+                                        </Button>
+                                    </>
+                                ) : uploading[i] ? (
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                    </div>
+                                ) : (
+                                    <div className={cn("w-full h-full flex flex-col items-center justify-center bg-gray-100 text-muted-foreground transition-all", dragging[i] && "border-primary border-2 border-dashed bg-primary/10")}>
+                                        <UploadCloud className="h-8 w-8 mb-2" />
+                                        <span className="text-xs text-center">Arraste ou clique para enviar</span>
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className={cn("w-full h-full flex flex-col items-center justify-center bg-gray-100 text-muted-foreground", dragging[i] && "border-primary border-2 border-dashed")}>
-                                <UploadCloud className="h-8 w-8 mb-2" />
-                                <span className="text-xs text-center">Arraste ou clique para enviar</span>
-                            </div>
-                        )}
                         </FrameComponent>
                      </label>
                     )
                 })}
-                 <input 
-                    id={`image-upload-0`}
-                    type="file" 
-                    className="sr-only" 
-                    onChange={(e) => onFileChange(e, 0)} 
-                    accept="image/*" 
-                    multiple={false}
-                />
-                 {frameCount > 1 && [...Array(frameCount-1)].map((_, i) => (
-                      <input 
-                        key={i+1}
-                        id={`image-upload-${i+1}`}
+                 {/* Hidden file inputs */}
+                 {[...Array(frameCount)].map((_, i) => (
+                    <input 
+                        key={i}
+                        id={`image-upload-${i}`}
                         type="file" 
                         className="sr-only" 
-                        onChange={(e) => onFileChange(e, i+1)} 
+                        onChange={(e) => onFileChange(e, i)} 
                         accept="image/*" 
                         multiple={false}
-                        disabled={imageMode !== 'individual'}
+                        disabled={imageMode !== 'individual' && i > 0}
                      />
                  ))}
             </div>
@@ -336,115 +330,90 @@ export default function MonteSeuQuadroPage() {
                       {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione as opções'}
                   </p>
                   
-                  <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                  <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
                      <AccordionItem value="item-1">
-                        <AccordionTrigger className="text-base font-semibold">Arranjo</AccordionTrigger>
-                        <AccordionContent>
+                        <AccordionTrigger className="text-base font-semibold">Arranjo & Imagem</AccordionTrigger>
+                        <AccordionContent className="space-y-4">
                            <RadioGroup value={arrangement} onValueChange={(v) => handleArrangementChange(v as any)} className="grid grid-cols-3 gap-3">
                                 {Object.keys(pricingData).map((key) => (
-                                    <div key={key}>
+                                    <Label key={key} htmlFor={`arrangement-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
                                         <RadioGroupItem value={key} id={`arrangement-${key}`} className="sr-only" />
-                                        <Label
-                                            htmlFor={`arrangement-${key}`}
-                                            className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12", arrangement === key ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}
-                                        >
-                                            {key}
-                                        </Label>
-                                    </div>
+                                        {key}
+                                    </Label>
                                 ))}
                             </RadioGroup>
+                             {arrangement !== 'Solo' && (
+                                <>
+                                 <Label className="font-semibold text-sm">Aplicação da Imagem</Label>
+                                 <RadioGroup value={imageMode} onValueChange={(v) => setImageMode(v as any)} className="grid grid-cols-3 gap-3">
+                                    <Label htmlFor="mode-global" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <RadioGroupItem value="global" id="mode-global" className="sr-only" />
+                                        <Repeat className="h-5 w-5 mb-1"/>Global
+                                    </Label>
+                                    <Label htmlFor="mode-split" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <RadioGroupItem value="split" id="mode-split" className="sr-only" />
+                                        <Columns className="h-5 w-5 mb-1"/>Split
+                                    </Label>
+                                    <Label htmlFor="mode-individual" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <RadioGroupItem value="individual" id="mode-individual" className="sr-only" />
+                                        <Copy className="h-5 w-5 mb-1"/>Individual
+                                    </Label>
+                                </RadioGroup>
+                                </>
+                            )}
                         </AccordionContent>
                     </AccordionItem>
-
-                    {arrangement !== 'Solo' && (
-                        <AccordionItem value="item-image-mode">
-                           <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><ImageIcon/> Aplicação da Imagem</AccordionTrigger>
-                           <AccordionContent>
-                                <RadioGroup value={imageMode} onValueChange={(v) => setImageMode(v as any)} className="grid grid-cols-3 gap-3">
-                                    <div>
-                                        <RadioGroupItem value="global" id="mode-global" className="sr-only" />
-                                        <Label htmlFor="mode-global" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'global' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
-                                            <Repeat className="h-5 w-5 mb-1"/>
-                                            Global
-                                        </Label>
-                                    </div>
-                                     <div>
-                                        <RadioGroupItem value="split" id="mode-split" className="sr-only" />
-                                        <Label htmlFor="mode-split" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'split' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
-                                            <Columns className="h-5 w-5 mb-1"/>
-                                            Split
-                                        </Label>
-                                    </div>
-                                    <div>
-                                        <RadioGroupItem value="individual" id="mode-individual" className="sr-only" />
-                                        <Label htmlFor="mode-individual" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-20", imageMode === 'individual' ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
-                                            <Copy className="h-5 w-5 mb-1"/>
-                                            Individual
-                                        </Label>
-                                    </div>
-                                </RadioGroup>
-                           </AccordionContent>
-                       </AccordionItem>
-                    )}
-
                     <AccordionItem value="item-2">
                         <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Ruler/> Tamanho</AccordionTrigger>
                         <AccordionContent>
                             <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 gap-3">
                                 {availableSizes.map(({ tamanho }) => (
-                                    <div key={tamanho}>
+                                    <Label key={tamanho} htmlFor={`size-${tamanho}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
                                         <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
-                                        <Label htmlFor={`size-${tamanho}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12", selectedSize === tamanho ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
-                                            {tamanho}
-                                        </Label>
-                                    </div>
+                                        {tamanho}
+                                    </Label>
                                 ))}
                             </RadioGroup>
                         </AccordionContent>
                     </AccordionItem>
                      <AccordionItem value="item-3">
-                        <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Frame/> Estilo da Moldura</AccordionTrigger>
-                        <AccordionContent>
-                             <RadioGroup value={selectedFrameStyle} onValueChange={setSelectedFrameStyle} className="grid grid-cols-3 gap-3">
-                                {Object.entries(frameStyles).map(([key, label]) => (
-                                    <div key={key}>
+                        <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Frame/> Moldura e Acabamento</AccordionTrigger>
+                        <AccordionContent className="space-y-4">
+                            <div>
+                               <Label className="font-semibold text-sm mb-2 block">Estilo da Moldura</Label>
+                               <RadioGroup value={selectedFrameStyle} onValueChange={setSelectedFrameStyle} className="grid grid-cols-3 gap-3">
+                                  {Object.entries(frameStyles).map(([key, label]) => (
+                                      <Label key={key} htmlFor={`style-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
                                         <RadioGroupItem value={key} id={`style-${key}`} className="sr-only" />
-                                        <Label htmlFor={`style-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12", selectedFrameStyle === key ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
-                                            {label}
-                                        </Label>
-                                    </div>
-                                ))}
-                            </RadioGroup>
-                        </AccordionContent>
-                    </AccordionItem>
-                     <AccordionItem value="item-4">
-                        <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Palette/> Cor da Moldura</AccordionTrigger>
-                        <AccordionContent>
-                            <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
-                                {Object.entries(frames).map(([key, { label, color }]) => (
-                                    <div key={key}>
-                                        <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
-                                        <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all", selectedFrame === key ? 'border-primary' : 'border-transparent')}>
-                                            <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} title={label}/>
-                                        </Label>
-                                    </div>
-                                ))}
-                            </RadioGroup>
-                        </AccordionContent>
-                    </AccordionItem>
-                     <AccordionItem value="item-5">
-                        <AccordionTrigger className="text-base font-semibold">Acabamento</AccordionTrigger>
-                        <AccordionContent>
-                           <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-3">
-                                 <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
-                                 <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12", withGlass ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
-                                     Com Vidro
-                                 </Label>
-                                 <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
-                                 <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12", !withGlass ? 'border-primary bg-primary/5 font-semibold' : 'border-border')}>
-                                     Sem Vidro
-                                 </Label>
-                            </RadioGroup>
+                                        {label}
+                                      </Label>
+                                  ))}
+                              </RadioGroup>
+                            </div>
+                            <div>
+                               <Label className="font-semibold text-sm mb-2 block">Cor da Moldura</Label>
+                               <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
+                                  {Object.entries(frames).map(([key, { label, color }]) => (
+                                      <Label key={key} htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all has-[:checked]:border-primary")} title={label}>
+                                          <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
+                                          <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} />
+                                      </Label>
+                                  ))}
+                              </RadioGroup>
+                            </div>
+                            <div>
+                                <Label className="font-semibold text-sm mb-2 block">Acabamento</Label>
+                                <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-3">
+                                     <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                         <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
+                                         Com Vidro
+                                     </Label>
+                                     <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                         <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
+                                         Sem Vidro
+                                     </Label>
+                                </RadioGroup>
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
                   </Accordion>
@@ -462,5 +431,3 @@ export default function MonteSeuQuadroPage() {
     </div>
     );
 }
-
-    

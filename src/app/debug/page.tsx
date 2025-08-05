@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -11,14 +12,27 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { logoutAction } from '@/app/actions';
-import { Trash2, LogOut, RefreshCw } from 'lucide-react';
+import { logoutAction, clearAllOrders } from '@/app/actions';
+import { Trash2, LogOut, RefreshCw, ServerCrash, Loader2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function DebugPage() {
   const { clearCart, cartItems } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+
+  const [isClearingOrders, setIsClearingOrders] = useState(false);
 
   const handleClearCart = () => {
     clearCart();
@@ -64,6 +78,24 @@ export default function DebugPage() {
     }
   };
 
+  const handleClearOrders = async () => {
+    setIsClearingOrders(true);
+    const result = await clearAllOrders();
+    if (result.success) {
+      toast({
+        title: 'Sucesso!',
+        description: result.message,
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Erro no Firestore!',
+        description: result.message,
+      });
+    }
+    setIsClearingOrders(false);
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <Header />
@@ -87,6 +119,16 @@ export default function DebugPage() {
             </Button>
 
             <Button 
+              onClick={handleLogout} 
+              className="w-full"
+              variant="outline"
+              disabled={!user}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout ({user ? user.email?.split('@')[0] : 'ninguém'})
+            </Button>
+            
+            <Button 
               onClick={handleClearLocalStorage} 
               className="w-full" 
               variant="destructive"
@@ -95,15 +137,29 @@ export default function DebugPage() {
               Limpar Tudo (LocalStorage)
             </Button>
 
-            <Button 
-              onClick={handleLogout} 
-              className="w-full"
-              variant="secondary"
-              disabled={!user}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout ({user ? user.email : 'ninguém logado'})
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                 <Button className="w-full" variant="destructive">
+                  <ServerCrash className="mr-2 h-4 w-4" />
+                  Limpar Pedidos e Vendas (Firestore)
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação é irreversível. Todos os documentos da coleção <span className="font-mono bg-destructive/10 text-destructive p-1 rounded-sm">orders</span> serão excluídos permanentemente do banco de dados.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearOrders} disabled={isClearingOrders}>
+                    {isClearingOrders ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Sim, excluir tudo
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardContent>
         </Card>
       </main>

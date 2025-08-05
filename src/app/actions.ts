@@ -357,3 +357,25 @@ export async function updateOrderStatus(orderId: string, status: string) {
         return { success: false, message: "Falha ao atualizar o status do pedido." };
     }
 }
+
+export async function clearAllOrders() {
+    try {
+        const ordersRef = collection(firestore, 'orders');
+        const snapshot = await getDocs(ordersRef);
+
+        if (snapshot.empty) {
+            return { success: true, message: "A coleção 'orders' já está vazia." };
+        }
+
+        const batch = writeBatch(firestore);
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        return { success: true, message: `Todos os ${snapshot.size} pedidos foram excluídos com sucesso.` };
+    } catch (error) {
+        console.error("Erro ao limpar os pedidos:", error);
+        return { success: false, message: 'Falha ao limpar a coleção de pedidos.' };
+    }
+}

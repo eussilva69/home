@@ -117,7 +117,7 @@ export const testimonials = [
         quote: "A qualidade é incrível e ficou deslumbrante na minha sala. As sugestões de composição da IA foram perfeitas!"
     },
     {
-        name: "Miguel R.",
+        name: "Davi R.",
         avatar: "https://placehold.co/100x100.png",
         hint: "man smiling",
         rating: 5,
@@ -157,6 +157,7 @@ export const collections = [
     
 
     
+
 
 
 

@@ -175,6 +175,35 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
                                     </div>
                                 </CardContent>
                             </Card>
+                             <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Box className="h-5 w-5"/> Pacote e Rastreio</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div>
+                                        <h4 className="font-semibold text-sm mb-1 flex items-center gap-1"><Weight className="w-4 h-4"/> Peso Total</h4>
+                                        <p>{(order.shipping.weight * 1000)} g</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-sm mb-1 flex items-center gap-1"><Ruler className="w-4 h-4"/> Dimensões</h4>
+                                        <p>{order.shipping.length}cm (C) x {order.shipping.width}cm (L) x {order.shipping.height}cm (A)</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-sm mb-1">Código de Rastreio</h4>
+                                        <div className="flex gap-2">
+                                            <Input 
+                                                value={trackingCode}
+                                                onChange={(e) => setTrackingCode(e.target.value)}
+                                                placeholder="Insira o código aqui"
+                                            />
+                                            <Button onClick={handleSaveTrackingCode} disabled={isSaving}>
+                                                {isSaving ? <Loader2 className="animate-spin"/> : 'Salvar'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                     <Button onClick={handleGenerateShippingLabel} variant="outline" className="w-full">
+                                        Gerar Frete no Melhor Envio <ArrowUpRight className="ml-2 h-4 w-4" />
+                                    </Button>
+                                </CardContent>
+                            </Card>
                         </div>
                         <div className="space-y-6">
                              <Card>
@@ -201,35 +230,6 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Box className="h-5 w-5"/> Pacote e Rastreio</CardTitle></CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div>
-                                        <h4 className="font-semibold text-sm mb-1 flex items-center gap-1"><Weight className="w-4 h-4"/> Peso Total</h4>
-                                        <p>{order.shipping.weight.toFixed(3)} kg</p>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-sm mb-1 flex items-center gap-1"><Ruler className="w-4 h-4"/> Dimensões</h4>
-                                        <p>{order.shipping.length}cm (C) x {order.shipping.width}cm (L) x {order.shipping.height}cm (A)</p>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-sm mb-1">Código de Rastreio</h4>
-                                        <div className="flex gap-2">
-                                            <Input 
-                                                value={trackingCode}
-                                                onChange={(e) => setTrackingCode(e.target.value)}
-                                                placeholder="Insira o código aqui"
-                                            />
-                                            <Button onClick={handleSaveTrackingCode} disabled={isSaving}>
-                                                {isSaving ? <Loader2 className="animate-spin"/> : 'Salvar'}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                     <Button onClick={handleGenerateShippingLabel} variant="outline" className="w-full">
-                                        Gerar Frete no Melhor Envio <ArrowUpRight className="ml-2 h-4 w-4" />
-                                    </Button>
                                 </CardContent>
                             </Card>
                         </div>

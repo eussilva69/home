@@ -35,12 +35,20 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
     const { toast } = useToast();
 
     const handleSaveTrackingCode = async () => {
-        if (!order) return;
+        if (!order || !trackingCode) return;
         setIsSaving(true);
         const result = await updateTrackingCode(order.id, trackingCode);
         if (result.success) {
             toast({ title: 'Sucesso', description: 'Código de rastreio salvo.' });
             // The parent component will receive the update via snapshot listener
+
+            // Send order shipped email
+            await fetch("/api/send-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ destinatario: order.customer.email, type: 'orderShipped' }),
+            });
+
         } else {
             toast({ title: 'Erro', description: result.message, variant: 'destructive' });
         }
@@ -310,5 +318,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-
-    

@@ -67,7 +67,7 @@ export default function RegisterPage() {
         await fetch("/api/send-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ destinatario: values.email }),
+          body: JSON.stringify({ destinatario: values.email, type: 'welcome' }),
         });
 
         setSuccess("Conta criada com sucesso! Redirecionando para o login...");

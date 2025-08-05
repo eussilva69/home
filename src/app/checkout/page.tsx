@@ -188,8 +188,15 @@ export default function CheckoutPage() {
     const result = await saveOrder(orderDetails);
     if (!result.success) {
       toast({ variant: 'destructive', title: 'Erro no Pedido', description: result.message });
-      // Mesmo com erro ao salvar, o pagamento foi aprovado, então prossiga com o fluxo do usuário
+      // Even with an error saving, the payment was approved, so continue the user flow
     }
+
+    // Send order approved email
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ destinatario: formData.email, type: 'orderApproved' }),
+    });
   
     setPaymentResult({ success: true, paymentId });
     clearCart();

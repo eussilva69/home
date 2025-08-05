@@ -9,78 +9,181 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Método não permitido" }, { status: 405 });
   }
 
-  const { destinatario } = await req.json();
+  const { destinatario, type } = await req.json();
 
-  if (!destinatario) {
-    return NextResponse.json({ message: "Destinatário é obrigatório" }, { status: 400 });
+  if (!destinatario || !type) {
+    return NextResponse.json({ message: "Destinatário e tipo de e-mail são obrigatórios" }, { status: 400 });
+  }
+
+  let subject = '';
+  let htmlContent = '';
+  let attachFile = false;
+
+  switch (type) {
+    case 'welcome':
+      subject = "Bem-vindo à Homes Design";
+      htmlContent = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Bem-vindo à Homes Designs</title>
+        </head>
+        <body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f8f9fc;">
+          <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:8px; overflow:hidden; border:1px solid #e5e7eb;">
+            <tr>
+              <td style="background:#111827; color:#ffffff; text-align:center; padding:20px;">
+                <h1 style="margin:0; font-size:24px;">Homes Designs</h1>
+                <p style="margin:5px 0 0; font-size:14px; color:#d1d5db;">Transformando paredes em arte</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:30px; color:#111827;">
+                <h2 style="margin-bottom:10px;">Seja muito bem-vindo(a)!</h2>
+                <p style="margin:0 0 15px; font-size:15px; line-height:22px;">
+                  Obrigado por se cadastrar em nosso site. Aqui na <strong>Homes Designs</strong>, somos apaixonados por dar vida aos ambientes através da arte.
+                </p>
+                <p style="margin:0 0 15px; font-size:15px; line-height:22px;">
+                  Trabalhamos com quadros decorativos únicos e cuidadosamente selecionados, perfeitos para transformar qualquer espaço da sua casa ou escritório.
+                </p>
+                <p style="margin:0 0 20px; font-size:15px; line-height:22px;">
+                  A partir de agora, você receberá novidades, ofertas exclusivas e inspirações incríveis diretamente no seu e-mail.
+                </p>
+                <a href="https://homedecorinteriores.com" style="display:inline-block; background:#111827; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:15px; font-weight:bold;">
+                  Visitar nossa loja
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f3f4f6; text-align:center; padding:15px; font-size:12px; color:#6b7280;">
+                © 2025 Homes Designs – Todos os direitos reservados<br>
+                <a href="https://homedecorinteriores.com" style="color:#3b82f6; text-decoration:none;">homedecorinteriores.com</a>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>`;
+      attachFile = true;
+      break;
+
+    case 'orderApproved':
+      subject = "Compra Aprovada - Homes Designs";
+      htmlContent = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Compra Aprovada - Homes Designs</title>
+        </head>
+        <body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f8f9fc;">
+          <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:8px; overflow:hidden; border:1px solid #e5e7eb;">
+            <tr>
+              <td style="background:#16a34a; color:#ffffff; text-align:center; padding:20px;">
+                <h1 style="margin:0; font-size:24px;">Compra Aprovada</h1>
+                <p style="margin:5px 0 0; font-size:14px; color:#d1fae5;">Obrigado por comprar na Homes Designs</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:30px; color:#111827;">
+                <h2 style="margin-bottom:10px;">Seu pedido foi confirmado ✅</h2>
+                <p style="margin:0 0 15px; font-size:15px; line-height:22px;">
+                  Olá, obrigado por escolher a <strong>Homes Designs</strong>! Sua compra foi aprovada e está sendo processada.
+                </p>
+                <p style="margin:0 0 20px; font-size:15px; line-height:22px;">
+                  Em breve você receberá o código de rastreio para acompanhar sua entrega.
+                </p>
+                <a href="https://homedecorinteriores.com" style="display:inline-block; background:#16a34a; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:15px; font-weight:bold;">
+                  Acompanhar pedido
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f3f4f6; text-align:center; padding:15px; font-size:12px; color:#6b7280;">
+                © 2025 Homes Designs – Todos os direitos reservados<br>
+                <a href="https://homedecorinteriores.com" style="color:#3b82f6; text-decoration:none;">homedecorinteriores.com</a>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>`;
+      break;
+
+    case 'orderShipped':
+      subject = "Seu pedido está a caminho - Homes Designs";
+      htmlContent = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Seu pedido está a caminho - Homes Designs</title>
+        </head>
+        <body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f8f9fc;">
+          <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:8px; overflow:hidden; border:1px solid #e5e7eb;">
+            <tr>
+              <td style="background:#2563eb; color:#ffffff; text-align:center; padding:20px;">
+                <h1 style="margin:0; font-size:24px;">Seu pedido está a caminho</h1>
+                <p style="margin:5px 0 0; font-size:14px; color:#dbeafe;">Homes Designs</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:30px; color:#111827;">
+                <h2 style="margin-bottom:10px;">Boa notícia! 🚚</h2>
+                <p style="margin:0 0 15px; font-size:15px; line-height:22px;">
+                  O status do seu pedido foi atualizado. Ele já está a caminho e em breve será entregue.
+                </p>
+                <p style="margin:0 0 20px; font-size:15px; line-height:22px;">
+                  Para mais detalhes e acompanhar a entrega em tempo real, clique no botão abaixo.
+                </p>
+                <a href="https://homedecorinteriores.com/minha-conta/pedidos" style="display:inline-block; background:#2563eb; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:15px; font-weight:bold;">
+                  Acompanhar pedido
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f3f4f6; text-align:center; padding:15px; font-size:12px; color:#6b7280;">
+                © 2025 Homes Designs – Todos os direitos reservados<br>
+                <a href="https://homedecorinteriores.com" style="color:#3b82f6; text-decoration:none;">homedecorinteriores.com</a>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>`;
+      break;
+
+    default:
+      return NextResponse.json({ message: "Tipo de e-mail inválido" }, { status: 400 });
   }
 
   try {
-    // Configurar transportador SMTP (Gmail com App Password)
-    // ATENÇÃO: As credenciais estão diretamente no código a pedido do usuário.
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
       auth: {
-        user: "rodrigokanoyadani1@gmail.com", // e-mail remetente
-        pass: "ruty bvrr ovof pjgb",         // senha de app (não senha normal do Gmail)
+        user: "rodrigokanoyadani1@gmail.com",
+        pass: "ruty bvrr ovof pjgb",
       },
     });
-
-    // Caminho do PDF
-    const anexoPath = path.join(process.cwd(), "public", "relatorio.pdf");
-
-    // Conteúdo HTML do e-mail
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="pt-BR">
-        <body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#f9fafb;">
-          <div style="max-width:600px;margin:auto;background:white;border-radius:8px;overflow:hidden;box-shadow:0 0 10px rgba(0,0,0,0.05);">
-            <div style="background:#111827;color:white;padding:30px;text-align:center;">
-              <h1 style="margin:0;font-size:28px;">Homes Design</h1>
-              <p style="margin-top:8px;color:#d1d5db;">Transformando paredes em arte</p>
-            </div>
-            <div style="padding:30px;color:#333;">
-              <h2 style="margin-top:0;color:#111827;">Seja muito bem-vindo(a)!</h2>
-              <p>Obrigado por se cadastrar em nosso site. Aqui na <strong>Homes Design</strong>, somos apaixonados por dar vida aos ambientes através da arte.</p>
-              <p>Trabalhamos com quadros decorativos únicos e cuidadosamente selecionados, perfeitos para transformar qualquer espaço da sua casa ou escritório.</p>
-              <p>A partir de agora, você receberá novidades, ofertas exclusivas e inspirações incríveis diretamente no seu e-mail.</p>
-              <a href="https://homesdesign.com.br" target="_blank" style="display:inline-block;margin-top:20px;background:#111827;color:white;padding:12px 20px;text-decoration:none;border-radius:6px;">Visitar nossa loja</a>
-            </div>
-            <div style="padding:20px;text-align:center;font-size:14px;color:#6b7280;background:#f1f5f9;">
-              © 2025 Homes Design – Todos os direitos reservados<br />
-              <a href="https://homesdesign.com.br" style="color:#6b7280;text-decoration:underline;">homesdesign.com.br</a>
-            </div>
-          </div>
-        </body>
-      </html>
-    `;
 
     const mailOptions: nodemailer.SendMailOptions = {
       from: '"Homes Design" <rodrigokanoyadani1@gmail.com>',
       to: destinatario,
-      subject: "Bem-vindo à Homes Design",
-      text: "Bem-vindo(a)! Obrigado por se cadastrar na Homes Design.",
+      subject: subject,
       html: htmlContent,
     };
 
-    // Anexa o arquivo somente se ele existir
-    if (fs.existsSync(anexoPath)) {
-      mailOptions.attachments = [
-        {
-          filename: "relatorio.pdf",
-          path: anexoPath,
-        },
-      ];
-    } else {
+    if (attachFile) {
+      const anexoPath = path.join(process.cwd(), "public", "relatorio.pdf");
+      if (fs.existsSync(anexoPath)) {
+        mailOptions.attachments = [{ filename: "relatorio.pdf", path: anexoPath }];
+      } else {
         console.warn(`Arquivo de anexo não encontrado em: ${anexoPath}`);
+      }
     }
 
-    // Enviar e-mail
     const info = await transporter.sendMail(mailOptions);
-
     return NextResponse.json({ message: "E-mail enviado com sucesso!", infoId: info.messageId });
+
   } catch (error) {
     console.error(error);
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";

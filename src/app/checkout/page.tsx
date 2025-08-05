@@ -551,67 +551,69 @@ export default function CheckoutPage() {
                 
                 {/* Coluna da Direita: Resumo e Pagamento */}
                 <aside className="space-y-6">
-                    <Card className="sticky top-24">
-                        <CardHeader><CardTitle>3. Resumo do Pedido</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            {cartItems.map(item => (
-                                <div key={item.id} className="flex items-center gap-4">
-                                    <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
-                                        <Image src={item.image} alt={item.name} layout="fill" objectFit="cover"/>
-                                        <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center bg-gray-600 text-white">{item.quantity}</Badge>
+                    <div className="sticky top-24 space-y-6">
+                        <Card>
+                            <CardHeader><CardTitle>3. Resumo do Pedido</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                                {cartItems.map(item => (
+                                    <div key={item.id} className="flex items-center gap-4">
+                                        <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
+                                            <Image src={item.image} alt={item.name} layout="fill" objectFit="cover"/>
+                                            <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center bg-gray-600 text-white">{item.quantity}</Badge>
+                                        </div>
+                                        <div className="flex-grow">
+                                            <p className="font-semibold text-sm">{item.name}</p>
+                                            <p className="text-xs text-muted-foreground">{item.options}</p>
+                                        </div>
+                                        <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</p>
                                     </div>
-                                    <div className="flex-grow">
-                                        <p className="font-semibold text-sm">{item.name}</p>
-                                        <p className="text-xs text-muted-foreground">{item.options}</p>
-                                    </div>
-                                    <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</p>
+                                ))}
+                                <Separator />
+                                 <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">R$ {subtotal.toFixed(2).replace('.', ',')}</span></div>
+                                    <div className="flex justify-between"><span>Frete</span><span className="font-medium">R$ {shippingCost.toFixed(2).replace('.', ',')}</span></div>
+                                    {paymentMethod === 'pix' && subtotal > 0 && (
+                                        <div className="flex justify-between text-green-600 font-semibold"><span>Desconto Pix ({pixDiscount*100}%)</span><span>- R$ {(subtotal * pixDiscount).toFixed(2).replace('.', ',')}</span></div>
+                                    )}
+                                    {paymentMethod === 'card' && (
+                                        <div className="flex justify-between text-muted-foreground"><span>Taxa Cartão ({(cardFee*100).toFixed(2)}%)</span><span>+ R$ {((subtotal + shippingCost) * cardFee).toFixed(2).replace('.', ',')}</span></div>
+                                    )}
                                 </div>
-                            ))}
-                            <Separator />
-                             <div className="space-y-2 text-sm">
-                                <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">R$ {subtotal.toFixed(2).replace('.', ',')}</span></div>
-                                <div className="flex justify-between"><span>Frete</span><span className="font-medium">R$ {shippingCost.toFixed(2).replace('.', ',')}</span></div>
-                                {paymentMethod === 'pix' && subtotal > 0 && (
-                                    <div className="flex justify-between text-green-600 font-semibold"><span>Desconto Pix ({pixDiscount*100}%)</span><span>- R$ {(subtotal * pixDiscount).toFixed(2).replace('.', ',')}</span></div>
-                                )}
-                                {paymentMethod === 'card' && (
-                                    <div className="flex justify-between text-muted-foreground"><span>Taxa Cartão ({(cardFee*100).toFixed(2)}%)</span><span>+ R$ {((subtotal + shippingCost) * cardFee).toFixed(2).replace('.', ',')}</span></div>
-                                )}
-                            </div>
-                            <Separator />
-                            <div className="flex justify-between font-bold text-lg">
-                                <span>Total</span>
-                                <span>R$ {totalDisplay.toFixed(2).replace('.', ',')}</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader><CardTitle>4. Forma de Pagamento</CardTitle></CardHeader>
-                        <CardContent>
-                            <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
-                                <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
-                                    <RadioGroupItem value="pix" id="pix" />
-                                    <div className="w-full">
-                                        <p className="font-medium flex items-center gap-2">Pagar com Pix <QrCode className="h-4 w-4"/></p>
-                                        <span className="text-sm text-green-600 font-semibold">Ganhe {pixDiscount*100}% de desconto!</span>
-                                    </div>
-                                </Label>
-                                <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
-                                    <RadioGroupItem value="card" id="card" />
-                                     <div className="w-full">
-                                        <p className="font-medium flex items-center gap-2">Cartão de Crédito <CreditCard className="h-4 w-4"/></p>
-                                        <span className="text-sm text-muted-foreground">Pague em ambiente seguro.</span>
-                                    </div>
-                                </Label>
-                            </RadioGroup>
-                        </CardContent>
-                        <CardFooter>
-                           <Button onClick={onFinalSubmit} size="lg" className="w-full h-12 text-lg rounded-xl" disabled={isProcessing || !selectedShipping}>
-                            {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
-                                Finalizar Pedido
-                           </Button>
-                        </CardFooter>
-                    </Card>
+                                <Separator />
+                                <div className="flex justify-between font-bold text-lg">
+                                    <span>Total</span>
+                                    <span>R$ {totalDisplay.toFixed(2).replace('.', ',')}</span>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader><CardTitle>4. Forma de Pagamento</CardTitle></CardHeader>
+                            <CardContent>
+                                <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
+                                    <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
+                                        <RadioGroupItem value="pix" id="pix" />
+                                        <div className="w-full">
+                                            <p className="font-medium flex items-center gap-2">Pagar com Pix <QrCode className="h-4 w-4"/></p>
+                                            <span className="text-sm text-green-600 font-semibold">Ganhe {pixDiscount*100}% de desconto!</span>
+                                        </div>
+                                    </Label>
+                                    <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
+                                        <RadioGroupItem value="card" id="card" />
+                                         <div className="w-full">
+                                            <p className="font-medium flex items-center gap-2">Cartão de Crédito <CreditCard className="h-4 w-4"/></p>
+                                            <span className="text-sm text-muted-foreground">Pague em ambiente seguro.</span>
+                                        </div>
+                                    </Label>
+                                </RadioGroup>
+                            </CardContent>
+                            <CardFooter>
+                               <Button onClick={onFinalSubmit} size="lg" className="w-full h-12 text-lg rounded-xl" disabled={isProcessing || !selectedShipping}>
+                                {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
+                                    Finalizar Pedido
+                               </Button>
+                            </CardFooter>
+                        </Card>
+                    </div>
                 </aside>
             </form>
          </FormProvider>

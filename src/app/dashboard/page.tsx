@@ -40,8 +40,9 @@ export default function DashboardPage() {
   const adminLinks = [
       { href: '/dashboard', label: 'Início', icon: 'Home' },
       { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' },
-      { href: '#', label: 'Produtos', icon: 'Box' },
-      { href: '#', label: 'Clientes', icon: 'Users' },
+      { href: '/dashboard/products', label: 'Produtos', icon: 'Box' },
+      { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' },
+      { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' },
     ];
 
   const customerLinks = [

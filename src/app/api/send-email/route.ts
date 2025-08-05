@@ -240,11 +240,13 @@ export async function POST(req: NextRequest) {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // use SSL
       auth: {
-        user: 'ioaiaa354@gmail.com',
-        pass: 'rjqh gtng utlg xjva'
-      }
+        user: "ioaiaa354@gmail.com",
+        pass: "rjqh gtng utlg xjva",
+      },
     });
 
     const mailOptions: nodemailer.SendMailOptions = {

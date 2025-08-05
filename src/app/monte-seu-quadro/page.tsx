@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, ChangeEvent, DragEvent, useCallback } from 'react';
+import { useState, useMemo, ChangeEvent, DragEvent, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
@@ -80,6 +80,19 @@ export default function MonteSeuQuadroPage() {
 
     const frameCount = useMemo(() => arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1, [arrangement]);
 
+    useEffect(() => {
+        const newFrameCount = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
+        setImagePreviews(Array(newFrameCount).fill(null));
+        setUploading(Array(newFrameCount).fill(false));
+        setDragging(Array(newFrameCount).fill(false));
+
+        if (arrangement === 'Solo') {
+            setImageMode('global');
+        } else {
+            setImageMode('global'); // Reset to default when changing arrangement
+        }
+    }, [arrangement]);
+
     const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
     const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
 
@@ -89,15 +102,6 @@ export default function MonteSeuQuadroPage() {
         const newSizes = pricingData[key];
         setAvailableSizes(newSizes);
         setSelectedSize(newSizes[0].tamanho);
-        
-        const newFrameCount = key === 'Trio' ? 3 : key === 'Dupla' ? 2 : 1;
-        setImagePreviews(Array(newFrameCount).fill(null));
-        setUploading(Array(newFrameCount).fill(false));
-        setDragging(Array(newFrameCount).fill(false));
-        
-        if (key === 'Solo') {
-            setImageMode('global');
-        }
     };
 
     const handleImageUpload = async (file: File, index: number) => {

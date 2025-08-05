@@ -127,17 +127,18 @@ export default function MyOrdersPage() {
   }, [user, loading, router]);
 
 
-    const getBadgeVariant = (status: string) => {
+    const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" | "warning" => {
         switch (status) {
             case 'Entregue':
-                return 'default'; // Greenish
+                return 'default';
             case 'A caminho':
-                return 'secondary'; // Blueish
+                return 'secondary';
             case 'Cancelado':
-                return 'destructive'; // Reddish
+                return 'destructive';
             case 'Aprovado':
+                 return 'warning';
             case 'Em separação':
-                return 'outline'; // Default
+                return 'outline';
             default:
                 return 'secondary';
         }
@@ -228,3 +229,5 @@ export default function MyOrdersPage() {
     </div>
   );
 }
+
+    

@@ -279,14 +279,13 @@ export default function OrdersPage() {
       setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
   }
   
-  const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+  const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" | "warning" => {
     switch (status) {
         case 'Entregue': return 'default';
         case 'A caminho': return 'secondary';
         case 'Cancelado': return 'destructive';
-        case 'Aprovado':
-        case 'Em separação':
-            return 'outline';
+        case 'Aprovado': return 'warning';
+        case 'Em separação': return 'outline';
         default: return 'secondary';
     }
   }
@@ -381,3 +380,5 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+    

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { firestore } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy, Timestamp } from 'firebase/firestore';
 import { useAuth } from '@/hooks/use-auth';
@@ -61,7 +61,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         setIsSaving(true);
         const result = await updateOrderStatus(order.id, newStatus);
          if (result.success) {
-            toast({ title: 'Sucesso', description: 'Status do pedido atualizado.' });
+            toast({ title: 'Sucesso!', description: 'Status do pedido atualizado.' });
             
             let emailType = '';
             if (newStatus === 'A caminho') emailType = 'orderShipped';
@@ -93,7 +93,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
                 <div className="bg-muted/50 p-6 space-y-6">
                     <Card>
                       <CardContent className="p-6">
-                        <OrderStatusTimeline status={order.status} trackingCode={order.trackingCode} />
+                        <OrderStatusTimeline status={order.status} trackingCode={order.trackingCode} shippingDetails={order.shipping.details} />
                       </CardContent>
                     </Card>
 
@@ -194,6 +194,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="Aprovado">Aprovado</SelectItem>
+                                                <SelectItem value="Em separação">Em separação</SelectItem>
                                                 <SelectItem value="A caminho">A caminho</SelectItem>
                                                 <SelectItem value="Entregue">Entregue</SelectItem>
                                                 <SelectItem value="Cancelado">Cancelado</SelectItem>
@@ -278,18 +279,15 @@ export default function OrdersPage() {
       setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
   }
   
-  const getBadgeVariant = (status: string) => {
+  const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
-        case 'Entregue':
-            return 'default'; // Greenish
-        case 'A caminho':
-            return 'secondary'; // Blueish
-        case 'Cancelado':
-            return 'destructive'; // Reddish
+        case 'Entregue': return 'default';
+        case 'A caminho': return 'secondary';
+        case 'Cancelado': return 'destructive';
         case 'Aprovado':
-            return 'outline'; // Default
-        default:
-            return 'secondary';
+        case 'Em separação':
+            return 'outline';
+        default: return 'secondary';
     }
   }
 
@@ -309,8 +307,9 @@ export default function OrdersPage() {
   const adminLinks = [
     { href: '/dashboard', label: 'Início', icon: 'Home' as const },
     { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' as const },
-    { href: '#', label: 'Produtos', icon: 'Box' as const },
-    { href: '#', label: 'Clientes', icon: 'Users' as const },
+    { href: '/dashboard/products', label: 'Produtos', icon: 'Box' as const },
+    { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' as const },
+    { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' as const },
   ];
 
   return (

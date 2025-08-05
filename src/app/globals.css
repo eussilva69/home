@@ -96,7 +96,7 @@ body {
     @apply w-full my-4;
   }
   .pedido-status {
-      @apply flex items-start justify-between relative text-center;
+      @apply flex items-center justify-between relative;
   }
   .status-step {
       @apply text-center flex-1 relative;
@@ -108,9 +108,12 @@ body {
     @apply text-xs sm:text-sm text-muted-foreground;
   }
 
-  .status-step.completed .dot,
-  .status-step.active .dot {
+  .status-step.completed .dot {
       @apply bg-green-600;
+  }
+  
+  .status-step.active .dot {
+      @apply bg-green-600 ring-4 ring-green-600/30;
   }
 
   .status-step.active p {
@@ -118,12 +121,13 @@ body {
   }
   
   .line {
-      @apply h-0.5 bg-gray-300 flex-1 -translate-y-8;
+      @apply h-1 bg-gray-300 flex-auto;
+      margin-top: -2.25rem; /* Ajusta para alinhar com o centro do dot */
   }
-  .line.completed,
-  .line.active {
+  .line.completed {
       @apply bg-green-600;
   }
+
   .rastreio-link {
       @apply block text-xs font-semibold text-green-700 underline mt-1;
   }

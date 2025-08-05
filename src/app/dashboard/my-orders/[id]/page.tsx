@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { getOrderById } from '@/app/actions';
@@ -114,7 +114,7 @@ export default function OrderDetailsPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <OrderStatusTimeline status={order.status} trackingCode={order.trackingCode} />
+                    <OrderStatusTimeline status={order.status} trackingCode={order.trackingCode} shippingDetails={order.shipping.details}/>
                   </CardContent>
                 </Card>
 
@@ -183,4 +183,3 @@ export default function OrderDetailsPage() {
     </div>
   );
 }
-

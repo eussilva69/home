@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, User, MailIcon, Home, PlusCircle, LogIn } from 'lucide-react';
+import { Loader2, CheckCircle, QrCode, Copy, CreditCard, User, LogIn, PlusCircle } from 'lucide-react';
 import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses, addOrUpdateAddress } from '../actions';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -28,17 +28,6 @@ import { checkoutSchema } from '@/lib/schemas';
 import { useAuth } from '@/hooks/use-auth';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import AddressFormDialog from '@/components/dashboard/addresses/address-form-dialog';
 
 
@@ -133,7 +122,7 @@ export default function CheckoutPage() {
         docNumber: formData.docNumber,
       },
       shipping: {
-        address: `${formData.street}, ${formData.number}, ${formData.neighborhood}`,
+        address: `${formData.street}, ${formData.number}`,
         city: formData.city,
         state: formData.state,
         cep: formData.cep,
@@ -391,8 +380,8 @@ export default function CheckoutPage() {
                   <h1 className="font-headline text-4xl font-bold mb-4">Pagamento Aprovado!</h1>
                   <p className="text-muted-foreground mb-2">Obrigado pela sua compra!</p>
                   {paymentResult.paymentId && <p className="text-sm text-muted-foreground mb-8">ID do Pedido: {paymentResult.paymentId}</p>}
-                  <Button onClick={() => router.push('/')} size="lg">
-                      Voltar para a Loja
+                  <Button onClick={() => router.push('/dashboard/my-orders')} size="lg">
+                      Ver Meus Pedidos
                   </Button>
               </div>
             </main>
@@ -435,15 +424,15 @@ export default function CheckoutPage() {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-12">
         {!user && (
-            <Card className="max-w-2xl mx-auto mb-8 bg-blue-50 border-blue-200">
+            <Card className="max-w-3xl mx-auto mb-8 bg-blue-50 border-blue-200">
                 <CardContent className="p-6 flex items-center gap-6">
                     <User className="h-10 w-10 text-blue-600 flex-shrink-0" />
                     <div>
                         <h3 className="font-semibold">Já tem uma conta?</h3>
-                        <p className="text-sm text-muted-foreground">Faça login para uma experiência mais rápida e para salvar seus endereços.</p>
+                        <p className="text-sm text-muted-foreground">Faça login para uma experiência mais rápida e para usar seus endereços salvos.</p>
                     </div>
-                    <Button asChild>
-                        <Link href="/login?redirect=/checkout"><LogIn className="mr-2 h-4 w-4"/> Fazer Login</Link>
+                    <Button asChild className="ml-auto">
+                        <Link href={`/login?redirect=/checkout`}><LogIn className="mr-2 h-4 w-4"/> Fazer Login</Link>
                     </Button>
                 </CardContent>
             </Card>
@@ -453,8 +442,8 @@ export default function CheckoutPage() {
                 {/* Coluna da Esquerda: Formulários */}
                 <div className="space-y-6">
                     <Card>
-                        <CardHeader><CardTitle>1. Informações de Contato</CardTitle></CardHeader>
-                        <CardContent>
+                        <CardHeader><CardTitle>1. Informações do Cliente</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
                             <FormField control={form.control} name="email" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>E-mail</FormLabel>
@@ -462,11 +451,33 @@ export default function CheckoutPage() {
                                     <FormMessage />
                                 </FormItem>
                             )} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="docType" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tipo de Documento</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
+                                            <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="docNumber" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Número do Documento</FormLabel>
+                                        <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
                         </CardContent>
                     </Card>
 
-                     <Card>
-                        <CardHeader><CardTitle>2. Informações de Entrega</CardTitle></CardHeader>
+                    <Card>
+                        <CardHeader><CardTitle>2. Endereço de Entrega</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                            {user && userAddresses.length > 0 && (
                                 <div className="space-y-3">
@@ -487,29 +498,27 @@ export default function CheckoutPage() {
                                      <PlusCircle className="mr-2 h-4 w-4" /> Cadastrar novo endereço
                                  </Button>
                              )}
-                              {!user && (
-                                 <div className="space-y-4 pt-4">
-                                    <FormField control={form.control} name="cep" render={({ field }) => (
-                                        <FormItem className="flex-1">
-                                            <FormLabel>CEP</FormLabel>
-                                            <FormControl><Input placeholder="00000-000" {...field} onChange={(e) => { field.onChange(e); handleCalculateShipping(e.target.value); }} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <FormField control={form.control} name="street" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Rua</FormLabel><FormControl><Input placeholder="Sua rua" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Número</FormLabel><FormControl><Input placeholder="Nº" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField control={form.control} name="complement" render={({ field }) => (<FormItem><FormLabel>Complemento (opcional)</FormLabel><FormControl><Input placeholder="Apto, bloco, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem><FormLabel>Bairro</FormLabel><FormControl><Input placeholder="Seu bairro" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <FormField control={form.control} name="city" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Cidade</FormLabel><FormControl><Input placeholder="Sua cidade" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input placeholder="UF" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                    </div>
+                            <div className="space-y-4 pt-4 border-t-2 border-dashed first:border-t-0 first:pt-0">
+                                <FormField control={form.control} name="cep" render={({ field }) => (
+                                    <FormItem className="flex-1">
+                                        <FormLabel>CEP</FormLabel>
+                                        <FormControl><Input placeholder="00000-000" {...field} onChange={(e) => { field.onChange(e); handleCalculateShipping(e.target.value); }} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <FormField control={form.control} name="street" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Rua</FormLabel><FormControl><Input placeholder="Sua rua" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Número</FormLabel><FormControl><Input placeholder="Nº" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 </div>
-                            )}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField control={form.control} name="complement" render={({ field }) => (<FormItem><FormLabel>Complemento (opcional)</FormLabel><FormControl><Input placeholder="Apto, bloco, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem><FormLabel>Bairro</FormLabel><FormControl><Input placeholder="Seu bairro" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <FormField control={form.control} name="city" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Cidade</FormLabel><FormControl><Input placeholder="Sua cidade" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input placeholder="UF" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                            </div>
 
                              {isLoadingShipping && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin h-4 w-4"/> Calculando frete...</div>}
                              {errorShipping && <p className="text-sm text-red-600">{errorShipping}</p>}
@@ -538,45 +547,18 @@ export default function CheckoutPage() {
                             )}
                         </CardContent>
                     </Card>
-                     <Card>
-                        <CardHeader><CardTitle>3. Informações para Pagamento</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="docType" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Tipo de Documento</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )} />
-                                <FormField control={form.control} name="docNumber" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Número do Documento</FormLabel>
-                                        <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                            </div>
-                        </CardContent>
-                     </Card>
                 </div>
                 
                 {/* Coluna da Direita: Resumo e Pagamento */}
                 <aside className="space-y-6">
                     <Card className="sticky top-24">
-                        <CardHeader><CardTitle>Resumo do Pedido</CardTitle></CardHeader>
+                        <CardHeader><CardTitle>3. Resumo do Pedido</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             {cartItems.map(item => (
                                 <div key={item.id} className="flex items-center gap-4">
                                     <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
                                         <Image src={item.image} alt={item.name} layout="fill" objectFit="cover"/>
-                                        <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center">{item.quantity}</Badge>
+                                        <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center bg-gray-600 text-white">{item.quantity}</Badge>
                                     </div>
                                     <div className="flex-grow">
                                         <p className="font-semibold text-sm">{item.name}</p>
@@ -609,14 +591,14 @@ export default function CheckoutPage() {
                             <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
                                 <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
                                     <RadioGroupItem value="pix" id="pix" />
-                                    <div>
+                                    <div className="w-full">
                                         <p className="font-medium flex items-center gap-2">Pagar com Pix <QrCode className="h-4 w-4"/></p>
                                         <span className="text-sm text-green-600 font-semibold">Ganhe {pixDiscount*100}% de desconto!</span>
                                     </div>
                                 </Label>
                                 <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
                                     <RadioGroupItem value="card" id="card" />
-                                     <div>
+                                     <div className="w-full">
                                         <p className="font-medium flex items-center gap-2">Cartão de Crédito <CreditCard className="h-4 w-4"/></p>
                                         <span className="text-sm text-muted-foreground">Pague em ambiente seguro.</span>
                                     </div>
@@ -646,5 +628,3 @@ export default function CheckoutPage() {
     </>
   )
 }
-
-    

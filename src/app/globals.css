@@ -89,3 +89,42 @@ body {
     @apply font-headline;
   }
 }
+
+/* Order Status Timeline Styles */
+@layer components {
+  .pedido-container-simplified {
+    @apply w-full my-4;
+  }
+  .pedido-status {
+      @apply flex items-start justify-between relative text-center;
+  }
+  .status-step {
+      @apply text-center flex-1 relative;
+  }
+  .status-step .dot {
+      @apply w-4 h-4 bg-gray-300 rounded-full block mx-auto mb-2 relative z-10;
+  }
+  .status-step p {
+    @apply text-xs sm:text-sm text-muted-foreground;
+  }
+
+  .status-step.completed .dot,
+  .status-step.active .dot {
+      @apply bg-green-600;
+  }
+
+  .status-step.active p {
+      @apply font-semibold text-primary;
+  }
+  
+  .line {
+      @apply h-0.5 bg-gray-300 flex-1 -translate-y-8;
+  }
+  .line.completed,
+  .line.active {
+      @apply bg-green-600;
+  }
+  .rastreio-link {
+      @apply block text-xs font-semibold text-green-700 underline mt-1;
+  }
+}

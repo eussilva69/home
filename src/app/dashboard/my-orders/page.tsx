@@ -4,14 +4,14 @@
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronRight } from 'lucide-react';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { firestore } from '@/lib/firebase';
-import { collection, query, where, getDocs, Timestamp, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import type { OrderDetails } from '@/lib/schemas';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -71,6 +71,21 @@ export default function MyOrdersPage() {
       fetchOrders();
   }, [user]);
 
+    const getBadgeVariant = (status: string) => {
+        switch (status) {
+            case 'Entregue':
+                return 'default'; // Greenish
+            case 'A caminho':
+                return 'secondary'; // Blueish
+            case 'Cancelado':
+                return 'destructive'; // Reddish
+            case 'Aprovado':
+                return 'outline'; // Default
+            default:
+                return 'secondary';
+        }
+    }
+
 
   if (loading || !user) {
     return (
@@ -85,11 +100,11 @@ export default function MyOrdersPage() {
   }
   
   const customerLinks = [
-    { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' },
-    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' },
-    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' },
-    { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' },
-    { href: '/dashboard/exchanges', label: 'Trocas e devoluções', icon: 'ArrowLeftRight' },
+    { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' as const },
+    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' as const },
+    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' as const },
+    { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' as const },
+    { href: '/dashboard/exchanges', label: 'Trocas e devoluções', icon: 'ArrowLeftRight' as const },
   ];
 
   return (
@@ -113,37 +128,33 @@ export default function MyOrdersPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                <TableHead>Pedido</TableHead>
                                 <TableHead>Data</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Rastreio</TableHead>
                                 <TableHead className="text-right">Total</TableHead>
+                                <TableHead className="w-[50px]"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {orders.length > 0 ? (
                                     orders.map(order => (
-                                        <TableRow key={order.id}>
+                                        <TableRow key={order.id} className="cursor-pointer" onClick={() => router.push(`/dashboard/my-orders/${order.id}`)}>
+                                            <TableCell className="font-medium">#{order.id.slice(0, 7)}</TableCell>
                                             <TableCell>{new Date(order.createdAt).toLocaleDateString('pt-BR') ?? 'Data indisponível'}</TableCell>
                                             <TableCell>
-                                                <Badge variant={order.status === 'Aprovado' ? 'default' : 'secondary'}>
+                                                <Badge variant={getBadgeVariant(order.status)}>
                                                     {order.status}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell>
-                                                {order.trackingCode ? (
-                                                    <a href={`https://www.melhorenvio.com.br/rastreio/${order.trackingCode}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
-                                                        {order.trackingCode}
-                                                    </a>
-                                                ) : (
-                                                    <span className="text-muted-foreground">N/A</span>
-                                                )}
-                                            </TableCell>
                                             <TableCell className="text-right">R$ {order.payment.total.toFixed(2).replace('.', ',')}</TableCell>
+                                            <TableCell>
+                                                <ChevronRight className="h-4 w-4" />
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                                             Você ainda não fez nenhum pedido.
                                         </TableCell>
                                     </TableRow>

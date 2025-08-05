@@ -23,6 +23,7 @@ import { updateTrackingCode, updateOrderStatus } from '@/app/actions';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
@@ -90,6 +91,12 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         <TableRow>
             <TableCell colSpan={colSpan} className="p-0">
                 <div className="bg-muted/50 p-6 space-y-6">
+                    <Card>
+                      <CardContent className="p-6">
+                        <OrderStatusTimeline status={order.status} trackingCode={order.trackingCode} />
+                      </CardContent>
+                    </Card>
+
                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-2 space-y-6">
                             <Card>
@@ -300,10 +307,10 @@ export default function OrdersPage() {
   }
   
   const adminLinks = [
-    { href: '/dashboard', label: 'Início', icon: 'Home' },
-    { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' },
-    { href: '#', label: 'Produtos', icon: 'Box' },
-    { href: '#', label: 'Clientes', icon: 'Users' },
+    { href: '/dashboard', label: 'Início', icon: 'Home' as const },
+    { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' as const },
+    { href: '#', label: 'Produtos', icon: 'Box' as const },
+    { href: '#', label: 'Clientes', icon: 'Users' as const },
   ];
 
   return (

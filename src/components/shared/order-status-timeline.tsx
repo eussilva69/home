@@ -34,11 +34,12 @@ export default function OrderStatusTimeline({ status, trackingCode, shippingDeta
     }
 
     const getTrackingUrl = () => {
-        if (!trackingCode || !shippingDetails?.company) return `https://www.melhorenvio.com.br/rastreio/${trackingCode}`;
+        if (!trackingCode) return '#';
+        if (!shippingDetails?.company) return `https://www.melhorenvio.com.br/rastreio/${trackingCode}`;
         
         const companyName = shippingDetails.company.toLowerCase();
         if (companyName.includes('jadlog')) {
-            return `https://www.jadlog.com.br/tracking?documento=${trackingCode}`;
+            return `https://www.jadlog.com.br/jadlog/captcha?tipo=tracking&valor=${trackingCode}`;
         }
         if (companyName.includes('correios')) {
             return `https://rastreamento.correios.com.br/app/index.php?objetos=${trackingCode}`;

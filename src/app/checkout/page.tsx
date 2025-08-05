@@ -1,16 +1,16 @@
 
 'use client';
 
-import { useForm, FormProvider, useFormContext } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, Edit, ChevronRight, User, MailIcon, Home, Check } from 'lucide-react';
-import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses } from '../actions';
+import { Loader2, CheckCircle, QrCode, Copy, CreditCard, Truck, User, MailIcon, Home, PlusCircle, LogIn } from 'lucide-react';
+import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses, addOrUpdateAddress } from '../actions';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
@@ -27,33 +27,27 @@ import { Label } from '@/components/ui/label';
 import { checkoutSchema } from '@/lib/schemas';
 import { useAuth } from '@/hooks/use-auth';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import AddressFormDialog from '@/components/dashboard/addresses/address-form-dialog';
 
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 type PaymentMethod = 'pix' | 'card';
 
-const StepCard = ({ title, step, currentStep, onEdit, children, isCompleted }: { title: string; step: number; currentStep: number; onEdit: (s: number) => void; children: React.ReactNode; isCompleted: boolean; }) => {
-    if (currentStep < step) return null;
-
-    return (
-        <Card className="rounded-2xl shadow-lg">
-            <CardHeader className="flex flex-row justify-between items-center">
-                <CardTitle className="text-xl">{step}. {title}</CardTitle>
-                {isCompleted && currentStep > step && (
-                    <Button variant="ghost" size="sm" onClick={() => onEdit(step)}><Edit className="mr-2 h-4 w-4" /> Editar</Button>
-                )}
-            </CardHeader>
-            <CardContent>
-                {children}
-            </CardContent>
-        </Card>
-    )
-};
-
 
 export default function CheckoutPage() {
-  const { user } = useAuth();
-  const [step, setStep] = useState(1);
+  const { user, loading: authLoading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentResult, setPaymentResult] = useState<CreatePaymentOutput | null>(null);
   const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string, paymentId: number } | null>(null);
@@ -65,8 +59,9 @@ export default function CheckoutPage() {
   const [errorShipping, setErrorShipping] = useState<string | null>(null);
   
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
-  const [showAddressForm, setShowAddressForm] = useState(false);
-
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [isAddressFormOpen, setIsAddressFormOpen] = useState(false);
+  const [addressToEdit, setAddressToEdit] = useState<Address | null>(null);
 
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
@@ -91,68 +86,38 @@ export default function CheckoutPage() {
     }
   });
 
-  const stopPolling = () => {
+  const stopPolling = useCallback(() => {
     if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
     }
-  }
-  
-  useEffect(() => {
-    if (user?.email) {
-      form.setValue('email', user.email);
-    }
-  }, [user, form]);
-
-  useEffect(() => {
-    return () => stopPolling();
   }, []);
   
-  const cepValue = form.watch('cep');
+  useEffect(() => {
+    return () => stopPolling();
+  }, [stopPolling]);
   
   const fetchAddresses = useCallback(async () => {
     if (user) {
       const addresses = await getUserAddresses(user.uid);
       addresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
       setUserAddresses(addresses);
-      // If no address form is open, try to pre-fill with default
-      if (!showAddressForm && addresses.length > 0) {
-        const defaultAddress = addresses.find(a => a.isDefault) || addresses[0];
+      const defaultAddress = addresses.find(a => a.isDefault) || addresses[0];
+      if (defaultAddress) {
         handleSelectAddress(defaultAddress);
-      } else if (addresses.length === 0) {
-        setShowAddressForm(true); // Force form if no addresses
       }
     }
-  }, [user, showAddressForm]);
+  }, [user]);
 
   useEffect(() => {
-    fetchAddresses();
-  }, [fetchAddresses]);
-
-  useEffect(() => {
-    const fetchAddressFromCep = async () => {
-        const cleanCep = cepValue.replace(/\D/g, '');
-        if (cleanCep.length === 8) {
-            try {
-                const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
-                const data = await response.json();
-                if (!data.erro) {
-                    form.setValue('street', data.logradouro);
-                    form.setValue('neighborhood', data.bairro);
-                    form.setValue('city', data.localidade);
-                    form.setValue('state', data.uf);
-                } else {
-                    toast({ title: 'CEP não encontrado', variant: 'destructive'});
-                }
-            } catch (error) {
-                toast({ title: 'Erro ao buscar CEP', variant: 'destructive'});
-            }
-        }
-    };
-    if (showAddressForm) {
-      fetchAddressFromCep();
+    if (user) {
+      fetchAddresses();
+      form.setValue('email', user.email || '');
+      const nameParts = user.displayName?.split(' ') || [];
+      form.setValue('firstName', nameParts[0] || '');
+      form.setValue('lastName', nameParts.slice(1).join(' ') || '');
     }
-  }, [cepValue, form, toast, showAddressForm]);
+  }, [user, fetchAddresses, form]);
 
 
   const handleSuccessfulPayment = useCallback(async (paymentId?: number) => {
@@ -188,10 +153,8 @@ export default function CheckoutPage() {
     const result = await saveOrder(orderDetails);
     if (!result.success) {
       toast({ variant: 'destructive', title: 'Erro no Pedido', description: result.message });
-      // Even with an error saving, the payment was approved, so continue the user flow
     }
 
-    // Send order approved email
     await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -200,8 +163,7 @@ export default function CheckoutPage() {
   
     setPaymentResult({ success: true, paymentId });
     clearCart();
-    setStep(6); // Final success step
-  }, [form, selectedShipping, cartItems, paymentMethod, totalDisplay, subtotal, shippingCost, clearCart, toast]);
+  }, [form, selectedShipping, cartItems, paymentMethod, totalDisplay, subtotal, shippingCost, clearCart, toast, stopPolling]);
   
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -220,7 +182,6 @@ export default function CheckoutPage() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (cartItems.length === 0 && !isProcessing && !paymentResult && !urlParams.has('status') && !pixData) {
-        toast({ title: 'Carrinho vazio!', description: 'Você será redirecionado para a loja.', variant: 'default'});
         router.push('/');
     }
   }, [cartItems.length, isProcessing, paymentResult, pixData, router, toast]);
@@ -235,14 +196,12 @@ export default function CheckoutPage() {
             }
         } catch (error) {
             console.error("Erro ao verificar status do pagamento:", error);
-            toast({ variant: 'destructive', title: 'Erro de comunicação', description: 'Não foi possível verificar o status do seu pagamento no momento.' });
             stopPolling();
         }
     }, 5000);
   }
   
-  const handleCalculateShipping = async (cepToCalculate?: string) => {
-    const cep = cepToCalculate || form.getValues('cep');
+  const handleCalculateShipping = async (cep: string) => {
     if (cep.replace(/\D/g, '').length !== 8) {
       setErrorShipping('CEP inválido. Por favor, digite 8 números.');
       return;
@@ -286,6 +245,7 @@ export default function CheckoutPage() {
   };
 
   const handleSelectAddress = (address: Address) => {
+    setSelectedAddressId(address.id!);
     form.setValue('cep', address.cep);
     form.setValue('street', address.street);
     form.setValue('number', address.number);
@@ -293,9 +253,32 @@ export default function CheckoutPage() {
     form.setValue('neighborhood', address.neighborhood);
     form.setValue('city', address.city);
     form.setValue('state', address.state);
-    setShowAddressForm(false);
+    form.trigger(['cep', 'street', 'number', 'neighborhood', 'city', 'state']);
     handleCalculateShipping(address.cep);
   };
+  
+  const handleOpenAddressForm = (address: Address | null) => {
+      setAddressToEdit(address);
+      setIsAddressFormOpen(true);
+  }
+  
+  const handleSaveAddress = async (address: Address) => {
+      if (!user) return;
+      const result = await addOrUpdateAddress(user.uid, address);
+      if (result.success) {
+          toast({ title: "Sucesso!", description: "Endereço salvo." });
+          const updatedAddresses = await getUserAddresses(user.uid);
+          setUserAddresses(updatedAddresses);
+          // Select the newly added/edited address
+          const newOrUpdatedAddress = updatedAddresses.find(a => a.id === result.addressId);
+          if (newOrUpdatedAddress) {
+              handleSelectAddress(newOrUpdatedAddress);
+          }
+      } else {
+          toast({ title: "Erro", description: result.message, variant: "destructive" });
+      }
+  }
+
 
   const handleGeneratePix = async (formData: CheckoutFormValues) => {
      setIsProcessing(true);
@@ -317,7 +300,6 @@ export default function CheckoutPage() {
      if (result.success && result.qrCode && result.qrCodeBase64 && result.paymentId) {
         setPixData({ qrCode: result.qrCode, qrCodeBase64: result.qrCodeBase64, paymentId: result.paymentId });
         startPollingPaymentStatus(result.paymentId);
-        setStep(6); // Go to Pix display step
      } else {
          toast({ variant: 'destructive', title: 'Erro no Pix', description: result.message || 'Não foi possível gerar o QR Code do Pix.' });
      }
@@ -387,162 +369,133 @@ export default function CheckoutPage() {
       }
   }
   
-  const handleEditStep = (stepNumber: number) => {
-      if (step > stepNumber) {
-          setStep(stepNumber);
-      }
+  if (authLoading) {
+      return (
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <div className="flex-grow flex items-center justify-center">
+              <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            </div>
+            <Footer />
+          </div>
+      )
   }
   
-  const isStepComplete = (stepNumber: number) => {
-      switch(stepNumber) {
-          case 1: return form.getValues('email') !== '';
-          case 2: return form.getValues('firstName') !== '' && form.getValues('lastName') !== '' && form.getValues('docNumber') !== '';
-          case 3: return !!selectedShipping && form.getValues('street') !== '';
-          case 4: return true;
-          default: return false;
-      }
-  }
-
-  const renderContent = () => {
-    if (step === 6) { // Final State Screen (Success or Pix QR)
-        if (paymentResult?.success) {
-            return (
+  if (paymentResult?.success) {
+      return (
+         <div className="flex flex-col min-h-screen bg-gray-50">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-12 flex items-center justify-center">
               <div className="text-center">
                   <CheckCircle className="h-24 w-24 mx-auto text-green-500 mb-4"/>
                   <h1 className="font-headline text-4xl font-bold mb-4">Pagamento Aprovado!</h1>
                   <p className="text-muted-foreground mb-2">Obrigado pela sua compra!</p>
-                  {paymentResult.paymentId && <p className="text-sm text-muted-foreground mb-8">ID do Pagamento: {paymentResult.paymentId}</p>}
+                  {paymentResult.paymentId && <p className="text-sm text-muted-foreground mb-8">ID do Pedido: {paymentResult.paymentId}</p>}
                   <Button onClick={() => router.push('/')} size="lg">
                       Voltar para a Loja
                   </Button>
               </div>
-            )
-        }
+            </main>
+             <Footer />
+          </div>
+      )
+  }
 
-        if (pixData) {
-           return (
-              <div className="text-center max-w-md mx-auto">
-                  <h1 className="font-headline text-4xl font-bold mb-4">Pague com Pix</h1>
-                  <p className="text-muted-foreground mb-8">Escaneie o QR Code abaixo com o app do seu banco.</p>
-                  <div className="flex justify-center mb-6">
-                    <QRCode value={pixData.qrCode} size={256} />
-                  </div>
-                   <p className="text-muted-foreground mb-4">Ou copie o código:</p>
-                  <div className="flex justify-center items-center gap-2 w-full mb-8">
-                      <Input readOnly value={pixData.qrCode} className="text-center text-xs truncate"/>
-                      <Button onClick={copyToClipboard} size="icon" variant="outline"><Copy className="h-4 w-4"/></Button>
-                  </div>
-                  <div className="flex justify-center items-center gap-2 text-primary">
-                      <Loader2 className="h-5 w-5 animate-spin"/>
-                      <span className="font-semibold">Aguardando pagamento...</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">(ID do Pedido: {pixData.paymentId})</p>
-              </div>
-           )
-        }
-    }
+  if (pixData) {
+     return (
+        <div className="flex flex-col min-h-screen bg-gray-50">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-12 flex items-center justify-center">
+                <div className="text-center max-w-md mx-auto">
+                    <h1 className="font-headline text-4xl font-bold mb-4">Pague com Pix</h1>
+                    <p className="text-muted-foreground mb-8">Escaneie o QR Code abaixo com o app do seu banco.</p>
+                    <div className="flex justify-center mb-6 p-4 bg-white rounded-lg shadow-md">
+                        <QRCode value={pixData.qrCode} size={256} />
+                    </div>
+                    <p className="text-muted-foreground mb-4">Ou copie o código:</p>
+                    <div className="flex justify-center items-center gap-2 w-full mb-8">
+                        <Input readOnly value={pixData.qrCode} className="text-center text-xs truncate"/>
+                        <Button onClick={copyToClipboard} size="icon" variant="outline"><Copy className="h-4 w-4"/></Button>
+                    </div>
+                    <div className="flex justify-center items-center gap-2 text-primary">
+                        <Loader2 className="h-5 w-5 animate-spin"/>
+                        <span className="font-semibold">Aguardando pagamento...</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">(ID do Pedido: {pixData.paymentId})</p>
+                </div>
+            </main>
+             <Footer />
+        </div>
+     )
+  }
 
-    // Multi-step form
-    return (
-        <FormProvider {...form}>
-            <form onSubmit={(e) => e.preventDefault()} className="max-w-2xl mx-auto space-y-6">
-                
-                <StepCard title="Identificação" step={1} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(1)}>
-                    {step === 1 ? (
-                         <>
+  return (
+    <>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <Header />
+      <main className="flex-grow container mx-auto px-4 py-12">
+        {!user && (
+            <Card className="max-w-2xl mx-auto mb-8 bg-blue-50 border-blue-200">
+                <CardContent className="p-6 flex items-center gap-6">
+                    <User className="h-10 w-10 text-blue-600 flex-shrink-0" />
+                    <div>
+                        <h3 className="font-semibold">Já tem uma conta?</h3>
+                        <p className="text-sm text-muted-foreground">Faça login para uma experiência mais rápida e para salvar seus endereços.</p>
+                    </div>
+                    <Button asChild>
+                        <Link href="/login?redirect=/checkout"><LogIn className="mr-2 h-4 w-4"/> Fazer Login</Link>
+                    </Button>
+                </CardContent>
+            </Card>
+        )}
+         <FormProvider {...form}>
+            <form onSubmit={(e) => e.preventDefault()} className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-8">
+                {/* Coluna da Esquerda: Formulários */}
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle>1. Informações de Contato</CardTitle></CardHeader>
+                        <CardContent>
                             <FormField control={form.control} name="email" render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Seu melhor e-mail</FormLabel>
+                                    <FormLabel>E-mail</FormLabel>
                                     <FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
-                            <Button onClick={async () => {
-                                const isValid = await form.trigger('email');
-                                if (isValid) setStep(2);
-                            }} className="mt-4">
-                                Continuar <ChevronRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </>
-                    ) : (
-                        <p className="text-muted-foreground flex items-center gap-2"><MailIcon className="h-4 w-4" /> {form.getValues('email')}</p>
-                    )}
-                </StepCard>
+                        </CardContent>
+                    </Card>
 
-                <StepCard title="Informações Pessoais" step={2} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(2)}>
-                    {step === 2 ? (
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Seu nome</FormLabel><FormControl><Input placeholder="Digite seu nome" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Seu sobrenome</FormLabel><FormControl><Input placeholder="Digite seu sobrenome" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="docType" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Tipo de Documento</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )} />
-                                <FormField control={form.control} name="docNumber" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Número do Documento</FormLabel>
-                                        <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                            </div>
-                             <Button onClick={async () => {
-                                const isValid = await form.trigger(['firstName', 'lastName', 'docType', 'docNumber']);
-                                if (isValid) setStep(3);
-                            }} className="mt-4">
-                                Continuar <ChevronRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground flex items-center gap-2"><User className="h-4 w-4" /> {form.getValues('firstName')} {form.getValues('lastName')}</p>
-                    )}
-                </StepCard>
-
-                <StepCard title="Entrega" step={3} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(3)}>
-                     {step === 3 ? (
-                        <div className="space-y-4">
-                            <p className="text-sm text-muted-foreground">Selecione um endereço salvo ou cadastre um novo.</p>
-                             <div className="space-y-2">
-                                {userAddresses.map(address => (
-                                    <button key={address.id} onClick={() => handleSelectAddress(address)} className={cn("w-full text-left p-3 border rounded-lg hover:bg-accent", form.getValues('cep') === address.cep && 'bg-accent border-primary')}>
-                                        <div className="flex justify-between items-center">
-                                            <span className="font-semibold">{address.nickname}</span>
-                                            {address.isDefault && <Badge>Padrão</Badge>}
+                     <Card>
+                        <CardHeader><CardTitle>2. Informações de Entrega</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                           {user && userAddresses.length > 0 && (
+                                <div className="space-y-3">
+                                    <Label>Selecione um endereço salvo</Label>
+                                    {userAddresses.map(address => (
+                                        <div key={address.id} onClick={() => handleSelectAddress(address)} className={cn("w-full text-left p-3 border rounded-lg cursor-pointer hover:bg-accent", selectedAddressId === address.id && 'bg-accent border-primary')}>
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-semibold">{address.nickname}</span>
+                                                {address.isDefault && <Badge>Padrão</Badge>}
+                                            </div>
+                                            <p className="text-sm text-muted-foreground">{address.street}, {address.number} - {address.city}, {address.state}</p>
                                         </div>
-                                        <p className="text-sm text-muted-foreground">{address.street}, {address.number}</p>
-                                    </button>
-                                ))}
-                             </div>
-
-                             <Button variant="link" onClick={() => setShowAddressForm(!showAddressForm)}>
-                                {showAddressForm ? 'Cancelar' : 'Cadastrar outro endereço'}
-                            </Button>
-
-                             {showAddressForm && (
-                                <div className="space-y-4 pt-4 border-t">
-                                    <div className="flex items-start gap-2">
-                                        <FormField control={form.control} name="cep" render={({ field }) => (
-                                            <FormItem className="flex-1">
-                                                <FormLabel>CEP</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Digite seu CEP" {...field} maxLength={9} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )} />
-                                        <Button onClick={() => handleCalculateShipping()} disabled={isLoadingShipping} className="mt-8">
-                                            {isLoadingShipping ? <Loader2 className="animate-spin" /> : 'Calcular Frete'}
-                                        </Button>
-                                    </div>
-
+                                    ))}
+                                </div>
+                            )}
+                             {user && (
+                                 <Button variant="outline" size="sm" onClick={() => handleOpenAddressForm(null)}>
+                                     <PlusCircle className="mr-2 h-4 w-4" /> Cadastrar novo endereço
+                                 </Button>
+                             )}
+                              {!user && (
+                                 <div className="space-y-4 pt-4">
+                                    <FormField control={form.control} name="cep" render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                            <FormLabel>CEP</FormLabel>
+                                            <FormControl><Input placeholder="00000-000" {...field} onChange={(e) => { field.onChange(e); handleCalculateShipping(e.target.value); }} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <FormField control={form.control} name="street" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Rua</FormLabel><FormControl><Input placeholder="Sua rua" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                         <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Número</FormLabel><FormControl><Input placeholder="Nº" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -558,10 +511,12 @@ export default function CheckoutPage() {
                                 </div>
                             )}
 
-                            {errorShipping && <p className="text-sm text-red-600 mt-2">{errorShipping}</p>}
+                             {isLoadingShipping && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin h-4 w-4"/> Calculando frete...</div>}
+                             {errorShipping && <p className="text-sm text-red-600">{errorShipping}</p>}
                             
                             {!isLoadingShipping && shippingOptions.length > 0 && (
-                                <div className="mt-6">
+                                <div className="mt-4">
+                                    <h3 className="font-medium mb-2">Opções de Frete</h3>
                                     <RadioGroup value={selectedShipping?.id.toString()} onValueChange={handleSelectShipping} className="space-y-3">
                                         {shippingOptions.map((option) => (
                                             <Label key={option.id} htmlFor={option.id.toString()} className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-100 has-[:checked]:bg-black/5 has-[:checked]:border-black transition-all">
@@ -581,111 +536,115 @@ export default function CheckoutPage() {
                                     </RadioGroup>
                                 </div>
                             )}
-                             <Button onClick={async () => { 
-                                const isValid = await form.trigger(['cep', 'street', 'number', 'neighborhood', 'city', 'state']);
-                                if (isValid && selectedShipping) setStep(4);
-                                if (!selectedShipping) setErrorShipping('Por favor, selecione uma opção de frete.');
-                             }} className="mt-4" disabled={!selectedShipping}>
-                                Continuar <ChevronRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </div>
-                     ) : (
-                         <div className="text-muted-foreground flex flex-col gap-1">
-                            <p className="flex items-center gap-2"><Home className="h-4 w-4" />{form.getValues('street')}, {form.getValues('number')} - {form.getValues('neighborhood')}</p>
-                            <p className="flex items-center gap-2 ml-6">{form.getValues('city')} - {form.getValues('state')}, {form.getValues('cep')}</p>
-                            <p className="flex items-center gap-2 mt-2"><Truck className="h-4 w-4" />{selectedShipping?.name} (R$ {selectedShipping?.price.toFixed(2).replace('.',',')})</p>
-                         </div>
-                     )}
-                </StepCard>
-
-                <StepCard title="Forma de Pagamento" step={4} currentStep={step} onEdit={handleEditStep} isCompleted={isStepComplete(4)}>
-                    {step === 4 ? (
-                        <>
-                             <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
-                                <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
-                                    <RadioGroupItem value="pix" id="pix" />
-                                    <span className="font-medium">
-                                    Pix <span className="text-green-600 font-semibold">(Ganhe {pixDiscount*100}% de desconto!)</span>
-                                    </span>
-                                </Label>
-                                <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
-                                    <RadioGroupItem value="card" id="card" />
-                                    <span className="font-medium">Cartão de Crédito</span>
-                                </Label>
-                            </RadioGroup>
-                             <Button onClick={() => setStep(5)} className="mt-4">
-                                Revisar Pedido <ChevronRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </>
-                    ) : (
-                         <p className="text-muted-foreground flex items-center gap-2">
-                           {paymentMethod === 'pix' ? <QrCode className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
-                           {paymentMethod === 'pix' ? 'Pix' : 'Cartão de Crédito'}
-                        </p>
-                    )}
-                </StepCard>
-
-                {step === 5 && (
-                    <Card className="rounded-2xl shadow-lg">
-                        <CardHeader>
-                            <CardTitle className="text-xl font-semibold">Resumo do Pedido</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader><CardTitle>3. Informações para Pagamento</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="docType" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tipo de Documento</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
+                                            <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="docNumber" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Número do Documento</FormLabel>
+                                        <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+                        </CardContent>
+                     </Card>
+                </div>
+                
+                {/* Coluna da Direita: Resumo e Pagamento */}
+                <aside className="space-y-6">
+                    <Card className="sticky top-24">
+                        <CardHeader><CardTitle>Resumo do Pedido</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
                             {cartItems.map(item => (
-                                <div key={item.id} className="flex justify-between text-sm">
-                                    <span>{item.name} <span className="text-muted-foreground">x{item.quantity}</span></span>
-                                    <span>R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</span>
+                                <div key={item.id} className="flex items-center gap-4">
+                                    <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
+                                        <Image src={item.image} alt={item.name} layout="fill" objectFit="cover"/>
+                                        <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center">{item.quantity}</Badge>
+                                    </div>
+                                    <div className="flex-grow">
+                                        <p className="font-semibold text-sm">{item.name}</p>
+                                        <p className="text-xs text-muted-foreground">{item.options}</p>
+                                    </div>
+                                    <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</p>
                                 </div>
                             ))}
-                            {shippingCost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                    <span className="">Frete ({selectedShipping?.name})</span>
-                                    <span>R$ {shippingCost.toFixed(2).replace('.',',')}</span>
-                                </div>
-                            )}
-                            {paymentMethod === 'pix' && (
-                                <div className="flex justify-between text-sm text-green-600 font-semibold">
-                                    <span>Desconto Pix ({pixDiscount*100}%)</span>
-                                    <span>- R$ {(subtotal * pixDiscount).toFixed(2).replace('.', ',')}</span>
-                                </div>
-                            )}
-                            {paymentMethod === 'card' && (
-                                <div className="flex justify-between text-sm">
-                                    <span>Taxa Cartão ({(cardFee*100).toFixed(2)}%)</span>
-                                    <span>+ R$ {((subtotal + shippingCost) * cardFee).toFixed(2).replace('.', ',')}</span>
-                                </div>
-                            )}
-
                             <Separator />
-                            <div className="flex justify-between text-lg font-bold">
+                             <div className="space-y-2 text-sm">
+                                <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">R$ {subtotal.toFixed(2).replace('.', ',')}</span></div>
+                                <div className="flex justify-between"><span>Frete</span><span className="font-medium">R$ {shippingCost.toFixed(2).replace('.', ',')}</span></div>
+                                {paymentMethod === 'pix' && subtotal > 0 && (
+                                    <div className="flex justify-between text-green-600 font-semibold"><span>Desconto Pix ({pixDiscount*100}%)</span><span>- R$ {(subtotal * pixDiscount).toFixed(2).replace('.', ',')}</span></div>
+                                )}
+                                {paymentMethod === 'card' && (
+                                    <div className="flex justify-between text-muted-foreground"><span>Taxa Cartão ({(cardFee*100).toFixed(2)}%)</span><span>+ R$ {((subtotal + shippingCost) * cardFee).toFixed(2).replace('.', ',')}</span></div>
+                                )}
+                            </div>
+                            <Separator />
+                            <div className="flex justify-between font-bold text-lg">
                                 <span>Total</span>
-                                <span>R$ {totalDisplay.toFixed(2).replace('.',',')}</span>
+                                <span>R$ {totalDisplay.toFixed(2).replace('.', ',')}</span>
                             </div>
                         </CardContent>
                     </Card>
-                )}
-                 
-                 {step === 5 && (
-                    <div className="text-center">
-                        <Button onClick={onFinalSubmit} size="lg" className="w-full max-w-xs h-12 text-lg rounded-xl" disabled={isProcessing}>
+                    <Card>
+                        <CardHeader><CardTitle>4. Forma de Pagamento</CardTitle></CardHeader>
+                        <CardContent>
+                            <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
+                                <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
+                                    <RadioGroupItem value="pix" id="pix" />
+                                    <div>
+                                        <p className="font-medium flex items-center gap-2">Pagar com Pix <QrCode className="h-4 w-4"/></p>
+                                        <span className="text-sm text-green-600 font-semibold">Ganhe {pixDiscount*100}% de desconto!</span>
+                                    </div>
+                                </Label>
+                                <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
+                                    <RadioGroupItem value="card" id="card" />
+                                     <div>
+                                        <p className="font-medium flex items-center gap-2">Cartão de Crédito <CreditCard className="h-4 w-4"/></p>
+                                        <span className="text-sm text-muted-foreground">Pague em ambiente seguro.</span>
+                                    </div>
+                                </Label>
+                            </RadioGroup>
+                        </CardContent>
+                        <CardFooter>
+                           <Button onClick={onFinalSubmit} size="lg" className="w-full h-12 text-lg rounded-xl" disabled={isProcessing || !selectedShipping}>
                             {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
-                            Finalizar Pedido
-                        </Button>
-                    </div>
-                 )}
+                                Finalizar Pedido
+                           </Button>
+                        </CardFooter>
+                    </Card>
+                </aside>
             </form>
-        </FormProvider>
-    );
-  }
-
-  return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-      <main className="flex-grow container mx-auto px-4 py-12">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold mb-8 text-center">Finalizar Compra</h1>
-        {renderContent()}
+         </FormProvider>
       </main>
       <Footer />
     </div>
+    
+    <AddressFormDialog 
+        isOpen={isAddressFormOpen}
+        onOpenChange={setIsAddressFormOpen}
+        onSave={handleSaveAddress}
+        addressToEdit={addressToEdit}
+    />
+    </>
   )
 }
+
+    

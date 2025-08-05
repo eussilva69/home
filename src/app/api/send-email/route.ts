@@ -240,17 +240,15 @@ export async function POST(req: NextRequest) {
 
   try {
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
+      service: 'gmail',
       auth: {
-        user: "rodrigokanoyadani1@gmail.com",
-        pass: "ruty bvrr ovof pjgb",
-      },
+        user: 'ioaiaa354@gmail.com',
+        pass: 'rjqh gtng utlg xjva'
+      }
     });
 
     const mailOptions: nodemailer.SendMailOptions = {
-      from: '"Homes Design" <rodrigokanoyadani1@gmail.com>',
+      from: '"Homes Design" <ioaiaa354@gmail.com>',
       to: destinatario,
       subject: subject,
       html: htmlContent,

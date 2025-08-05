@@ -11,7 +11,7 @@ import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Addres
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
-import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc, deleteDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 
 // Adicione o Access Token do vendedor
@@ -331,14 +331,29 @@ export async function getOrderById(orderId: string) {
     }
 }
 
-// Função para atualizar o código de rastreio
+// Função para atualizar o código de rastreio e o status
 export async function updateTrackingCode(orderId: string, trackingCode: string) {
     try {
         const orderRef = doc(firestore, 'orders', orderId);
-        await setDoc(orderRef, { trackingCode }, { merge: true });
+        await updateDoc(orderRef, { 
+            trackingCode: trackingCode,
+            status: 'A caminho' // Atualiza o status automaticamente
+        });
         return { success: true };
     } catch (error) {
         console.error("Erro ao atualizar código de rastreio:", error);
         return { success: false, message: "Falha ao atualizar o código de rastreio." };
+    }
+}
+
+// Função para atualizar apenas o status do pedido
+export async function updateOrderStatus(orderId: string, status: string) {
+    try {
+        const orderRef = doc(firestore, 'orders', orderId);
+        await updateDoc(orderRef, { status: status });
+        return { success: true };
+    } catch (error) {
+        console.error("Erro ao atualizar status do pedido:", error);
+        return { success: false, message: "Falha ao atualizar o status do pedido." };
     }
 }

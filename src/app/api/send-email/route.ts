@@ -149,6 +149,90 @@ export async function POST(req: NextRequest) {
         </body>
         </html>`;
       break;
+    
+    case 'orderDelivered':
+      subject = "Seu pedido foi entregue - Homes Designs";
+      htmlContent = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Seu pedido foi entregue - Homes Designs</title>
+        </head>
+        <body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f8f9fc;">
+          <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:8px; overflow:hidden; border:1px solid #e5e7eb;">
+            <tr>
+              <td style="background:#16a34a; color:#ffffff; text-align:center; padding:20px;">
+                <h1 style="margin:0; font-size:24px;">Pedido Entregue!</h1>
+                <p style="margin:5px 0 0; font-size:14px; color:#d1fae5;">Aproveite sua nova arte!</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:30px; color:#111827;">
+                <h2 style="margin-bottom:10px;">Sua arte chegou! ✨</h2>
+                <p style="margin:0 0 15px; font-size:15px; line-height:22px;">
+                  Ótima notícia! Nosso sistema indica que seu pedido da <strong>Homes Designs</strong> foi entregue com sucesso.
+                </p>
+                <p style="margin:0 0 20px; font-size:15px; line-height:22px;">
+                  Esperamos que você ame seus novos quadros tanto quanto nós amamos criá-los. Adoraríamos ver como ficou! Compartilhe uma foto nas redes sociais e marque a gente.
+                </p>
+                <a href="https://homedecorinteriores.com" style="display:inline-block; background:#16a34a; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:15px; font-weight:bold;">
+                  Visitar Loja
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f3f4f6; text-align:center; padding:15px; font-size:12px; color:#6b7280;">
+                © 2025 Homes Designs – Todos os direitos reservados<br>
+                <a href="https://homedecorinteriores.com" style="color:#3b82f6; text-decoration:none;">homedecorinteriores.com</a>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>`;
+      break;
+
+    case 'orderCancelled':
+      subject = "Seu pedido foi cancelado - Homes Designs";
+      htmlContent = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Seu pedido foi cancelado - Homes Designs</title>
+        </head>
+        <body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f8f9fc;">
+          <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:8px; overflow:hidden; border:1px solid #e5e7eb;">
+            <tr>
+              <td style="background:#dc2626; color:#ffffff; text-align:center; padding:20px;">
+                <h1 style="margin:0; font-size:24px;">Pedido Cancelado</h1>
+                <p style="margin:5px 0 0; font-size:14px; color:#fee2e2;">Homes Designs</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:30px; color:#111827;">
+                <h2 style="margin-bottom:10px;">Aviso sobre o seu pedido</h2>
+                <p style="margin:0 0 15px; font-size:15px; line-height:22px;">
+                  Olá, informamos que o seu pedido na <strong>Homes Designs</strong> foi cancelado.
+                </p>
+                <p style="margin:0 0 20px; font-size:15px; line-height:22px;">
+                  Se você não solicitou o cancelamento ou tiver alguma dúvida, por favor, entre em contato com nosso suporte ao cliente.
+                </p>
+                <a href="https://homedecorinteriores.com" style="display:inline-block; background:#dc2626; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:15px; font-weight:bold;">
+                  Entrar em Contato
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f3f4f6; text-align:center; padding:15px; font-size:12px; color:#6b7280;">
+                © 2025 Homes Designs – Todos os direitos reservados<br>
+                <a href="https://homedecorinteriores.com" style="color:#3b82f6; text-decoration:none;">homedecorinteriores.com</a>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>`;
+      break;
 
     default:
       return NextResponse.json({ message: "Tipo de e-mail inválido" }, { status: 400 });

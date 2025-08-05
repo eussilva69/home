@@ -19,9 +19,10 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { updateTrackingCode } from '@/app/actions';
+import { updateTrackingCode, updateOrderStatus } from '@/app/actions';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
@@ -39,10 +40,10 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         setIsSaving(true);
         const result = await updateTrackingCode(order.id, trackingCode);
         if (result.success) {
-            toast({ title: 'Sucesso', description: 'Código de rastreio salvo.' });
+            toast({ title: 'Sucesso', description: 'Código de rastreio salvo e status atualizado.' });
+            
             // The parent component will receive the update via snapshot listener
-
-            // Send order shipped email
+            // Send order shipped email automatically when tracking code is added
             await fetch("/api/send-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -54,6 +55,31 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         }
         setIsSaving(false);
     };
+
+    const handleStatusChange = async (newStatus: string) => {
+        setIsSaving(true);
+        const result = await updateOrderStatus(order.id, newStatus);
+         if (result.success) {
+            toast({ title: 'Sucesso', description: 'Status do pedido atualizado.' });
+            
+            let emailType = '';
+            if (newStatus === 'A caminho') emailType = 'orderShipped';
+            else if (newStatus === 'Entregue') emailType = 'orderDelivered';
+            else if (newStatus === 'Cancelado') emailType = 'orderCancelled';
+
+            if (emailType) {
+                 await fetch("/api/send-email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ destinatario: order.customer.email, type: emailType }),
+                });
+            }
+
+        } else {
+            toast({ title: 'Erro', description: result.message, variant: 'destructive' });
+        }
+        setIsSaving(false);
+    }
 
     const handleGenerateShippingLabel = () => {
         const url = 'https://app.melhorenvio.com.br/calculadora';
@@ -144,14 +170,29 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
                             </Card>
                         </div>
                         <div className="space-y-6">
-                            <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><CreditCard className="h-5 w-5"/> Pagamento</CardTitle></CardHeader>
-                                <CardContent className="space-y-2">
-                                <div className="flex justify-between"><span>Subtotal</span><span>R$ {order.payment.subtotal.toFixed(2).replace('.',',')}</span></div>
-                                <div className="flex justify-between"><span>Frete ({order.shipping.details.name})</span><span>R$ {order.payment.shippingCost.toFixed(2).replace('.',',')}</span></div>
-                                <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2"><span>Total</span><span>R$ {order.payment.total.toFixed(2).replace('.',',')}</span></div>
-                                <div className="text-sm text-muted-foreground">Método: {order.payment.method}</div>
-                                <Badge>{order.status}</Badge>
+                             <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><CreditCard className="h-5 w-5"/> Pagamento e Status</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between"><span>Subtotal</span><span>R$ {order.payment.subtotal.toFixed(2).replace('.',',')}</span></div>
+                                        <div className="flex justify-between"><span>Frete ({order.shipping.details.name})</span><span>R$ {order.payment.shippingCost.toFixed(2).replace('.',',')}</span></div>
+                                        <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2"><span>Total</span><span>R$ {order.payment.total.toFixed(2).replace('.',',')}</span></div>
+                                        <div className="text-sm text-muted-foreground">Método: {order.payment.method}</div>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-sm mb-2">Alterar Status</h4>
+                                        <Select defaultValue={order.status} onValueChange={handleStatusChange} disabled={isSaving}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecione o status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Aprovado">Aprovado</SelectItem>
+                                                <SelectItem value="A caminho">A caminho</SelectItem>
+                                                <SelectItem value="Entregue">Entregue</SelectItem>
+                                                <SelectItem value="Cancelado">Cancelado</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </CardContent>
                             </Card>
                             <Card>
@@ -229,6 +270,22 @@ export default function OrdersPage() {
   const toggleExpand = (orderId: string) => {
       setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
   }
+  
+  const getBadgeVariant = (status: string) => {
+    switch (status) {
+        case 'Entregue':
+            return 'default'; // Greenish
+        case 'A caminho':
+            return 'secondary'; // Blueish
+        case 'Cancelado':
+            return 'destructive'; // Reddish
+        case 'Aprovado':
+            return 'outline'; // Default
+        default:
+            return 'secondary';
+    }
+  }
+
 
   if (authLoading || loading) {
     return (
@@ -295,7 +352,7 @@ export default function OrdersPage() {
                                 </TableCell>
                                 <TableCell className="text-right">R$ {order.payment.total.toFixed(2).replace('.', ',')}</TableCell>
                                 <TableCell>
-                                    <Badge variant={order.status === 'Aprovado' ? 'default' : 'secondary'}>
+                                    <Badge variant={getBadgeVariant(order.status)}>
                                         {order.status}
                                     </Badge>
                                 </TableCell>

@@ -79,7 +79,7 @@ async function createPreference(input: CreatePreferenceInput) {
                 pending: `${SITE_URL}/checkout`,
             },
             auto_return: 'approved',
-            notification_url: 'https://studio-dev-production-main-ygxk223yza-uc.a.run.app/api/webhook',
+            notification_url: 'https://homesdes.netlify.app/api/webhook',
         }
     };
 
@@ -333,9 +333,14 @@ export async function getOrderById(orderId: string) {
 }
 
 // Função para buscar um pedido pelo ID do pagamento do Mercado Pago
-export async function getOrderByPaymentId(paymentId: number) {
+export async function getOrderByPaymentId(paymentId: string | number) {
     try {
-        const q = query(collection(firestore, 'orders'), where("payment.paymentId", "==", paymentId));
+        const numPaymentId = Number(paymentId);
+        if (isNaN(numPaymentId)) {
+            return { success: false, message: 'ID de pagamento inválido.' };
+        }
+        
+        const q = query(collection(firestore, 'orders'), where("payment.paymentId", "==", numPaymentId));
         const querySnapshot = await getDocs(q);
         
         if (querySnapshot.empty) {
@@ -351,6 +356,7 @@ export async function getOrderByPaymentId(paymentId: number) {
         return { success: false, message: 'Erro ao buscar dados do pedido.' };
     }
 }
+
 
 // Função para atualizar o código de rastreio e o status
 export async function updateTrackingCode(orderId: string, trackingCode: string) {

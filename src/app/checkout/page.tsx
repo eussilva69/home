@@ -7,15 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, CheckCircle, QrCode, Copy, CreditCard, User, LogIn, PlusCircle, Check, Truck, Banknote, ShoppingCart } from 'lucide-react';
-import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses, addOrUpdateAddress } from '../actions';
+import { processPixPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses, addOrUpdateAddress } from '../actions';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import QRCode from 'qrcode.react';
 import type { CreatePaymentOutput, Address } from '@/lib/schemas';
 import Header from '@/components/layout/header';
@@ -29,6 +28,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import AddressFormDialog from '@/components/dashboard/addresses/address-form-dialog';
+import { Payment, initMercadoPago } from '@mercadopago/sdk-react';
+import { useClientOnly } from '@/hooks/use-client-only';
+
+const MERCADO_PAGO_PUBLIC_KEY = "TEST-df7a6d8f-8512-4202-acb2-a54cd6d22d59";
 
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
@@ -62,12 +65,19 @@ export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
   const router = useRouter();
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isClient = useClientOnly();
   
   const [currentStep, setCurrentStep] = useState(0);
 
   const subtotal = useMemo(() => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0), [cartItems]);
   const shippingCost = useMemo(() => selectedShipping ? parseFloat(selectedShipping.price) : 0, [selectedShipping]);
   const total = subtotal + shippingCost;
+  
+  useEffect(() => {
+    if(isClient) {
+      initMercadoPago(MERCADO_PAGO_PUBLIC_KEY, { locale: 'pt-BR' });
+    }
+  }, [isClient]);
 
 
   const form = useForm<CheckoutFormValues>({
@@ -120,11 +130,7 @@ export default function CheckoutPage() {
       toast({ variant: 'destructive', title: 'Erro no Pedido', description: result.message });
     }
 
-    await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ destinatario: formData.email, type: 'orderApproved' }),
-    });
+    // A notificação de email agora é enviada pelo webhook após a confirmação do pagamento
   
     setPaymentResult({ success: true, paymentId });
     clearCart();
@@ -159,7 +165,6 @@ export default function CheckoutPage() {
 
     if (status === 'approved' && paymentId) {
         handleSuccessfulPayment(Number(paymentId));
-        // Limpar a URL para evitar reprocessamento
         router.replace('/checkout', undefined);
     } else if (status && status !== 'approved') {
          toast({ variant: 'destructive', title: 'Pagamento não aprovado', description: 'Por favor, tente novamente ou use outra forma de pagamento.' });
@@ -168,10 +173,10 @@ export default function CheckoutPage() {
   }, [searchParams, router, toast, handleSuccessfulPayment]);
 
   useEffect(() => {
-    if (cartItems.length === 0 && !isProcessing && !paymentResult && !searchParams.has('status') && !pixData) {
+    if (isClient && cartItems.length === 0 && !isProcessing && !paymentResult && !searchParams.has('status') && !pixData) {
         router.push('/');
     }
-  }, [cartItems.length, isProcessing, paymentResult, pixData, router, searchParams]);
+  }, [cartItems.length, isProcessing, paymentResult, pixData, router, searchParams, isClient]);
 
   useEffect(() => {
     return () => stopPolling();
@@ -251,7 +256,6 @@ export default function CheckoutPage() {
           toast({ title: "Sucesso!", description: "Endereço salvo." });
           const updatedAddresses = await getUserAddresses(user.uid);
           setUserAddresses(updatedAddresses);
-          // Select the newly added/edited address
           const newOrUpdatedAddress = updatedAddresses.find(a => a.id === result.addressId);
           if (newOrUpdatedAddress) {
               handleSelectAddress(newOrUpdatedAddress);
@@ -262,8 +266,9 @@ export default function CheckoutPage() {
   }
 
 
-  const handleGeneratePix = async (formData: CheckoutFormValues) => {
+  const handleGeneratePix = async () => {
      setIsProcessing(true);
+     const formData = form.getValues();
      const result = await processPixPayment({
          transaction_amount: parseFloat(total.toFixed(2)),
          description: `Compra na Home Designer - Pedido #${Date.now()}`,
@@ -287,61 +292,51 @@ export default function CheckoutPage() {
      }
   }
 
-  const handleRedirectPayment = async (formData: CheckoutFormValues) => {
+  const onCardPaymentSubmit = async (formData: any) => {
     setIsProcessing(true);
+    const payerData = form.getValues();
 
-    const cartItemsForPref = cartItems.map(item => ({
-      id: item.id,
-      title: `${item.name} (${item.options})`,
-      quantity: item.quantity,
-      unit_price: item.price,
-      currency_id: 'BRL' as const,
-    }));
-    
-    if (shippingCost > 0) {
-      cartItemsForPref.push({
-        id: 'shipping',
-        title: `Frete (${selectedShipping?.name})`,
-        quantity: 1,
-        unit_price: shippingCost,
-        currency_id: 'BRL' as const,
-      });
-    }
+    try {
+        const response = await fetch('/api/process-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ...formData,
+                payer: {
+                    ...formData.payer,
+                    first_name: payerData.firstName,
+                    last_name: payerData.lastName,
+                },
+                transaction_amount: total,
+                description: `Compra na Home Designer - Pedido #${Date.now()}`
+            }),
+        });
 
-    const result = await processRedirectPayment({
-        items: cartItemsForPref,
-        payer: {
-            name: formData.firstName,
-            surname: formData.lastName,
-            email: formData.email,
-            identification: {
-                type: formData.docType,
-                number: formData.docNumber,
-            }
-        },
-    });
-    
-    if (result.success && result.redirectUrl) {
-        window.location.href = result.redirectUrl;
-    } else {
-      toast({ variant: 'destructive', title: 'Falha no Pagamento', description: result.message || 'Não foi possível iniciar o pagamento.' });
-      setIsProcessing(false);
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'Pagamento com cartão falhou.');
+        }
+
+        if (result.status === 'approved') {
+            handleSuccessfulPayment(result.id);
+        } else {
+            throw new Error(result.message || 'Pagamento não aprovado.');
+        }
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Erro no Pagamento', description: error.message });
+    } finally {
+        setIsProcessing(false);
     }
   };
-  
-    const onFinalSubmit = () => {
-        form.handleSubmit(paymentMethod === 'pix' ? handleGeneratePix : handleRedirectPayment)();
-    };
 
-    const copyToClipboard = () => {
-        if (pixData) {
-            navigator.clipboard.writeText(pixData.qrCode);
-            toast({ title: 'Copiado!', description: 'Código Pix copiado para la área de transferência.' });
-        }
+  const copyToClipboard = () => {
+    if (pixData) {
+        navigator.clipboard.writeText(pixData.qrCode);
+        toast({ title: 'Copiado!', description: 'Código Pix copiado para a área de transferência.' });
     }
+  }
 
-  
-  if (authLoading) {
+  if (!isClient || authLoading) {
       return (
           <div className="flex flex-col min-h-screen">
             <Header />
@@ -408,29 +403,17 @@ export default function CheckoutPage() {
                 <Card>
                     <CardHeader><CardTitle>1. Informações do Cliente</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField control={form.control} name="email" render={({ field }) => ( <FormItem> <FormLabel>E-mail</FormLabel> <FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField control={form.control} name="docType" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Tipo de Documento</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                                        <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
-                                    </Select>
-                                </FormItem>
-                            )} />
-                            <FormField control={form.control} name="docNumber" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Número do Documento</FormLabel>
-                                    <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                        </div>
+                       <FormProvider {...form}>
+                          <FormField control={form.control} name="email" render={({ field }) => ( <FormItem> <FormLabel>E-mail</FormLabel> <FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                              <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <FormField control={form.control} name="docType" render={({ field }) => ( <FormItem> <FormLabel>Tipo de Documento</FormLabel> <Select onValueChange={field.onChange} defaultValue={field.value}> <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl> <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent> </Select> </FormItem> )} />
+                              <FormField control={form.control} name="docNumber" render={({ field }) => ( <FormItem> <FormLabel>Número do Documento</FormLabel> <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                          </div>
+                       </FormProvider>
                     </CardContent>
                     <CardFooter>
                         <Button onClick={() => form.trigger(['email', 'firstName', 'lastName', 'docType', 'docNumber']).then(isValid => isValid && setCurrentStep(1))}>Avançar para Entrega</Button>
@@ -510,7 +493,7 @@ export default function CheckoutPage() {
                  <Card>
                     <CardHeader><CardTitle>3. Forma de Pagamento</CardTitle></CardHeader>
                     <CardContent>
-                        <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
+                        <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3 mb-6">
                             <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
                                 <RadioGroupItem value="pix" id="pix" />
                                 <div className="w-full">
@@ -522,17 +505,45 @@ export default function CheckoutPage() {
                                 <RadioGroupItem value="card" id="card" />
                                  <div className="w-full">
                                     <p className="font-medium flex items-center gap-2">Cartão de Crédito <CreditCard className="h-4 w-4"/></p>
-                                    <span className="text-sm text-muted-foreground">Pague em ambiente seguro do Mercado Pago.</span>
+                                    <span className="text-sm text-muted-foreground">Pague em ambiente seguro.</span>
                                 </div>
                             </Label>
                         </RadioGroup>
+
+                        {paymentMethod === 'pix' ? (
+                            <Button onClick={handleGeneratePix} size="lg" className="w-full h-12 text-lg rounded-xl" disabled={isProcessing}>
+                                {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : <QrCode className="mr-2 h-5 w-5"/>}
+                                Gerar Pix de R$ {total.toFixed(2).replace('.',',')}
+                           </Button>
+                        ) : (
+                           <Payment
+                                initialization={{ 
+                                    amount: total,
+                                    payer: {
+                                        firstName: form.getValues('firstName'),
+                                        lastName: form.getValues('lastName'),
+                                        email: form.getValues('email'),
+                                    }
+                                }}
+                                customization={{
+                                    paymentMethods: {
+                                        creditCard: "all",
+                                        debitCard: [],
+                                        mercadoPago: [],
+                                    },
+                                    visual: {
+                                        style: {
+                                            theme: 'default'
+                                        }
+                                    }
+                                }}
+                                onSubmit={onCardPaymentSubmit}
+                            />
+                        )}
+
                     </CardContent>
-                    <CardFooter className="justify-between">
-                       <Button variant="ghost" onClick={() => setCurrentStep(1)}>Voltar</Button>
-                       <Button onClick={onFinalSubmit} size="lg" className="h-12 text-lg rounded-xl" disabled={isProcessing}>
-                        {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
-                            Finalizar Pedido de R$ {total.toFixed(2).replace('.',',')}
-                       </Button>
+                    <CardFooter className="justify-start pt-6 border-t">
+                       <Button variant="ghost" onClick={() => setCurrentStep(1)}>Voltar para Entrega</Button>
                     </CardFooter>
                 </Card>
             );
@@ -579,46 +590,44 @@ export default function CheckoutPage() {
             </div>
         </div>
 
-        <FormProvider {...form}>
-            <form onSubmit={(e) => e.preventDefault()} className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-                <div className="lg:col-span-3">
-                    {renderCurrentStep()}
-                </div>
-                
-                <aside className="lg:col-span-2">
-                    <div className="sticky top-24 space-y-6">
-                        <Card>
-                            <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart/> Resumo do Pedido</CardTitle></CardHeader>
-                            <CardContent className="space-y-4">
-                                {cartItems.map(item => (
-                                    <div key={item.id} className="flex items-center gap-4">
-                                        <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
-                                            <Image src={item.image} alt={item.name} layout="fill" objectFit="cover"/>
-                                            <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center bg-gray-600 text-white">{item.quantity}</Badge>
-                                        </div>
-                                        <div className="flex-grow">
-                                            <p className="font-semibold text-sm">{item.name}</p>
-                                            <p className="text-xs text-muted-foreground">{item.options}</p>
-                                        </div>
-                                        <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+            <div className="lg:col-span-3">
+                {renderCurrentStep()}
+            </div>
+            
+            <aside className="lg:col-span-2">
+                <div className="sticky top-24 space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart/> Resumo do Pedido</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            {cartItems.map(item => (
+                                <div key={item.id} className="flex items-center gap-4">
+                                    <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
+                                        <Image src={item.image} alt={item.name} layout="fill" objectFit="cover"/>
+                                        <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center bg-gray-600 text-white">{item.quantity}</Badge>
                                     </div>
-                                ))}
-                                <Separator />
-                                 <div className="space-y-2 text-sm">
-                                    <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">R$ {subtotal.toFixed(2).replace('.', ',')}</span></div>
-                                    <div className="flex justify-between"><span>Frete</span><span className="font-medium">{selectedShipping ? `R$ ${shippingCost.toFixed(2).replace('.', ',')}` : 'A calcular'}</span></div>
+                                    <div className="flex-grow">
+                                        <p className="font-semibold text-sm">{item.name}</p>
+                                        <p className="text-xs text-muted-foreground">{item.options}</p>
+                                    </div>
+                                    <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</p>
                                 </div>
-                                <Separator />
-                                <div className="flex justify-between font-bold text-lg">
-                                    <span>Total</span>
-                                    <span>R$ {total.toFixed(2).replace('.', ',')}</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </aside>
-            </form>
-         </FormProvider>
+                            ))}
+                            <Separator />
+                             <div className="space-y-2 text-sm">
+                                <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">R$ {subtotal.toFixed(2).replace('.', ',')}</span></div>
+                                <div className="flex justify-between"><span>Frete</span><span className="font-medium">{selectedShipping ? `R$ ${shippingCost.toFixed(2).replace('.', ',')}` : 'A calcular'}</span></div>
+                            </div>
+                            <Separator />
+                            <div className="flex justify-between font-bold text-lg">
+                                <span>Total</span>
+                                <span>R$ {total.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </aside>
+        </div>
       </main>
       <Footer />
     </div>

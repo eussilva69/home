@@ -6,18 +6,15 @@ import crypto from 'crypto';
 // Função para introduzir um atraso
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Sua chave secreta do webhook do Mercado Pago
+const WEBHOOK_SECRET = "507bc239502ea3a50de881b7de226e10adb6434c19078bfa0dac35322c8bcdc6";
+
 // Função para validar a assinatura do Mercado Pago
 async function validateSignature(req: NextRequest) {
     const signatureHeader = req.headers.get('x-signature');
     if (!signatureHeader) {
         console.error('[Webhook Security] Cabeçalho x-signature ausente.');
         return false;
-    }
-
-    const secret = process.env.MERCADO_PAGO_WEBHOOK_SECRET;
-    if (!secret) {
-        console.error('[Webhook Security] A chave secreta do webhook não está configurada no .env');
-        return false; // Não pode validar sem a chave secreta
     }
 
     const parts = signatureHeader.split(',').reduce((acc, part) => {
@@ -35,24 +32,31 @@ async function validateSignature(req: NextRequest) {
     }
 
     const searchParams = req.nextUrl.searchParams;
-    const body = await req.text(); // Lê o corpo como texto bruto para a validação
+    // O corpo precisa ser lido como texto bruto para a validação da assinatura
+    const bodyText = await req.text(); 
+    
+    const manifest = `id:${searchParams.get('data.id')};request-id:${req.headers.get('x-request-id')};ts:${ts};${bodyText}`;
 
-    const manifest = `id:${searchParams.get('id')};request-id:${req.headers.get('x-request-id')};ts:${ts};${body}`;
-
-    const hmac = crypto.createHmac('sha256', secret);
+    const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET);
     hmac.update(manifest);
     const generatedHash = hmac.digest('hex');
+    
+    if (generatedHash !== hash) {
+        console.warn(`[Webhook Security] Falha na validação da assinatura. Hash esperado: ${hash}, Hash gerado: ${generatedHash}`);
+        return false;
+    }
 
-    return crypto.timingSafeEqual(Buffer.from(generatedHash), Buffer.from(hash));
+    return true;
 }
 
 
 export async function POST(req: NextRequest) {
+    // Clonamos a requisição para poder ler o corpo múltiplas vezes se necessário
     const reqCloneForValidation = req.clone();
     const reqCloneForBodyParsing = req.clone();
 
     try {
-        // 1. Validar a assinatura primeiro
+        // 1. Validar a assinatura primeiro com o corpo de texto bruto
         const isSignatureValid = await validateSignature(reqCloneForValidation);
         if (!isSignatureValid) {
             console.warn('[Webhook Security] Assinatura inválida. Requisição rejeitada.');
@@ -60,11 +64,11 @@ export async function POST(req: NextRequest) {
         }
         console.log('[Webhook Security] Assinatura validada com sucesso.');
 
-        // 2. Prosseguir com a lógica do webhook
-        const body = await reqCloneForBodyParsing.json().catch(() => ({})); // Garante que o body seja um objeto
+        // 2. Prosseguir com a lógica do webhook, agora fazendo o parse do JSON
+        const body = await reqCloneForBodyParsing.json().catch(() => ({})); 
         
-        const topic = new URL(req.url).searchParams.get('topic') || body.topic || body.type;
-        const paymentId = new URL(req.url).searchParams.get('id') || body.data?.id;
+        const topic = body.topic || body.type;
+        const paymentId = body.data?.id;
 
         console.log(`[Webhook] Notificação recebida: Tópico='${topic}', ID='${paymentId}'`);
 
@@ -79,6 +83,7 @@ export async function POST(req: NextRequest) {
                 
                 let orderResult = await getOrderByPaymentId(paymentId);
                 
+                // Lógica de espera para o caso da webhook chegar antes do pedido ser salvo
                 if (!orderResult.success) {
                     console.warn(`[Webhook] Pedido para o pagamento ${paymentId} não encontrado na 1ª tentativa. Tentando novamente em 3 segundos...`);
                     await delay(3000); 
@@ -90,8 +95,11 @@ export async function POST(req: NextRequest) {
                     
                     await updateOrderStatus(orderResult.orderId, 'Aprovado');
 
+                    // Enviar e-mail de confirmação
                     if (orderResult.data?.customer?.email) {
-                        await fetch(new URL("/api/send-email", req.url).toString(), {
+                        // Construir a URL completa para a chamada fetch
+                        const siteUrl = req.nextUrl.origin; 
+                        await fetch(`${siteUrl}/api/send-email`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ destinatario: orderResult.data.customer.email, type: 'orderApproved' }),

@@ -1,32 +1,67 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getPaymentStatus, getOrderByPaymentId, updateOrderStatus } from '@/app/actions';
+import crypto from 'crypto';
 
 // Função para introduzir um atraso
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function getPaymentId(req: NextRequest): Promise<string | null> {
-    const { searchParams } = new URL(req.url);
-    if (searchParams.has('id')) {
-        return searchParams.get('id');
+// Função para validar a assinatura do Mercado Pago
+async function validateSignature(req: NextRequest) {
+    const signatureHeader = req.headers.get('x-signature');
+    if (!signatureHeader) {
+        console.error('[Webhook Security] Cabeçalho x-signature ausente.');
+        return false;
     }
-    
-    // Tenta ler o corpo como JSON apenas se não houver parâmetros na URL
-    try {
-        const body = await req.json();
-        // O Mercado Pago pode enviar o ID de diferentes formas
-        return body.data?.id || body.id || null;
-    } catch (error) {
-        console.error("Webhook: Não foi possível parsear o corpo da requisição ou corpo vazio.", error);
-        return null;
+
+    const secret = process.env.MERCADO_PAGO_WEBHOOK_SECRET;
+    if (!secret) {
+        console.error('[Webhook Security] A chave secreta do webhook não está configurada no .env');
+        return false; // Não pode validar sem a chave secreta
     }
+
+    const parts = signatureHeader.split(',').reduce((acc, part) => {
+        const [key, value] = part.split('=');
+        acc[key.trim()] = value.trim();
+        return acc;
+    }, {} as Record<string, string>);
+
+    const ts = parts.ts;
+    const hash = parts.v1;
+
+    if (!ts || !hash) {
+        console.error('[Webhook Security] Formato do cabeçalho de assinatura inválido.');
+        return false;
+    }
+
+    const searchParams = req.nextUrl.searchParams;
+    const body = await req.text(); // Lê o corpo como texto bruto para a validação
+
+    const manifest = `id:${searchParams.get('id')};request-id:${req.headers.get('x-request-id')};ts:${ts};${body}`;
+
+    const hmac = crypto.createHmac('sha256', secret);
+    hmac.update(manifest);
+    const generatedHash = hmac.digest('hex');
+
+    return crypto.timingSafeEqual(Buffer.from(generatedHash), Buffer.from(hash));
 }
 
+
 export async function POST(req: NextRequest) {
+    const reqCloneForValidation = req.clone();
+    const reqCloneForBodyParsing = req.clone();
+
     try {
-        // Clone a requisição para poder ler o corpo mais de uma vez se necessário
-        const reqClone = req.clone();
-        const body = await req.json().catch(() => ({})); // Garante que o body seja um objeto
+        // 1. Validar a assinatura primeiro
+        const isSignatureValid = await validateSignature(reqCloneForValidation);
+        if (!isSignatureValid) {
+            console.warn('[Webhook Security] Assinatura inválida. Requisição rejeitada.');
+            return NextResponse.json({ status: 'error', message: 'Assinatura inválida' }, { status: 401 });
+        }
+        console.log('[Webhook Security] Assinatura validada com sucesso.');
+
+        // 2. Prosseguir com a lógica do webhook
+        const body = await reqCloneForBodyParsing.json().catch(() => ({})); // Garante que o body seja um objeto
         
         const topic = new URL(req.url).searchParams.get('topic') || body.topic || body.type;
         const paymentId = new URL(req.url).searchParams.get('id') || body.data?.id;
@@ -44,8 +79,6 @@ export async function POST(req: NextRequest) {
                 
                 let orderResult = await getOrderByPaymentId(paymentId);
                 
-                // Lógica de retry: Se o pedido não for encontrado, espere um pouco e tente novamente.
-                // Isso resolve o problema de a notificação do webhook chegar antes de o pedido ser salvo.
                 if (!orderResult.success) {
                     console.warn(`[Webhook] Pedido para o pagamento ${paymentId} não encontrado na 1ª tentativa. Tentando novamente em 3 segundos...`);
                     await delay(3000); 
@@ -57,7 +90,6 @@ export async function POST(req: NextRequest) {
                     
                     await updateOrderStatus(orderResult.orderId, 'Aprovado');
 
-                    // Envio do e-mail de confirmação
                     if (orderResult.data?.customer?.email) {
                         await fetch(new URL("/api/send-email", req.url).toString(), {
                             method: "POST",
@@ -76,7 +108,6 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Retorna 200 OK para o Mercado Pago para confirmar o recebimento da notificação
         return NextResponse.json({ status: 'received' }, { status: 200 });
 
     } catch (error) {

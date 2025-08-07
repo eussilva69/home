@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, CheckCircle, QrCode, Copy, CreditCard, User, LogIn, PlusCircle, Check, Truck, Banknote, ShoppingCart } from 'lucide-react';
 import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses, addOrUpdateAddress } from '../actions';
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
 import { useRouter } from 'next/navigation';
@@ -339,13 +339,6 @@ export default function CheckoutPage() {
         }
     }
 
-    useEffect(() => {
-        if (user) {
-            setCurrentStep(1);
-        } else {
-            setCurrentStep(0);
-        }
-    }, [user])
   
   if (authLoading) {
       return (
@@ -569,7 +562,7 @@ export default function CheckoutPage() {
         <div className="max-w-2xl mx-auto mb-8">
             <div className="flex items-center">
             {steps.map((step, index) => (
-                <div key={step.id} className="flex items-center w-full">
+                <React.Fragment key={step.id}>
                     <div className={cn("flex flex-col items-center gap-1 w-24", currentStep >= index ? 'text-primary' : 'text-muted-foreground')}>
                         <div className={cn("w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all",
                             currentStep > index ? "bg-primary text-primary-foreground border-primary" :
@@ -580,7 +573,7 @@ export default function CheckoutPage() {
                         <span className="text-sm font-medium text-center">{step.name}</span>
                     </div>
                     {index < steps.length - 1 && <div className={cn("flex-1 h-1 transition-colors", currentStep > index ? "bg-primary" : "bg-border")}></div>}
-                </div>
+                </React.Fragment>
             ))}
             </div>
         </div>

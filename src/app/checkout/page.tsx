@@ -150,6 +150,9 @@ export default function CheckoutPage() {
   }, [user]);
 
   useEffect(() => {
+    // Start at identification step
+    setCurrentStep(0); 
+
     if (user) {
       fetchAddresses();
       form.setValue('email', user.email || '');
@@ -337,6 +340,15 @@ export default function CheckoutPage() {
     }
   }
 
+  const formatCPF = (value: string) => {
+    const onlyDigits = value.replace(/\D/g, '');
+    return onlyDigits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+      .slice(0, 14);
+  };
+
   if (!isClient || authLoading) {
       return (
           <div className="flex flex-col min-h-screen">
@@ -413,7 +425,22 @@ export default function CheckoutPage() {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <FormField control={form.control} name="docType" render={({ field }) => ( <FormItem> <FormLabel>Tipo de Documento</FormLabel> <Select onValueChange={field.onChange} defaultValue={field.value}> <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl> <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent> </Select> </FormItem> )} />
-                                <FormField control={form.control} name="docNumber" render={({ field }) => ( <FormItem> <FormLabel>Número do Documento</FormLabel> <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                                <FormField control={form.control} name="docNumber" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Número do Documento</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="000.000.000-00"
+                                                {...field}
+                                                onChange={(e) => {
+                                                    const formatted = formatCPF(e.target.value);
+                                                    field.onChange(formatted);
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
                             </div>
                           </Form>
                        </FormProvider>

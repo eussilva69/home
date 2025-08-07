@@ -40,6 +40,15 @@ export default function RegisterPage() {
       confirmPassword: '',
     },
   });
+  
+  const formatCPF = (value: string) => {
+    const onlyDigits = value.replace(/\D/g, '');
+    return onlyDigits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+      .slice(0, 14);
+  };
 
   const onSubmit = (values: FormData) => {
     setError(null);
@@ -118,7 +127,15 @@ export default function RegisterPage() {
                       <FormItem>
                         <FormLabel>CPF</FormLabel>
                         <FormControl>
-                          <Input type="text" placeholder="000.000.000-00" {...field} />
+                          <Input 
+                            type="text" 
+                            placeholder="000.000.000-00" 
+                            {...field}
+                            onChange={(e) => {
+                                const formatted = formatCPF(e.target.value);
+                                field.onChange(formatted);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

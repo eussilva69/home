@@ -457,18 +457,20 @@ export default function CheckoutPage() {
                                 <RadioGroup value={selectedAddressId || ''} onValueChange={(id) => { const addr = userAddresses.find(a => a.id === id); if(addr) handleSelectAddress(addr); }}>
                                     <div className="space-y-3">
                                         {userAddresses.map(address => (
-                                            <RadioGroupItem key={address.id} value={address.id!} id={`addr-${address.id}`} className="sr-only" />
-                                            ))}
-                                            <Label htmlFor={`addr-${address.id}`} className={cn("w-full text-left p-4 border rounded-lg cursor-pointer hover:bg-accent block", selectedAddressId === address.id && 'bg-accent border-primary ring-2 ring-primary')}>
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <span className="font-semibold">{address.nickname}</span>
-                                                        <p className="text-sm text-muted-foreground">{address.street}, {address.number}</p>
-                                                        <p className="text-sm text-muted-foreground">{address.city}, {address.state} - {address.cep}</p>
+                                            <div key={address.id}>
+                                                <RadioGroupItem value={address.id!} id={`addr-${address.id}`} className="sr-only" />
+                                                <Label htmlFor={`addr-${address.id}`} className={cn("w-full text-left p-4 border rounded-lg cursor-pointer hover:bg-accent block", selectedAddressId === address.id && 'bg-accent border-primary ring-2 ring-primary')}>
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <span className="font-semibold">{address.nickname}</span>
+                                                            <p className="text-sm text-muted-foreground">{address.street}, {address.number}</p>
+                                                            <p className="text-sm text-muted-foreground">{address.city}, {address.state} - {address.cep}</p>
+                                                        </div>
+                                                        {address.isDefault && <Badge>Padrão</Badge>}
                                                     </div>
-                                                    {address.isDefault && <Badge>Padrão</Badge>}
-                                                </div>
-                                            </Label>
+                                                </Label>
+                                            </div>
+                                        ))}
                                     </div>
                                 </RadioGroup>
                             ) : (
@@ -636,4 +638,5 @@ export default function CheckoutPage() {
     </>
   );
 }
+
 

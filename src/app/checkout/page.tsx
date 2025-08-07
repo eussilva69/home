@@ -439,7 +439,7 @@ export default function CheckoutPage() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button onClick={() => form.trigger().then(isValid => isValid && setCurrentStep(1))}>Avançar para Entrega</Button>
+                        <Button onClick={() => form.trigger(['email', 'firstName', 'lastName', 'docType', 'docNumber']).then(isValid => isValid && setCurrentStep(1))}>Avançar para Entrega</Button>
                     </CardFooter>
                 </Card>
             );
@@ -638,5 +638,3 @@ export default function CheckoutPage() {
     </>
   );
 }
-
-

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { loginSchema } from '@/lib/schemas';
 import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import type { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types';
-import type { PreferenceCreateData } from 'mercadopago/dist/clients/preference/create/types';
+import type { PreferenceCreateData, PreferenceItem } from 'mercadopago/dist/clients/preference/create/types';
 import { randomUUID } from 'crypto';
 import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address } from '@/lib/schemas';
 import { melhorEnvioService } from '@/services/melhor-envio.service';
@@ -56,14 +56,9 @@ async function createPixPayment(input: CreatePixPaymentInput) {
 }
 
 async function createPreference(input: CreatePreferenceInput) {
-    const itemsWithCurrency = input.items.map(item => ({
-        ...item,
-        currency_id: 'BRL',
-    }));
-
     const preferenceData: PreferenceCreateData = {
         body: {
-            items: itemsWithCurrency,
+            items: input.items as PreferenceItem[],
             payer: {
                 name: input.payer.name,
                 surname: input.payer.surname,

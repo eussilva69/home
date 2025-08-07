@@ -1,6 +1,7 @@
 
 'use client';
 
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,10 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, CheckCircle, QrCode, Copy, CreditCard, User, LogIn, PlusCircle, Check, Truck, Banknote, ShoppingCart } from 'lucide-react';
 import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses, addOrUpdateAddress } from '../actions';
-import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import QRCode from 'qrcode.react';
 import type { CreatePaymentOutput, Address } from '@/lib/schemas';
@@ -42,6 +42,7 @@ const steps = [
 
 export default function CheckoutPage() {
   const { user, loading: authLoading } = useAuth();
+  const searchParams = useSearchParams();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentResult, setPaymentResult] = useState<CreatePaymentOutput | null>(null);
   const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string, paymentId: number } | null>(null);
@@ -84,33 +85,6 @@ export default function CheckoutPage() {
     }
   }, []);
   
-  useEffect(() => {
-    return () => stopPolling();
-  }, [stopPolling]);
-  
-  const fetchAddresses = useCallback(async () => {
-    if (user) {
-      const addresses = await getUserAddresses(user.uid);
-      addresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
-      setUserAddresses(addresses);
-      const defaultAddress = addresses.find(a => a.isDefault) || addresses[0];
-      if (defaultAddress) {
-        handleSelectAddress(defaultAddress);
-      }
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
-      fetchAddresses();
-      form.setValue('email', user.email || '');
-      const nameParts = user.displayName?.split(' ') || [];
-      form.setValue('firstName', nameParts[0] || '');
-      form.setValue('lastName', nameParts.slice(1).join(' ') || '');
-    }
-  }, [user, fetchAddresses, form]);
-
-
   const handleSuccessfulPayment = useCallback(async (paymentId?: number) => {
     stopPolling();
   
@@ -156,26 +130,53 @@ export default function CheckoutPage() {
     clearCart();
   }, [form, selectedShipping, cartItems, paymentMethod, total, subtotal, shippingCost, clearCart, toast, stopPolling]);
   
+  const fetchAddresses = useCallback(async () => {
+    if (user) {
+      const addresses = await getUserAddresses(user.uid);
+      addresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
+      setUserAddresses(addresses);
+      const defaultAddress = addresses.find(a => a.isDefault) || addresses[0];
+      if (defaultAddress) {
+        handleSelectAddress(defaultAddress);
+      }
+    }
+  }, [user]);
+
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status');
-    const paymentId = urlParams.get('payment_id');
+    if (user) {
+      fetchAddresses();
+      form.setValue('email', user.email || '');
+      const nameParts = user.displayName?.split(' ') || [];
+      form.setValue('firstName', nameParts[0] || '');
+      form.setValue('lastName', nameParts.slice(1).join(' ') || '');
+    }
+  }, [user, fetchAddresses, form]);
+
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    const paymentId = searchParams.get('payment_id');
 
     if (status === 'approved' && paymentId) {
         handleSuccessfulPayment(Number(paymentId));
+        // Limpar a URL para evitar reprocessamento
+        router.replace('/checkout', undefined);
     } else if (status && status !== 'approved') {
          toast({ variant: 'destructive', title: 'Pagamento não aprovado', description: 'Por favor, tente novamente ou use outra forma de pagamento.' });
-         router.replace('/checkout');
+         router.replace('/checkout', undefined);
     }
-  }, [router, toast, handleSuccessfulPayment]);
-
+  }, [searchParams, router, toast, handleSuccessfulPayment]);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (cartItems.length === 0 && !isProcessing && !paymentResult && !urlParams.has('status') && !pixData) {
+    if (cartItems.length === 0 && !isProcessing && !paymentResult && !searchParams.has('status') && !pixData) {
         router.push('/');
     }
-  }, [cartItems.length, isProcessing, paymentResult, pixData, router, toast]);
+  }, [cartItems.length, isProcessing, paymentResult, pixData, router, searchParams]);
+
+  useEffect(() => {
+    return () => stopPolling();
+  }, [stopPolling]);
+
 
   const startPollingPaymentStatus = (paymentId: number) => {
     stopPolling();
@@ -294,16 +295,16 @@ export default function CheckoutPage() {
       title: `${item.name} (${item.options})`,
       quantity: item.quantity,
       unit_price: item.price,
-      currency_id: 'BRL',
+      currency_id: 'BRL' as const,
     }));
     
     if (shippingCost > 0) {
       cartItemsForPref.push({
         id: 'shipping',
-        title: `Frete (${selectedShipping?.name} - ${selectedShipping?.company})`,
+        title: `Frete (${selectedShipping?.name})`,
         quantity: 1,
         unit_price: shippingCost,
-        currency_id: 'BRL',
+        currency_id: 'BRL' as const,
       });
     }
 
@@ -321,7 +322,7 @@ export default function CheckoutPage() {
     });
     
     if (result.success && result.redirectUrl) {
-        router.push(result.redirectUrl);
+        window.location.href = result.redirectUrl;
     } else {
       toast({ variant: 'destructive', title: 'Falha no Pagamento', description: result.message || 'Não foi possível iniciar o pagamento.' });
       setIsProcessing(false);

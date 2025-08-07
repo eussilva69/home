@@ -79,6 +79,7 @@ async function createPreference(input: CreatePreferenceInput) {
                 pending: `${SITE_URL}/checkout`,
             },
             auto_return: 'approved',
+            notification_url: 'https://studio-dev-production-main-ygxk223yza-uc.a.run.app/api/webhook',
         }
     };
 
@@ -127,7 +128,7 @@ export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'cre
                 length: maxLength,
             },
             createdAt: serverTimestamp(),
-            status: 'Aprovado' // ou 'Pendente', dependendo da lógica
+            status: 'Pendente' // Inicia como pendente até o webhook confirmar
         };
 
         const docRef = await addDoc(ordersCollectionRef, finalOrderDetails);
@@ -328,6 +329,26 @@ export async function getOrderById(orderId: string) {
     } catch (error) {
       console.error('Erro ao buscar pedido:', error);
       return { success: false, message: 'Erro ao buscar dados do pedido.' };
+    }
+}
+
+// Função para buscar um pedido pelo ID do pagamento do Mercado Pago
+export async function getOrderByPaymentId(paymentId: number) {
+    try {
+        const q = query(collection(firestore, 'orders'), where("payment.paymentId", "==", paymentId));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            return { success: false, message: 'Nenhum pedido encontrado para este ID de pagamento.' };
+        }
+        
+        // Retorna o primeiro pedido encontrado (deve haver apenas um)
+        const orderDoc = querySnapshot.docs[0];
+        return { success: true, orderId: orderDoc.id, data: orderDoc.data() };
+
+    } catch (error) {
+        console.error("Erro ao buscar pedido pelo paymentId:", error);
+        return { success: false, message: 'Erro ao buscar dados do pedido.' };
     }
 }
 

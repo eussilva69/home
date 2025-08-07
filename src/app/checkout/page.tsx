@@ -136,6 +136,21 @@ export default function CheckoutPage() {
     setPaymentResult({ success: true, paymentId });
     clearCart();
   }, [form, selectedShipping, cartItems, paymentMethod, total, subtotal, shippingCost, clearCart, toast, stopPolling]);
+
+  const startPollingPaymentStatus = useCallback((paymentId: number) => {
+    stopPolling();
+    pollingIntervalRef.current = setInterval(async () => {
+        try {
+            const result = await getPaymentStatus(paymentId);
+            if (result && result.status === 'approved') {
+                handleSuccessfulPayment(paymentId);
+            }
+        } catch (error) {
+            console.error("Erro ao verificar status do pagamento:", error);
+            stopPolling();
+        }
+    }, 5000);
+  }, [stopPolling, handleSuccessfulPayment]);
   
   const fetchAddresses = useCallback(async () => {
     if (user) {
@@ -150,9 +165,7 @@ export default function CheckoutPage() {
   }, [user]);
 
   useEffect(() => {
-    // Start at identification step
     setCurrentStep(0); 
-
     if (user) {
       fetchAddresses();
       form.setValue('email', user.email || '');
@@ -185,22 +198,6 @@ export default function CheckoutPage() {
   useEffect(() => {
     return () => stopPolling();
   }, [stopPolling]);
-
-
-  const startPollingPaymentStatus = (paymentId: number) => {
-    stopPolling();
-    pollingIntervalRef.current = setInterval(async () => {
-        try {
-            const result = await getPaymentStatus(paymentId);
-            if (result && result.status === 'approved') {
-                handleSuccessfulPayment(paymentId);
-            }
-        } catch (error) {
-            console.error("Erro ao verificar status do pagamento:", error);
-            stopPolling();
-        }
-    }, 5000);
-  }
   
   const handleCalculateShipping = async (cep: string) => {
     if (cep.replace(/\D/g, '').length !== 8) {
@@ -317,14 +314,27 @@ export default function CheckoutPage() {
         });
 
         const result = await response.json();
+        
         if (!response.ok) {
-            throw new Error(result.message || 'Pagamento com cartão falhou.');
-        }
-
-        if (result.status === 'approved') {
-            handleSuccessfulPayment(result.id);
+            // Se a API retornar um erro, mas tivermos um ID de pagamento, podemos tentar o polling
+            if (result.id) {
+                startPollingPaymentStatus(result.id);
+                toast({ title: 'Pagamento em Processamento', description: 'Estamos confirmando seu pagamento. Por favor, aguarde.' });
+            } else {
+                throw new Error(result.message || 'Pagamento com cartão falhou.');
+            }
         } else {
-            throw new Error(result.message || 'Pagamento não aprovado.');
+            if (result.status === 'approved') {
+                handleSuccessfulPayment(result.id);
+            } else {
+                // Se não foi aprovado de imediato, mas temos ID, iniciamos o polling
+                if (result.id) {
+                    startPollingPaymentStatus(result.id);
+                    toast({ title: 'Pagamento em Análise', description: 'Seu pagamento está sendo processado e confirmaremos em breve.' });
+                } else {
+                    throw new Error(result.detail || 'Pagamento não aprovado.');
+                }
+            }
         }
     } catch (error: any) {
         toast({ variant: 'destructive', title: 'Erro no Pagamento', description: error.message });

@@ -37,22 +37,17 @@ export async function POST(req: NextRequest) {
         }
     });
 
-    // Se for PIX, retorna os dados para o QR Code
-    if (paymentResponse.payment_method_id === 'pix') {
-      return NextResponse.json(
-        { 
-          status: paymentResponse.status,
-          detail: paymentResponse.status_detail,
-          id: paymentResponse.id,
-          qr_code: paymentResponse.point_of_interaction?.transaction_data?.qr_code,
-          qr_code_base64: paymentResponse.point_of_interaction?.transaction_data?.qr_code_base64,
-        }, 
-        { status: 201 }
-      );
-    }
-    
-    // Se for cartão, retorna o resultado
-    return NextResponse.json(paymentResponse, { status: 201 });
+    // Retorna o resultado com ID, status e detalhes
+    return NextResponse.json(
+      { 
+        id: paymentResponse.id,
+        status: paymentResponse.status,
+        detail: paymentResponse.status_detail,
+        qr_code: paymentResponse.point_of_interaction?.transaction_data?.qr_code,
+        qr_code_base64: paymentResponse.point_of_interaction?.transaction_data?.qr_code_base64,
+      }, 
+      { status: 201 }
+    );
     
   } catch (error: any) {
     console.error('API Error:', error.cause ? JSON.stringify(error.cause, null, 2) : error.message);

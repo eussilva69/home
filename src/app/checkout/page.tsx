@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, CheckCircle, QrCode, Copy, CreditCard, User, LogIn, PlusCircle } from 'lucide-react';
+import { Loader2, CheckCircle, QrCode, Copy, CreditCard, User, LogIn, PlusCircle, Check, Truck, Banknote, ShoppingCart } from 'lucide-react';
 import { processPixPayment, processRedirectPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses, addOrUpdateAddress } from '../actions';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -34,6 +34,11 @@ import AddressFormDialog from '@/components/dashboard/addresses/address-form-dia
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 type PaymentMethod = 'pix' | 'card';
 
+const steps = [
+    { id: 'identification', name: 'Identificação', icon: User },
+    { id: 'shipping', name: 'Entrega', icon: Truck },
+    { id: 'payment', name: 'Pagamento', icon: Banknote },
+];
 
 export default function CheckoutPage() {
   const { user, loading: authLoading } = useAuth();
@@ -56,16 +61,13 @@ export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
   const router = useRouter();
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const [currentStep, setCurrentStep] = useState(0);
 
   const subtotal = useMemo(() => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0), [cartItems]);
   const shippingCost = useMemo(() => selectedShipping ? parseFloat(selectedShipping.price) : 0, [selectedShipping]);
-  
-  const pixDiscount = 0.10; // 10%
-  const cardFee = 0.0499; // 4.99%
+  const total = subtotal + shippingCost;
 
-  const totalPix = useMemo(() => (subtotal * (1 - pixDiscount)) + shippingCost, [subtotal, shippingCost, pixDiscount]);
-  const totalCard = useMemo(() => (subtotal + shippingCost) * (1 + cardFee), [subtotal, shippingCost, cardFee]);
-  const totalDisplay = paymentMethod === 'pix' ? totalPix : totalCard;
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -132,7 +134,7 @@ export default function CheckoutPage() {
       items: cartItems,
       payment: {
         method: paymentMethod,
-        total: totalDisplay,
+        total: total,
         subtotal: subtotal,
         shippingCost: shippingCost,
         paymentId: paymentId,
@@ -152,7 +154,7 @@ export default function CheckoutPage() {
   
     setPaymentResult({ success: true, paymentId });
     clearCart();
-  }, [form, selectedShipping, cartItems, paymentMethod, totalDisplay, subtotal, shippingCost, clearCart, toast, stopPolling]);
+  }, [form, selectedShipping, cartItems, paymentMethod, total, subtotal, shippingCost, clearCart, toast, stopPolling]);
   
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -218,19 +220,9 @@ export default function CheckoutPage() {
     }
   };
   
-  const handleSelectShipping = (optionId: string) => {
-      const option = shippingOptions.find(opt => opt.id.toString() === optionId);
-      if (option) {
-          const shippingInfo = {
-            id: option.id,
-            name: option.name,
-            price: parseFloat(option.price),
-            company: option.company.name,
-            delivery_time: option.delivery_time,
-          };
-          setSelectedShipping(shippingInfo);
-          setErrorShipping(null); 
-      }
+  const handleSelectShipping = (option: any) => {
+      setSelectedShipping(option);
+      setErrorShipping(null); 
   };
 
   const handleSelectAddress = (address: Address) => {
@@ -272,7 +264,7 @@ export default function CheckoutPage() {
   const handleGeneratePix = async (formData: CheckoutFormValues) => {
      setIsProcessing(true);
      const result = await processPixPayment({
-         transaction_amount: parseFloat(totalPix.toFixed(2)),
+         transaction_amount: parseFloat(total.toFixed(2)),
          description: `Compra na Home Designer - Pedido #${Date.now()}`,
          payer: {
              email: formData.email,
@@ -304,10 +296,9 @@ export default function CheckoutPage() {
       unit_price: item.price,
       currency_id: 'BRL',
     }));
-
-    const serviceItems = [];
+    
     if (shippingCost > 0) {
-      serviceItems.push({
+      cartItemsForPref.push({
         id: 'shipping',
         title: `Frete (${selectedShipping?.name} - ${selectedShipping?.company})`,
         quantity: 1,
@@ -316,18 +307,8 @@ export default function CheckoutPage() {
       });
     }
 
-    const subtotalForFee = subtotal + shippingCost;
-    const fee = subtotalForFee * cardFee;
-     serviceItems.push({
-        id: 'fee',
-        title: 'Taxa de Serviço (Cartão)',
-        quantity: 1,
-        unit_price: parseFloat(fee.toFixed(2)),
-        currency_id: 'BRL',
-    });
-
     const result = await processRedirectPayment({
-        items: [...cartItemsForPref, ...serviceItems],
+        items: cartItemsForPref,
         payer: {
             name: formData.firstName,
             surname: formData.lastName,
@@ -346,17 +327,25 @@ export default function CheckoutPage() {
       setIsProcessing(false);
     }
   };
+  
+    const onFinalSubmit = () => {
+        form.handleSubmit(paymentMethod === 'pix' ? handleGeneratePix : handleRedirectPayment)();
+    };
 
-  const onFinalSubmit = () => {
-    form.handleSubmit(paymentMethod === 'pix' ? handleGeneratePix : handleRedirectPayment)();
-  }
+    const copyToClipboard = () => {
+        if (pixData) {
+            navigator.clipboard.writeText(pixData.qrCode);
+            toast({ title: 'Copiado!', description: 'Código Pix copiado para la área de transferência.' });
+        }
+    }
 
-  const copyToClipboard = () => {
-      if (pixData) {
-          navigator.clipboard.writeText(pixData.qrCode);
-          toast({ title: 'Copiado!', description: 'Código Pix copiado para la área de transferência.' });
-      }
-  }
+    useEffect(() => {
+        if (user) {
+            setCurrentStep(1);
+        } else {
+            setCurrentStep(0);
+        }
+    }, [user])
   
   if (authLoading) {
       return (
@@ -417,14 +406,151 @@ export default function CheckoutPage() {
         </div>
      )
   }
+  
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+        case 0: // Identification
+            return (
+                <Card>
+                    <CardHeader><CardTitle>1. Informações do Cliente</CardTitle></CardHeader>
+                    <CardContent className="space-y-4">
+                        <FormField control={form.control} name="email" render={({ field }) => ( <FormItem> <FormLabel>E-mail</FormLabel> <FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField control={form.control} name="docType" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Tipo de Documento</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
+                                        <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="docNumber" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Número do Documento</FormLabel>
+                                    <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button onClick={() => form.trigger().then(isValid => isValid && setCurrentStep(1))}>Avançar para Entrega</Button>
+                    </CardFooter>
+                </Card>
+            );
+        case 1: // Shipping
+            return (
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="flex items-center gap-2"><Truck className="h-6 w-6"/> Entrega</CardTitle>
+                        <Button variant="outline" size="sm" onClick={() => handleOpenAddressForm(null)}><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Endereço</Button>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div>
+                            <Label className="font-semibold text-base mb-2 block">Selecione o endereço</Label>
+                            {userAddresses.length > 0 ? (
+                                <RadioGroup value={selectedAddressId || ''} onValueChange={(id) => { const addr = userAddresses.find(a => a.id === id); if(addr) handleSelectAddress(addr); }}>
+                                    <div className="space-y-3">
+                                        {userAddresses.map(address => (
+                                            <RadioGroupItem key={address.id} value={address.id!} id={`addr-${address.id}`} className="sr-only" />
+                                            ))}
+                                            <Label htmlFor={`addr-${address.id}`} className={cn("w-full text-left p-4 border rounded-lg cursor-pointer hover:bg-accent block", selectedAddressId === address.id && 'bg-accent border-primary ring-2 ring-primary')}>
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <span className="font-semibold">{address.nickname}</span>
+                                                        <p className="text-sm text-muted-foreground">{address.street}, {address.number}</p>
+                                                        <p className="text-sm text-muted-foreground">{address.city}, {address.state} - {address.cep}</p>
+                                                    </div>
+                                                    {address.isDefault && <Badge>Padrão</Badge>}
+                                                </div>
+                                            </Label>
+                                    </div>
+                                </RadioGroup>
+                            ) : (
+                                <div className="text-center p-4 border-2 border-dashed rounded-lg text-muted-foreground">
+                                    <p>Nenhum endereço cadastrado.</p>
+                                    <Button variant="link" onClick={() => handleOpenAddressForm(null)}>Cadastre o primeiro</Button>
+                                </div>
+                            )}
+                        </div>
+                         <div>
+                            <Label className="font-semibold text-base mb-2 block">Selecione o frete</Label>
+                            {isLoadingShipping && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin h-4 w-4"/> Calculando frete...</div>}
+                            {errorShipping && <p className="text-sm text-red-600">{errorShipping}</p>}
+                            {!isLoadingShipping && shippingOptions.length > 0 ? (
+                                 <RadioGroup onValueChange={(id) => handleSelectShipping(shippingOptions.find(opt => opt.id.toString() === id))} className="space-y-3">
+                                    {shippingOptions.map((option) => (
+                                        <div key={option.id}>
+                                            <RadioGroupItem value={option.id.toString()} id={`ship-${option.id}`} className="sr-only" />
+                                            <Label htmlFor={`ship-${option.id}`} className={cn("flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-100 has-[:checked]:bg-black/5 has-[:checked]:border-black transition-all", selectedShipping?.id === option.id && 'border-primary ring-2 ring-primary')}>
+                                                <div className="flex items-center gap-3">
+                                                    {option.company.picture && <Image src={option.company.picture} alt={option.company.name} width={24} height={24} className="rounded-full"/>}
+                                                    <span className="font-semibold text-gray-800">{option.name}</span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="font-bold text-gray-900">{option.price === '0.00' ? 'Grátis' : `R$ ${parseFloat(option.price).toFixed(2).replace('.', ',')}`}</span>
+                                                    <p className="text-xs text-gray-500">Prazo: {option.delivery_time} dias úteis</p>
+                                                </div>
+                                            </Label>
+                                        </div>
+                                    ))}
+                                </RadioGroup>
+                            ) : !isLoadingShipping && <p className="text-muted-foreground text-sm">Selecione um endereço para ver as opções de frete.</p>}
+                         </div>
+                    </CardContent>
+                    <CardFooter className="justify-between">
+                         <Button variant="ghost" onClick={() => setCurrentStep(0)}>Voltar</Button>
+                         <Button onClick={() => setCurrentStep(2)} disabled={!selectedShipping}>Avançar para Pagamento</Button>
+                    </CardFooter>
+                </Card>
+            );
+        case 2: // Payment
+            return (
+                 <Card>
+                    <CardHeader><CardTitle>3. Forma de Pagamento</CardTitle></CardHeader>
+                    <CardContent>
+                        <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
+                            <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
+                                <RadioGroupItem value="pix" id="pix" />
+                                <div className="w-full">
+                                    <p className="font-medium flex items-center gap-2">Pagar com Pix <QrCode className="h-4 w-4"/></p>
+                                    <span className="text-sm text-green-600 font-semibold">Pagamento aprovado na hora!</span>
+                                </div>
+                            </Label>
+                            <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
+                                <RadioGroupItem value="card" id="card" />
+                                 <div className="w-full">
+                                    <p className="font-medium flex items-center gap-2">Cartão de Crédito <CreditCard className="h-4 w-4"/></p>
+                                    <span className="text-sm text-muted-foreground">Pague em ambiente seguro do Mercado Pago.</span>
+                                </div>
+                            </Label>
+                        </RadioGroup>
+                    </CardContent>
+                    <CardFooter className="justify-between">
+                       <Button variant="ghost" onClick={() => setCurrentStep(1)}>Voltar</Button>
+                       <Button onClick={onFinalSubmit} size="lg" className="h-12 text-lg rounded-xl" disabled={isProcessing}>
+                        {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
+                            Finalizar Pedido de R$ {total.toFixed(2).replace('.',',')}
+                       </Button>
+                    </CardFooter>
+                </Card>
+            );
+    }
+  }
+
 
   return (
     <>
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-12">
+      <main className="flex-grow container mx-auto px-4 py-8">
         {!user && (
-            <Card className="max-w-3xl mx-auto mb-8 bg-blue-50 border-blue-200">
+            <Card className="max-w-4xl mx-auto mb-8 bg-blue-50 border-blue-200">
                 <CardContent className="p-6 flex items-center gap-6">
                     <User className="h-10 w-10 text-blue-600 flex-shrink-0" />
                     <div>
@@ -437,123 +563,36 @@ export default function CheckoutPage() {
                 </CardContent>
             </Card>
         )}
-         <FormProvider {...form}>
-            <form onSubmit={(e) => e.preventDefault()} className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-8">
-                {/* Coluna da Esquerda: Formulários */}
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader><CardTitle>1. Informações do Cliente</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <FormField control={form.control} name="email" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>E-mail</FormLabel>
-                                    <FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="docType" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Tipo de Documento</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )} />
-                                <FormField control={form.control} name="docNumber" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Número do Documento</FormLabel>
-                                        <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                            </div>
-                        </CardContent>
-                    </Card>
+        {/* Stepper */}
+        <div className="max-w-2xl mx-auto mb-8">
+            <div className="flex items-center">
+            {steps.map((step, index) => (
+                <div key={step.id} className="flex items-center w-full">
+                    <div className={cn("flex flex-col items-center gap-1 w-24", currentStep >= index ? 'text-primary' : 'text-muted-foreground')}>
+                        <div className={cn("w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all",
+                            currentStep > index ? "bg-primary text-primary-foreground border-primary" :
+                            currentStep === index ? "border-primary" : "border-border"
+                        )}>
+                            {currentStep > index ? <Check/> : <step.icon className="h-5 w-5"/>}
+                        </div>
+                        <span className="text-sm font-medium text-center">{step.name}</span>
+                    </div>
+                    {index < steps.length - 1 && <div className={cn("flex-1 h-1 transition-colors", currentStep > index ? "bg-primary" : "bg-border")}></div>}
+                </div>
+            ))}
+            </div>
+        </div>
 
-                    <Card>
-                        <CardHeader><CardTitle>2. Endereço de Entrega</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                           {user && userAddresses.length > 0 && (
-                                <div className="space-y-3">
-                                    <Label>Selecione um endereço salvo</Label>
-                                    {userAddresses.map(address => (
-                                        <div key={address.id} onClick={() => handleSelectAddress(address)} className={cn("w-full text-left p-3 border rounded-lg cursor-pointer hover:bg-accent", selectedAddressId === address.id && 'bg-accent border-primary')}>
-                                            <div className="flex justify-between items-center">
-                                                <span className="font-semibold">{address.nickname}</span>
-                                                {address.isDefault && <Badge>Padrão</Badge>}
-                                            </div>
-                                            <p className="text-sm text-muted-foreground">{address.street}, {address.number} - {address.city}, {address.state}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                             {user && (
-                                 <Button variant="outline" size="sm" onClick={() => handleOpenAddressForm(null)}>
-                                     <PlusCircle className="mr-2 h-4 w-4" /> Cadastrar novo endereço
-                                 </Button>
-                             )}
-                            <div className="space-y-4 pt-4 border-t-2 border-dashed first:border-t-0 first:pt-0">
-                                <FormField control={form.control} name="cep" render={({ field }) => (
-                                    <FormItem className="flex-1">
-                                        <FormLabel>CEP</FormLabel>
-                                        <FormControl><Input placeholder="00000-000" {...field} onChange={(e) => { field.onChange(e); handleCalculateShipping(e.target.value); }} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <FormField control={form.control} name="street" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Rua</FormLabel><FormControl><Input placeholder="Sua rua" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                    <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Número</FormLabel><FormControl><Input placeholder="Nº" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormField control={form.control} name="complement" render={({ field }) => (<FormItem><FormLabel>Complemento (opcional)</FormLabel><FormControl><Input placeholder="Apto, bloco, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                    <FormField control={form.control} name="neighborhood" render={({ field }) => (<FormItem><FormLabel>Bairro</FormLabel><FormControl><Input placeholder="Seu bairro" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <FormField control={form.control} name="city" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Cidade</FormLabel><FormControl><Input placeholder="Sua cidade" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                    <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>Estado</FormLabel><FormControl><Input placeholder="UF" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                </div>
-                            </div>
-
-                             {isLoadingShipping && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin h-4 w-4"/> Calculando frete...</div>}
-                             {errorShipping && <p className="text-sm text-red-600">{errorShipping}</p>}
-                            
-                            {!isLoadingShipping && shippingOptions.length > 0 && (
-                                <div className="mt-4">
-                                    <h3 className="font-medium mb-2">Opções de Frete</h3>
-                                    <RadioGroup value={selectedShipping?.id.toString()} onValueChange={handleSelectShipping} className="space-y-3">
-                                        {shippingOptions.map((option) => (
-                                            <Label key={option.id} htmlFor={option.id.toString()} className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-100 has-[:checked]:bg-black/5 has-[:checked]:border-black transition-all">
-                                                <div className="flex items-center gap-3">
-                                                    <RadioGroupItem value={option.id.toString()} id={option.id.toString()} />
-                                                    <div className="flex items-center gap-2">
-                                                        {option.company.picture && <Image src={option.company.picture} alt={option.company.name} width={20} height={20} className="rounded-full"/>}
-                                                        <span className="font-semibold text-gray-800">{option.name}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <span className="font-bold text-gray-900">R$ {parseFloat(option.price).toFixed(2).replace('.', ',')}</span>
-                                                    <p className="text-xs text-gray-500">Prazo: {option.delivery_time} dias úteis</p>
-                                                </div>
-                                            </Label>
-                                        ))}
-                                    </RadioGroup>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+        <FormProvider {...form}>
+            <form onSubmit={(e) => e.preventDefault()} className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                <div className="lg:col-span-3">
+                    {renderCurrentStep()}
                 </div>
                 
-                {/* Coluna da Direita: Resumo e Pagamento */}
-                <aside className="space-y-6">
+                <aside className="lg:col-span-2">
                     <div className="sticky top-24 space-y-6">
                         <Card>
-                            <CardHeader><CardTitle>3. Resumo do Pedido</CardTitle></CardHeader>
+                            <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart/> Resumo do Pedido</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 {cartItems.map(item => (
                                     <div key={item.id} className="flex items-center gap-4">
@@ -571,47 +610,14 @@ export default function CheckoutPage() {
                                 <Separator />
                                  <div className="space-y-2 text-sm">
                                     <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">R$ {subtotal.toFixed(2).replace('.', ',')}</span></div>
-                                    <div className="flex justify-between"><span>Frete</span><span className="font-medium">R$ {shippingCost.toFixed(2).replace('.', ',')}</span></div>
-                                    {paymentMethod === 'pix' && subtotal > 0 && (
-                                        <div className="flex justify-between text-green-600 font-semibold"><span>Desconto Pix ({pixDiscount*100}%)</span><span>- R$ {(subtotal * pixDiscount).toFixed(2).replace('.', ',')}</span></div>
-                                    )}
-                                    {paymentMethod === 'card' && (
-                                        <div className="flex justify-between text-muted-foreground"><span>Taxa Cartão ({(cardFee*100).toFixed(2)}%)</span><span>+ R$ {((subtotal + shippingCost) * cardFee).toFixed(2).replace('.', ',')}</span></div>
-                                    )}
+                                    <div className="flex justify-between"><span>Frete</span><span className="font-medium">{selectedShipping ? `R$ ${shippingCost.toFixed(2).replace('.', ',')}` : 'A calcular'}</span></div>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between font-bold text-lg">
                                     <span>Total</span>
-                                    <span>R$ {totalDisplay.toFixed(2).replace('.', ',')}</span>
+                                    <span>R$ {total.toFixed(2).replace('.', ',')}</span>
                                 </div>
                             </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader><CardTitle>4. Forma de Pagamento</CardTitle></CardHeader>
-                            <CardContent>
-                                <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)} className="space-y-3">
-                                    <Label htmlFor="pix" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-green-500 has-[:checked]:bg-green-50 transition-all">
-                                        <RadioGroupItem value="pix" id="pix" />
-                                        <div className="w-full">
-                                            <p className="font-medium flex items-center gap-2">Pagar com Pix <QrCode className="h-4 w-4"/></p>
-                                            <span className="text-sm text-green-600 font-semibold">Ganhe {pixDiscount*100}% de desconto!</span>
-                                        </div>
-                                    </Label>
-                                    <Label htmlFor="card" className="flex items-center space-x-3 cursor-pointer rounded-lg border p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
-                                        <RadioGroupItem value="card" id="card" />
-                                         <div className="w-full">
-                                            <p className="font-medium flex items-center gap-2">Cartão de Crédito <CreditCard className="h-4 w-4"/></p>
-                                            <span className="text-sm text-muted-foreground">Pague em ambiente seguro.</span>
-                                        </div>
-                                    </Label>
-                                </RadioGroup>
-                            </CardContent>
-                            <CardFooter>
-                               <Button onClick={onFinalSubmit} size="lg" className="w-full h-12 text-lg rounded-xl" disabled={isProcessing || !selectedShipping}>
-                                {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : paymentMethod === 'pix' ? <QrCode className="mr-2 h-5 w-5"/> : <CreditCard className="mr-2 h-5 w-5"/>}
-                                    Finalizar Pedido
-                               </Button>
-                            </CardFooter>
                         </Card>
                     </div>
                 </aside>
@@ -628,5 +634,6 @@ export default function CheckoutPage() {
         addressToEdit={addressToEdit}
     />
     </>
-  )
+  );
 }
+

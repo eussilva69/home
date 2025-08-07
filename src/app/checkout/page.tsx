@@ -7,9 +7,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, CheckCircle, QrCode, Copy, CreditCard, User, LogIn, PlusCircle, Check, Truck, Banknote, ShoppingCart } from 'lucide-react';
 import { processPixPayment, getPaymentStatus, calculateShipping, saveOrder, getUserAddresses, addOrUpdateAddress } from '../actions';
 import { useToast } from '@/hooks/use-toast';
@@ -404,15 +405,17 @@ export default function CheckoutPage() {
                     <CardHeader><CardTitle>1. Informações do Cliente</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
                        <FormProvider {...form}>
-                          <FormField control={form.control} name="email" render={({ field }) => ( <FormItem> <FormLabel>E-mail</FormLabel> <FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                              <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <FormField control={form.control} name="docType" render={({ field }) => ( <FormItem> <FormLabel>Tipo de Documento</FormLabel> <Select onValueChange={field.onChange} defaultValue={field.value}> <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl> <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent> </Select> </FormItem> )} />
-                              <FormField control={form.control} name="docNumber" render={({ field }) => ( <FormItem> <FormLabel>Número do Documento</FormLabel> <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
-                          </div>
+                          <Form {...form}>
+                            <FormField control={form.control} name="email" render={({ field }) => ( <FormItem> <FormLabel>E-mail</FormLabel> <FormControl><Input type="email" placeholder="seu@email.com" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Sobrenome</FormLabel><FormControl><Input placeholder="Como no documento" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <FormField control={form.control} name="docType" render={({ field }) => ( <FormItem> <FormLabel>Tipo de Documento</FormLabel> <Select onValueChange={field.onChange} defaultValue={field.value}> <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl> <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="CNPJ">CNPJ</SelectItem></SelectContent> </Select> </FormItem> )} />
+                                <FormField control={form.control} name="docNumber" render={({ field }) => ( <FormItem> <FormLabel>Número do Documento</FormLabel> <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                            </div>
+                          </Form>
                        </FormProvider>
                     </CardContent>
                     <CardFooter>

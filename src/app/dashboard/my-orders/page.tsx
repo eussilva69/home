@@ -139,6 +139,8 @@ export default function MyOrdersPage() {
                  return 'warning';
             case 'Em separação':
                 return 'outline';
+            case 'Devolução Solicitada':
+                return 'destructive';
             default:
                 return 'secondary';
         }
@@ -228,5 +230,3 @@ export default function MyOrdersPage() {
     </div>
   );
 }
-
-    

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Método não permitido" }, { status: 405 });
   }
 
-  const { destinatario, type } = await req.json();
+  const { destinatario, type, data } = await req.json();
 
   if (!destinatario || !type) {
     return NextResponse.json({ message: "Destinatário e tipo de e-mail são obrigatórios" }, { status: 400 });
@@ -233,6 +233,40 @@ export async function POST(req: NextRequest) {
         </body>
         </html>`;
       break;
+    
+    case 'refundRequestAdmin':
+        subject = `Nova Solicitação de Devolução - Pedido #${data.orderId.slice(0, 8)}`;
+        const photoLinks = data.photoUrls.map((url:string, index:number) => 
+            `<a href="${url}" style="margin-right:10px; text-decoration:none; display:inline-block; border:1px solid #ccc; padding:5px; border-radius:4px;">Ver Foto ${index + 1}</a>`
+        ).join('');
+        htmlContent = `
+            <!DOCTYPE html><html lang="pt-BR"><body style="margin:0; padding:0; font-family: Arial, sans-serif;">
+            <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; background:#ffffff;">
+            <tr><td style="background:#ffc107; color:#000000; text-align:center; padding:20px;"><h1 style="margin:0;">Nova Solicitação de Devolução</h1></td></tr>
+            <tr><td style="padding:30px;"><h2 style="margin-bottom:10px;">Detalhes da Solicitação</h2>
+            <p><strong>Pedido ID:</strong> #${data.orderId.slice(0, 8)}</p>
+            <p><strong>Cliente:</strong> ${data.customerEmail}</p>
+            <p><strong>Motivo:</strong></p>
+            <p style="padding:10px; background-color:#f8f9fa; border:1px solid #dee2e6; border-radius:4px;">${data.reason}</p>
+            ${data.photoUrls.length > 0 ? `<p><strong>Fotos Anexadas:</strong></p><div>${photoLinks}</div>` : ''}
+            <a href="https://homedecorinteriores.com/dashboard/orders" style="display:inline-block; background:#007bff; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; margin-top:20px;">Gerenciar Pedido</a>
+            </td></tr></table></body></html>`;
+        break;
+
+    case 'refundRequestCustomer':
+        subject = `Sua Solicitação de Devolução Foi Recebida (Pedido #${data.orderId.slice(0, 8)})`;
+        htmlContent = `
+            <!DOCTYPE html><html lang="pt-BR"><body style="margin:0; padding:0; font-family: Arial, sans-serif;">
+            <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; background:#ffffff;">
+            <tr><td style="background:#17a2b8; color:#ffffff; text-align:center; padding:20px;"><h1 style="margin:0;">Solicitação Recebida</h1></td></tr>
+            <tr><td style="padding:30px;"><h2 style="margin-bottom:10px;">Olá,</h2>
+            <p>Recebemos sua solicitação de devolução para o pedido <strong>#${data.orderId.slice(0, 8)}</strong>.</p>
+            <p>Nossa equipe irá analisar o seu pedido e entrará em contato em breve com os próximos passos.</p>
+            <p>Obrigado pela sua paciência.</p>
+            <a href="https://homedecorinteriores.com/dashboard/my-orders" style="display:inline-block; background:#17a2b8; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; margin-top:20px;">Ver Meus Pedidos</a>
+            </td></tr></table></body></html>`;
+        break;
+
 
     default:
       return NextResponse.json({ message: "Tipo de e-mail inválido" }, { status: 400 });

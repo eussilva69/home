@@ -4,11 +4,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { getOrderById, updateOrderStatus } from '@/app/actions';
+import { getOrderById, updateOrderStatus, requestRefund } from '@/app/actions';
 import type { OrderDetails } from '@/lib/schemas';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import { Loader2, Package, User, MapPin } from 'lucide-react';
+import { Loader2, Package, User, MapPin, Undo2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -18,6 +18,8 @@ import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import { useToast } from '@/hooks/use-toast';
 import { Timestamp } from 'firebase/firestore';
+import RefundRequestDialog from '@/components/dashboard/orders/refund-request-dialog';
+
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   id: string;
@@ -36,6 +38,7 @@ export default function OrderDetailsPage() {
   const [order, setOrder] = useState<OrderDocument | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
   
   const customerLinks = [
     { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' as const },
@@ -44,22 +47,35 @@ export default function OrderDetailsPage() {
     { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' as const },
   ];
 
-  const checkAndUpdateStatus = useCallback(async (orderData: any) => {
-    if (orderData.status === 'A caminho' && orderData.shippedAt && orderData.shipping.details.delivery_time) {
-        const shippedDate = (orderData.shippedAt as Timestamp).toDate();
-        const deliveryTime = orderData.shipping.details.delivery_time;
-        const estimatedDeliveryDate = new Date(shippedDate);
-        estimatedDeliveryDate.setDate(shippedDate.getDate() + deliveryTime);
-        
-        if (new Date() > estimatedDeliveryDate) {
-            await updateOrderStatus(orderData.id, 'Entregue');
-            toast({ title: 'Pedido Entregue!', description: 'O status do seu pedido foi atualizado.' });
-            return { ...orderData, status: 'Entregue' };
+  const fetchOrder = useCallback(async () => {
+    if (orderId && user) {
+        try {
+            setLoading(true);
+            const result = await getOrderById(orderId);
+            if (result.success && result.data) {
+                let orderData = result.data as any;
+                if (orderData.customer.email !== user.email) {
+                    setError('Você não tem permissão para ver este pedido.');
+                    return;
+                }
+                
+                // A verificação e atualização de status automática será movida para a página de listagem
+                setOrder({
+                    ...orderData,
+                    createdAt: orderData.createdAt.toDate().toISOString(),
+                    shippedAt: orderData.shippedAt?.toDate().toISOString(),
+                });
+
+            } else {
+                setError(result.message || 'Pedido não encontrado.');
+            }
+        } catch (err) {
+            setError('Falha ao carregar os dados do pedido.');
+        } finally {
+            setLoading(false);
         }
     }
-    return orderData;
-  }, [toast]);
-
+  }, [orderId, user]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -67,38 +83,15 @@ export default function OrderDetailsPage() {
       router.push('/login');
       return;
     }
+    fetchOrder();
+  }, [orderId, user, authLoading, router, fetchOrder]);
+  
+  const handleRefundSuccess = () => {
+      fetchOrder(); // Re-fetch order data para mostrar o novo status
+  }
+  
+  const canRequestRefund = order && ['Aprovado', 'Em separação', 'A caminho', 'Entregue'].includes(order.status);
 
-    if (orderId) {
-      const fetchOrder = async () => {
-        try {
-          const result = await getOrderById(orderId);
-          if (result.success && result.data) {
-             let orderData = result.data as any;
-             if (orderData.customer.email !== user.email) {
-                setError('Você não tem permissão para ver este pedido.');
-                return;
-             }
-             
-             orderData = await checkAndUpdateStatus(orderData);
-
-             setOrder({
-                 ...orderData,
-                 createdAt: orderData.createdAt.toDate().toISOString(),
-                 shippedAt: orderData.shippedAt?.toDate().toISOString(),
-             });
-
-          } else {
-            setError(result.message || 'Pedido não encontrado.');
-          }
-        } catch (err) {
-          setError('Falha ao carregar os dados do pedido.');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchOrder();
-    }
-  }, [orderId, user, authLoading, router, checkAndUpdateStatus]);
 
   if (loading || authLoading) {
     return (
@@ -113,6 +106,7 @@ export default function OrderDetailsPage() {
   }
 
   return (
+    <>
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <Header />
       <div className="flex-grow container mx-auto p-4 md:p-8">
@@ -127,14 +121,22 @@ export default function OrderDetailsPage() {
               <div className="space-y-8">
                 <Card>
                   <CardHeader>
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center">
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                         <div>
                             <CardTitle className="text-2xl">Detalhes do Pedido</CardTitle>
                             <CardDescription>Pedido #{order.id.slice(0, 8)}</CardDescription>
                         </div>
-                        <Button variant="outline" asChild className="mt-4 sm:mt-0">
-                            <Link href="/dashboard/my-orders">Voltar para Meus Pedidos</Link>
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="outline" asChild>
+                              <Link href="/dashboard/my-orders">Voltar para Meus Pedidos</Link>
+                          </Button>
+                          {canRequestRefund && (
+                              <Button variant="destructive" onClick={() => setIsRefundDialogOpen(true)}>
+                                  <Undo2 className="mr-2 h-4 w-4" />
+                                  Solicitar Devolução
+                              </Button>
+                          )}
+                        </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -205,5 +207,15 @@ export default function OrderDetailsPage() {
       </div>
       <Footer />
     </div>
+     {order && user && (
+        <RefundRequestDialog
+            isOpen={isRefundDialogOpen}
+            onOpenChange={setIsRefundDialogOpen}
+            orderId={order.id}
+            customerEmail={user.email || ''}
+            onSuccess={handleRefundSuccess}
+        />
+     )}
+    </>
   );
 }

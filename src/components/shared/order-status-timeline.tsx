@@ -22,12 +22,14 @@ export default function OrderStatusTimeline({ status, trackingCode, shippingDeta
 
     let currentStepIndex = statusSteps.indexOf(status);
 
-    if (status === 'Cancelado') {
+    if (status === 'Cancelado' || status === 'Devolução Solicitada') {
+        const title = status === 'Cancelado' ? 'Pedido Cancelado' : 'Devolução Solicitada';
+        const description = status === 'Cancelado' ? 'Este pedido foi cancelado.' : 'Sua solicitação de devolução está em análise.';
         return (
             <div className="pedido-container-simplified">
                 <div className="text-center p-4 bg-destructive/10 rounded-lg">
-                    <h3 className="font-semibold text-destructive">Pedido Cancelado</h3>
-                    <p className="text-sm text-destructive/80">Este pedido foi cancelado.</p>
+                    <h3 className="font-semibold text-destructive">{title}</h3>
+                    <p className="text-sm text-destructive/80">{description}</p>
                 </div>
             </div>
         )

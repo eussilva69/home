@@ -7,7 +7,7 @@ import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import type { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types';
 import type { PreferenceCreateData, PreferenceItem } from 'mercadopago/dist/clients/preference/create/types';
 import { randomUUID } from 'crypto';
-import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address } from '@/lib/schemas';
+import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address, RefundRequestInput } from '@/lib/schemas';
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
@@ -401,4 +401,42 @@ export async function clearAllOrders() {
         console.error("Erro ao limpar os pedidos:", error);
         return { success: false, message: 'Falha ao limpar a coleção de pedidos.' };
     }
+}
+
+export async function requestRefund(data: RefundRequestInput) {
+  try {
+    const { orderId, reason, customerEmail, photoUrls } = data;
+
+    // 1. Atualizar o status do pedido no Firestore
+    const orderRef = doc(firestore, 'orders', orderId);
+    await updateDoc(orderRef, { status: 'Devolução Solicitada' });
+
+    // 2. Enviar e-mail de notificação para o administrador
+    await fetch(`${SITE_URL}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'refundRequestAdmin',
+            destinatario: 'vvatassi@gmail.com',
+            data: { orderId, reason, customerEmail, photoUrls },
+        }),
+    });
+
+    // 3. Enviar e-mail de confirmação para o cliente
+    await fetch(`${SITE_URL}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'refundRequestCustomer',
+            destinatario: customerEmail,
+            data: { orderId },
+        }),
+    });
+
+    return { success: true, message: "Solicitação de devolução enviada com sucesso!" };
+
+  } catch (error) {
+    console.error("Erro ao processar solicitação de devolução:", error);
+    return { success: false, message: 'Falha ao enviar a solicitação.' };
+  }
 }

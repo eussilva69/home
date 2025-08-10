@@ -164,3 +164,16 @@ export const ProductSchema = z.object({
   arrangement: z.string(),
 });
 export type Product = z.infer<typeof ProductSchema>;
+
+export const refundRequestSchema = z.object({
+  orderId: z.string(),
+  reason: z.string().min(10, 'Por favor, detalhe o motivo da devolução.'),
+  photos: z.custom<FileList>().optional(),
+});
+
+export type RefundRequestInput = {
+    orderId: string;
+    reason: string;
+    customerEmail: string;
+    photoUrls: string[];
+};

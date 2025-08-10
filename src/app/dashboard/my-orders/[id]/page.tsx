@@ -28,6 +28,18 @@ interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   trackingCode?: string;
 }
 
+// Helper function to safely convert Firestore Timestamps
+const convertTimestamps = (data: any) => {
+    const plainObject = { ...data };
+    for (const key in plainObject) {
+        if (plainObject[key] instanceof Timestamp) {
+            plainObject[key] = plainObject[key].toDate().toISOString();
+        }
+    }
+    return plainObject;
+};
+
+
 export default function OrderDetailsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -53,21 +65,15 @@ export default function OrderDetailsPage() {
             setLoading(true);
             const result = await getOrderById(orderId);
             if (result.success && result.data) {
-                const orderData = result.data as any; // Cast to any to handle Timestamp
+                const orderData = result.data as any; 
                 if (orderData.customer.email !== user.email) {
                     setError('Você não tem permissão para ver este pedido.');
                     setLoading(false);
                     return;
                 }
                 
-                // Convert Timestamps to ISO strings
-                const plainOrder = {
-                    ...orderData,
-                    id: orderData.id,
-                    createdAt: orderData.createdAt.toDate().toISOString(),
-                    shippedAt: orderData.shippedAt ? orderData.shippedAt.toDate().toISOString() : undefined,
-                };
-                
+                // Safely convert all potential timestamps
+                const plainOrder = convertTimestamps(orderData);
                 setOrder(plainOrder);
 
             } else {

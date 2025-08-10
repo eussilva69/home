@@ -27,9 +27,21 @@ import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
   id: string;
-  createdAt: string; // Changed from Timestamp to string
+  createdAt: string; 
   trackingCode?: string;
 }
+
+// Helper function to safely convert Firestore Timestamps
+const convertTimestamps = (data: any) => {
+    const plainObject = { ...data };
+    for (const key in plainObject) {
+        if (plainObject[key] instanceof Timestamp) {
+            plainObject[key] = plainObject[key].toDate().toISOString();
+        }
+    }
+    return plainObject;
+};
+
 
 const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: number }) => {
     const [trackingCode, setTrackingCode] = useState(order.trackingCode || '');
@@ -43,8 +55,6 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         if (result.success) {
             toast({ title: 'Sucesso', description: 'Código de rastreio salvo e status atualizado.' });
             
-            // The parent component will receive the update via snapshot listener
-            // Send order shipped email automatically when tracking code is added
             await fetch("/api/send-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -257,13 +267,11 @@ export default function OrdersPage() {
         const q = query(collection(firestore, 'orders'), orderBy('createdAt', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
           const fetchedOrders = snapshot.docs.map(doc => {
-            const data = doc.data();
-            const createdAtTimestamp = data.createdAt as Timestamp;
+            const plainData = convertTimestamps(doc.data());
             return {
                 id: doc.id,
-                ...data,
-                createdAt: createdAtTimestamp ? createdAtTimestamp.toDate().toISOString() : new Date().toISOString(),
-                trackingCode: data.trackingCode || ''
+                ...plainData,
+                trackingCode: plainData.trackingCode || ''
             } as OrderDocument
           });
           setOrders(fetchedOrders);
@@ -380,5 +388,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-
-    

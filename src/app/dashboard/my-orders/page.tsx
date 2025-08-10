@@ -25,6 +25,17 @@ interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   shippedAt?: string;
 }
 
+// Helper function to safely convert Firestore Timestamps
+const convertTimestamps = (data: any) => {
+    const plainObject = { ...data };
+    for (const key in plainObject) {
+        if (plainObject[key] instanceof Timestamp) {
+            plainObject[key] = plainObject[key].toDate().toISOString();
+        }
+    }
+    return plainObject;
+};
+
 export default function MyOrdersPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -61,15 +72,8 @@ export default function MyOrdersPage() {
                     const q = query(collection(firestore, 'orders'), where("customer.email", "==", user.email));
                     const querySnapshot = await getDocs(q);
                     let fetchedOrders = querySnapshot.docs.map(doc => {
-                        const data = doc.data();
-                        const createdAtTimestamp = data.createdAt as Timestamp;
-                        const shippedAtTimestamp = data.shippedAt as Timestamp | undefined;
-                        return {
-                            id: doc.id,
-                            ...data,
-                            createdAt: createdAtTimestamp.toDate().toISOString(),
-                            shippedAt: shippedAtTimestamp?.toDate().toISOString(),
-                        } as OrderDocument;
+                        const plainData = convertTimestamps(doc.data());
+                        return { id: doc.id, ...plainData } as OrderDocument;
                     });
                     fetchedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                     setOrders(fetchedOrders);
@@ -91,15 +95,8 @@ export default function MyOrdersPage() {
                 const q = query(collection(firestore, 'orders'), where("customer.email", "==", user.email));
                 const querySnapshot = await getDocs(q);
                 let fetchedOrders = querySnapshot.docs.map(doc => {
-                    const data = doc.data();
-                    const createdAtTimestamp = data.createdAt as Timestamp;
-                    const shippedAtTimestamp = data.shippedAt as Timestamp | undefined;
-                    return {
-                        id: doc.id,
-                        ...data,
-                        createdAt: createdAtTimestamp.toDate().toISOString(),
-                        shippedAt: shippedAtTimestamp?.toDate().toISOString(),
-                    } as OrderDocument
+                    const plainData = convertTimestamps(doc.data());
+                    return { id: doc.id, ...plainData } as OrderDocument;
                 });
                 
                 fetchedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

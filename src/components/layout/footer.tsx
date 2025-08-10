@@ -43,7 +43,7 @@ export default function Footer() {
                 <li><Link href="#" className="hover:text-primary">Sobre Nós</Link></li>
                 <li><Link href="#" className="hover:text-primary">Contato</Link></li>
                 <li><Link href="#" className="hover:text-primary">FAQ</Link></li>
-                <li><Link href="#" className="hover:text-primary">Envio e Devoluções</Link></li>
+                <li><Link href="/dashboard/exchanges" className="hover:text-primary">Trocas e Devoluções</Link></li>
               </ul>
             </div>
             <div>

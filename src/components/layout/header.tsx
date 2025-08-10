@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Menu, Search, Heart, ShoppingCart, User, Brush, ChevronDown, LogOut } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { collections } from '@/lib/mock-data';
@@ -150,12 +150,13 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px] flex flex-col p-0">
-                <div className="p-6 pb-2 border-b">
-                  <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
+                <SheetHeader className="p-6 pb-2 border-b">
+                   <SheetTitle className="sr-only">Menu Principal</SheetTitle>
+                   <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
                     <Brush className="h-8 w-8 text-primary" />
                     <h1 className="text-2xl font-headline font-bold text-primary">Home Designer</h1>
                   </Link>
-                </div>
+                </SheetHeader>
                 <div className="flex-1 overflow-y-auto">
                     <nav className="flex flex-col p-6 gap-1 text-lg">
                     <Accordion type="single" collapsible className="w-full">

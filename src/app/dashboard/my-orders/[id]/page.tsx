@@ -53,18 +53,22 @@ export default function OrderDetailsPage() {
             setLoading(true);
             const result = await getOrderById(orderId);
             if (result.success && result.data) {
-                let orderData = result.data as any;
+                const orderData = result.data as any; // Cast to any to handle Timestamp
                 if (orderData.customer.email !== user.email) {
                     setError('Você não tem permissão para ver este pedido.');
+                    setLoading(false);
                     return;
                 }
                 
-                // A verificação e atualização de status automática será movida para a página de listagem
-                setOrder({
+                // Convert Timestamps to ISO strings
+                const plainOrder = {
                     ...orderData,
+                    id: orderData.id,
                     createdAt: orderData.createdAt.toDate().toISOString(),
-                    shippedAt: orderData.shippedAt?.toDate().toISOString(),
-                });
+                    shippedAt: orderData.shippedAt ? orderData.shippedAt.toDate().toISOString() : undefined,
+                };
+                
+                setOrder(plainOrder);
 
             } else {
                 setError(result.message || 'Pedido não encontrado.');

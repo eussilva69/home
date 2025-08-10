@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
 import { collections, products } from '@/lib/mock-data';
 import Header from '@/components/layout/header';
@@ -21,7 +21,8 @@ const PRODUCTS_PER_PAGE = 20;
 type Product = typeof products[0];
 
 export default function CollectionPage({ params }: { params: { slug: string } }) {
-  const collection = collections.find((c) => c.slug === params.slug);
+  const { slug } = React.use(params);
+  const collection = collections.find((c) => c.slug === slug);
   
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [allCollectionProducts, setAllCollectionProducts] = useState<Product[]>([]);

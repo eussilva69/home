@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { products } from '@/lib/mock-data';
@@ -51,7 +51,8 @@ const frames = {
 };
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const product = products.find((p) => p.id === params.id);
+  const { id } = React.use(params);
+  const product = products.find((p) => p.id === id);
   
   if (!product) {
     notFound();

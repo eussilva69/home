@@ -25,6 +25,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 
+const SITE_URL = 'https://homesdes.netlify.app';
+
 interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   id: string;
   createdAt: string; 
@@ -57,7 +59,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         if (result.success) {
             toast({ title: 'Sucesso', description: 'Código de rastreio salvo e status atualizado.' });
             
-            await fetch("/api/send-email", {
+            await fetch(`${SITE_URL}/api/send-email`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ destinatario: order.customer.email, type: 'orderShipped' }),
@@ -81,7 +83,7 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
             else if (newStatus === 'Cancelado') emailType = 'orderCancelled';
 
             if (emailType) {
-                 await fetch("/api/send-email", {
+                 await fetch(`${SITE_URL}/api/send-email`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ destinatario: order.customer.email, type: emailType }),
@@ -389,5 +391,7 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+    
 
     

@@ -20,6 +20,7 @@ async function validateSignature(req: NextRequest) {
     const parts = signatureHeader.split(',').reduce((acc, part) => {
         const [key, value] = part.split('=');
         acc[key.trim()] = value.trim();
+        return acc[key.trim()] = value.trim();
         return acc;
     }, {} as Record<string, string>);
 
@@ -97,8 +98,7 @@ export async function POST(req: NextRequest) {
 
                     // Enviar e-mail de confirmação
                     if (orderResult.data?.customer?.email) {
-                        // Construir a URL completa para a chamada fetch
-                        const siteUrl = req.nextUrl.origin; 
+                        const siteUrl = 'https://homesdes.netlify.app';
                         await fetch(`${siteUrl}/api/send-email`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -123,3 +123,5 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ status: 'error', message: (error as Error).message }, { status: 500 });
     }
 }
+
+    

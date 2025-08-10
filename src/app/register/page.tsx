@@ -21,6 +21,7 @@ import { auth, firestore } from '@/lib/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
+const SITE_URL = 'https://homesdes.netlify.app';
 
 type FormData = z.infer<typeof registerSchema>;
 
@@ -73,7 +74,7 @@ export default function RegisterPage() {
         });
 
         // 4. Send welcome email by calling the API route
-        await fetch("/api/send-email", {
+        await fetch(`${SITE_URL}/api/send-email`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ destinatario: values.email, type: 'welcome' }),
@@ -217,3 +218,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+    

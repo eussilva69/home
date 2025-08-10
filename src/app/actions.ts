@@ -74,7 +74,7 @@ async function createPreference(input: CreatePreferenceInput) {
                 pending: `${SITE_URL}/checkout`,
             },
             auto_return: 'approved',
-            notification_url: 'https://homesdes.netlify.app/api/webhook',
+            notification_url: `${SITE_URL}/api/webhook`,
         }
     };
 
@@ -440,3 +440,5 @@ export async function requestRefund(data: RefundRequestInput) {
     return { success: false, message: 'Falha ao enviar a solicitação.' };
   }
 }
+
+    

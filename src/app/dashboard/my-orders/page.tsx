@@ -25,15 +25,16 @@ interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   shippedAt?: string;
 }
 
-// Helper function to safely convert Firestore Timestamps
-const convertTimestamps = (data: any) => {
-    const plainObject = { ...data };
-    for (const key in plainObject) {
-        if (plainObject[key] instanceof Timestamp) {
-            plainObject[key] = plainObject[key].toDate().toISOString();
+// Helper to safely convert Firestore Timestamps to ISO strings
+const convertTimestamps = (data: any): any => {
+    if (!data) return data;
+    const convertedData = { ...data };
+    for (const key in convertedData) {
+        if (Object.prototype.hasOwnProperty.call(convertedData, key) && convertedData[key] instanceof Timestamp) {
+            convertedData[key] = convertedData[key].toDate().toISOString();
         }
     }
-    return plainObject;
+    return convertedData;
 };
 
 export default function MyOrdersPage() {
@@ -99,7 +100,12 @@ export default function MyOrdersPage() {
                     return { id: doc.id, ...plainData } as OrderDocument;
                 });
                 
-                fetchedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                fetchedOrders.sort((a, b) => {
+                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                    return dateB - dateA;
+                });
+                
                 setOrders(fetchedOrders);
                 // Check statuses after fetching
                 checkAndUpdateOrderStatus(fetchedOrders);
@@ -196,7 +202,7 @@ export default function MyOrdersPage() {
                                     orders.map(order => (
                                         <TableRow key={order.id} className="cursor-pointer" onClick={() => router.push(`/dashboard/my-orders/${order.id}`)}>
                                             <TableCell className="font-medium">#{order.id.slice(0, 7)}</TableCell>
-                                            <TableCell>{new Date(order.createdAt).toLocaleDateString('pt-BR') ?? 'Data indisponível'}</TableCell>
+                                            <TableCell>{order.createdAt ? new Date(order.createdAt).toLocaleDateString('pt-BR') : 'Data indisponível'}</TableCell>
                                             <TableCell>
                                                 <Badge variant={getBadgeVariant(order.status)}>
                                                     {order.status}
@@ -227,3 +233,5 @@ export default function MyOrdersPage() {
     </div>
   );
 }
+
+    

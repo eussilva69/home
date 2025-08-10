@@ -28,15 +28,16 @@ interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   trackingCode?: string;
 }
 
-// Helper function to safely convert Firestore Timestamps
-const convertTimestamps = (data: any) => {
-    const plainObject = { ...data };
-    for (const key in plainObject) {
-        if (plainObject[key] instanceof Timestamp) {
-            plainObject[key] = plainObject[key].toDate().toISOString();
+// Helper to safely convert Firestore Timestamps to ISO strings
+const convertTimestamps = (data: any): any => {
+    if (!data) return data;
+    const convertedData = { ...data };
+    for (const key in convertedData) {
+        if (Object.prototype.hasOwnProperty.call(convertedData, key) && convertedData[key] instanceof Timestamp) {
+            convertedData[key] = convertedData[key].toDate().toISOString();
         }
     }
-    return plainObject;
+    return convertedData;
 };
 
 
@@ -72,7 +73,6 @@ export default function OrderDetailsPage() {
                     return;
                 }
                 
-                // Safely convert all potential timestamps
                 const plainOrder = convertTimestamps(orderData);
                 setOrder(plainOrder);
 
@@ -229,3 +229,5 @@ export default function OrderDetailsPage() {
     </>
   );
 }
+
+    

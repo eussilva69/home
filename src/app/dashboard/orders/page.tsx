@@ -25,21 +25,23 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 
-interface OrderDocument extends Omit<OrderDetails, 'createdAt'> {
+interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   id: string;
   createdAt: string; 
+  shippedAt?: string;
   trackingCode?: string;
 }
 
-// Helper function to safely convert Firestore Timestamps
-const convertTimestamps = (data: any) => {
-    const plainObject = { ...data };
-    for (const key in plainObject) {
-        if (plainObject[key] instanceof Timestamp) {
-            plainObject[key] = plainObject[key].toDate().toISOString();
+// Helper to safely convert Firestore Timestamps to ISO strings
+const convertTimestamps = (data: any): any => {
+    if (!data) return data;
+    const convertedData = { ...data };
+    for (const key in convertedData) {
+        if (Object.prototype.hasOwnProperty.call(convertedData, key) && convertedData[key] instanceof Timestamp) {
+            convertedData[key] = convertedData[key].toDate().toISOString();
         }
     }
-    return plainObject;
+    return convertedData;
 };
 
 
@@ -271,7 +273,6 @@ export default function OrdersPage() {
             return {
                 id: doc.id,
                 ...plainData,
-                trackingCode: plainData.trackingCode || ''
             } as OrderDocument
           });
           setOrders(fetchedOrders);
@@ -358,7 +359,7 @@ export default function OrdersPage() {
                       orders.map(order => (
                         <Fragment key={order.id}>
                             <TableRow onClick={() => toggleExpand(order.id)} className="cursor-pointer hover:bg-muted/50">
-                                <TableCell>{new Date(order.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                                <TableCell>{order.createdAt ? new Date(order.createdAt).toLocaleDateString('pt-BR') : 'N/A'}</TableCell>
                                 <TableCell>
                                     <div className="font-medium">{`${order.customer.firstName} ${order.customer.lastName}`}</div>
                                     <div className="text-xs text-muted-foreground">{order.customer.email}</div>
@@ -388,3 +389,5 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+    

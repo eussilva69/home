@@ -11,7 +11,7 @@ import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Addres
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
-import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc, deleteDoc, updateDoc, Timestamp } from 'firebase/firestore';
 
 
 // Adicione o Access Token do vendedor
@@ -25,6 +25,18 @@ const client = new MercadoPagoConfig({
 
 const paymentClient = new Payment(client);
 const preferenceClient = new Preference(client);
+
+// Helper to safely convert Firestore Timestamps to ISO strings
+const convertTimestampsInDoc = (data: any) => {
+    if (!data) return data;
+    const convertedData = { ...data };
+    for (const key in convertedData) {
+        if (Object.prototype.hasOwnProperty.call(convertedData, key) && convertedData[key] instanceof Timestamp) {
+            convertedData[key] = convertedData[key].toDate().toISOString();
+        }
+    }
+    return convertedData;
+};
 
 
 // Funções base de comunicação com a API
@@ -318,7 +330,8 @@ export async function getOrderById(orderId: string) {
       const orderRef = doc(firestore, 'orders', orderId);
       const docSnap = await getDoc(orderRef);
       if (docSnap.exists()) {
-        return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
+        const plainData = convertTimestampsInDoc(docSnap.data());
+        return { success: true, data: { id: docSnap.id, ...plainData } };
       }
       return { success: false, message: 'Pedido não encontrado.' };
     } catch (error) {
@@ -344,7 +357,8 @@ export async function getOrderByPaymentId(paymentId: string | number) {
         
         // Retorna o primeiro pedido encontrado (deve haver apenas um)
         const orderDoc = querySnapshot.docs[0];
-        return { success: true, orderId: orderDoc.id, data: orderDoc.data() };
+        const plainData = convertTimestampsInDoc(orderDoc.data());
+        return { success: true, orderId: orderDoc.id, data: plainData };
 
     } catch (error) {
         console.error("Erro ao buscar pedido pelo paymentId:", error);
@@ -440,5 +454,3 @@ export async function requestRefund(data: RefundRequestInput) {
     return { success: false, message: 'Falha ao enviar a solicitação.' };
   }
 }
-
-    

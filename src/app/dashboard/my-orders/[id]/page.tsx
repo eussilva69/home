@@ -17,7 +17,6 @@ import Link from 'next/link';
 import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import { useToast } from '@/hooks/use-toast';
-import { Timestamp } from 'firebase/firestore';
 import RefundRequestDialog from '@/components/dashboard/orders/refund-request-dialog';
 
 
@@ -27,19 +26,6 @@ interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   shippedAt?: string;
   trackingCode?: string;
 }
-
-// Helper to safely convert Firestore Timestamps to ISO strings
-const convertTimestamps = (data: any): any => {
-    if (!data) return data;
-    const convertedData = { ...data };
-    for (const key in convertedData) {
-        if (Object.prototype.hasOwnProperty.call(convertedData, key) && convertedData[key] instanceof Timestamp) {
-            convertedData[key] = convertedData[key].toDate().toISOString();
-        }
-    }
-    return convertedData;
-};
-
 
 export default function OrderDetailsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -72,9 +58,7 @@ export default function OrderDetailsPage() {
                     setLoading(false);
                     return;
                 }
-                
-                const plainOrder = convertTimestamps(orderData);
-                setOrder(plainOrder);
+                setOrder(orderData);
 
             } else {
                 setError(result.message || 'Pedido não encontrado.');
@@ -229,5 +213,3 @@ export default function OrderDetailsPage() {
     </>
   );
 }
-
-    

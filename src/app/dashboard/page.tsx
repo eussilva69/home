@@ -50,7 +50,6 @@ export default function DashboardPage() {
     { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' },
     { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' },
     { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' },
-    { href: '/dashboard/exchanges', label: 'Trocas e devoluções', icon: 'ArrowLeftRight' },
   ];
 
   const isRootDashboard = pathname === '/dashboard';

@@ -42,7 +42,6 @@ export default function OrderDetailsPage() {
     { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' as const },
     { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' as const },
     { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' as const },
-    { href: '/dashboard/exchanges', label: 'Trocas e devoluções', icon: 'ArrowLeftRight' as const },
   ];
 
   const checkAndUpdateStatus = useCallback(async (orderData: any) => {

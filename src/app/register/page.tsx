@@ -21,7 +21,7 @@ import { auth, firestore } from '@/lib/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
-const SITE_URL = 'https://homesdes.netlify.app';
+const SITE_URL = 'https://homedecorinteriores.com';
 
 type FormData = z.infer<typeof registerSchema>;
 

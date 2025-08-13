@@ -25,7 +25,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 
-const SITE_URL = 'https://homesdes.netlify.app';
+const SITE_URL = 'https://homedecorinteriores.com';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   id: string;

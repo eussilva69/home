@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
                     // Enviar e-mail de confirmação
                     if (orderResult.data?.customer?.email) {
-                        const siteUrl = 'https://homesdes.netlify.app';
+                        const siteUrl = 'https://homedecorinteriores.com';
                         await fetch(`${siteUrl}/api/send-email`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },

@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState, Fragment } from 'react';
 import { firestore } from '@/lib/firebase';
-import { collection, onSnapshot, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, Timestamp, doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
@@ -24,7 +24,6 @@ import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import OrderStatusTimeline from '@/components/shared/order-status-timeline';
-import { sendEmail } from '@/lib/nodemailer';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   id: string;
@@ -56,16 +55,6 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         const result = await updateTrackingCode(order.id, trackingCode);
         if (result.success) {
             toast({ title: 'Sucesso', description: 'Código de rastreio salvo e status atualizado.' });
-            
-            await sendEmail({
-                destinatario: order.customer.email, 
-                type: 'orderShipped',
-                data: {
-                    orderId: order.id,
-                    customerName: order.customer.firstName,
-                }
-            });
-
         } else {
             toast({ title: 'Erro', description: result.message, variant: 'destructive' });
         }
@@ -77,25 +66,6 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         const result = await updateOrderStatus(order.id, newStatus);
          if (result.success) {
             toast({ title: 'Sucesso!', description: 'Status do pedido atualizado.' });
-            
-            let emailType = '';
-            if (newStatus === 'Aprovado') emailType = 'orderApproved';
-            else if (newStatus === 'Em separação') emailType = 'orderInSeparation';
-            else if (newStatus === 'A caminho') emailType = 'orderShipped';
-            else if (newStatus === 'Entregue') emailType = 'orderDelivered';
-            else if (newStatus === 'Cancelado') emailType = 'orderCancelled';
-
-            if (emailType) {
-                await sendEmail({
-                    destinatario: order.customer.email,
-                    type: emailType,
-                    data: {
-                        orderId: order.id,
-                        customerName: order.customer.firstName
-                    }
-                });
-            }
-
         } else {
             toast({ title: 'Erro', description: result.message, variant: 'destructive' });
         }

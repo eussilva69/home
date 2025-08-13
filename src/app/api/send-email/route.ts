@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/nodemailer';
 
 export async function POST(req: NextRequest) {
+  // This endpoint is kept for potential future client-side use,
+  // but primary email logic is now in server actions.
   if (req.method !== 'POST') {
     return NextResponse.json({ message: 'Método não permitido' }, { status: 405 });
   }

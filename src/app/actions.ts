@@ -379,6 +379,21 @@ export async function updateTrackingCode(orderId: string, trackingCode: string) 
             status: 'A caminho',
             shippedAt: serverTimestamp()
         });
+
+        // Get updated order data to send email
+        const orderSnap = await getDoc(orderRef);
+        if (orderSnap.exists()) {
+            const orderData = orderSnap.data() as OrderDetails;
+            await sendEmail({
+                destinatario: orderData.customer.email, 
+                type: 'orderShipped',
+                data: {
+                    orderId: orderId,
+                    customerName: orderData.customer.firstName,
+                }
+            });
+        }
+        
         return { success: true };
     } catch (error) {
         console.error("Erro ao atualizar código de rastreio:", error);
@@ -386,16 +401,46 @@ export async function updateTrackingCode(orderId: string, trackingCode: string) 
     }
 }
 
-export async function updateOrderStatus(orderId: string, status: string) {
+export async function updateOrderStatus(orderId: string, newStatus: string) {
     try {
         const orderRef = doc(firestore, 'orders', orderId);
-        await updateDoc(orderRef, { status: status });
+        await updateDoc(orderRef, { status: newStatus });
+
+        // Get updated order data to send email
+        const orderSnap = await getDoc(orderRef);
+        if (!orderSnap.exists()) {
+            return { success: false, message: "Pedido não encontrado após atualização." };
+        }
+        
+        const orderData = orderSnap.data() as OrderDetails;
+        let emailType = '';
+
+        switch (newStatus) {
+            case 'Aprovado': emailType = 'orderApproved'; break;
+            case 'Em separação': emailType = 'orderInSeparation'; break;
+            case 'A caminho': emailType = 'orderShipped'; break;
+            case 'Entregue': emailType = 'orderDelivered'; break;
+            case 'Cancelado': emailType = 'orderCancelled'; break;
+        }
+
+        if (emailType) {
+            await sendEmail({
+                destinatario: orderData.customer.email,
+                type: emailType,
+                data: {
+                    orderId: orderId,
+                    customerName: orderData.customer.firstName
+                }
+            });
+        }
+
         return { success: true };
     } catch (error) {
         console.error("Erro ao atualizar status do pedido:", error);
         return { success: false, message: "Falha ao atualizar o status do pedido." };
     }
 }
+
 
 export async function clearAllOrders() {
     try {

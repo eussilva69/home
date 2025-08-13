@@ -15,10 +15,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getProductById, updateProduct, uploadImage } from '@/app/actions';
+import { getProductById, updateProduct } from '@/app/actions';
 import type { Product } from '@/lib/schemas';
 import { productUpdateSchema, type ProductUpdatePayload } from '@/lib/schemas';
 import NextImage from 'next/image';
+
+const IMG_UPLOAD_KEY = "7ecf5602b8f3c01d2df1b966c1d018af";
 
 const ImageUploadField = ({
   label,
@@ -114,22 +116,31 @@ export default function EditProductPage() {
     const formData = new FormData();
     formData.append("image", file);
 
-    const result = await uploadImage(formData);
-    
-    if (result.success && result.url) {
-      if (fieldName.startsWith('imagesByColor.')) {
-        const color = fieldName.split('.')[1];
-        const currentImagesByColor = form.getValues('imagesByColor') || {};
-        form.setValue('imagesByColor', {...currentImagesByColor, [color]: result.url });
-      } else {
-        form.setValue(fieldName as keyof ProductUpdatePayload, result.url);
-      }
-      toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
-    } else {
-      toast({ variant: 'destructive', title: 'Erro de Upload', description: result.message });
+    try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_UPLOAD_KEY}`, {
+            method: "POST",
+            body: formData,
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            const imageUrl = data.data.url;
+            if (fieldName.startsWith('imagesByColor.')) {
+                const color = fieldName.split('.')[1];
+                const currentImagesByColor = form.getValues('imagesByColor') || {};
+                form.setValue('imagesByColor', {...currentImagesByColor, [color]: imageUrl });
+            } else {
+                form.setValue(fieldName as keyof ProductUpdatePayload, imageUrl);
+            }
+            toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
+        } else {
+            throw new Error(data.error.message || "Erro desconhecido da API de imagem.");
+        }
+    } catch (error: any) {
+         toast({ variant: 'destructive', title: 'Erro de Upload', description: error.message || "Falha no upload da imagem." });
+    } finally {
+        setIsUploading(prev => ({...prev, [fieldId]: false}));
     }
-    
-    setIsUploading(prev => ({...prev, [fieldId]: false}));
   };
 
 

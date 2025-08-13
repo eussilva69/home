@@ -515,21 +515,3 @@ export async function updateProduct(productId: string, data: ProductUpdatePayloa
         return { success: false, message: 'Falha ao atualizar o produto.' };
     }
 }
-
-export async function uploadImage(formData: FormData): Promise<{ success: boolean; url?: string; message?: string }> {
-    try {
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_UPLOAD_KEY}`, {
-            method: "POST",
-            body: formData,
-        });
-        const data = await response.json();
-        if (data.success) {
-            return { success: true, url: data.data.url };
-        } else {
-            throw new Error(data.error.message || "Erro desconhecido da API de imagem.");
-        }
-    } catch (error: any) {
-        console.error("Erro no upload:", error);
-        return { success: false, message: error.message || "Falha no upload da imagem." };
-    }
-}

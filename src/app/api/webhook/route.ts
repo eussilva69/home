@@ -1,15 +1,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getPaymentStatus, getOrderByPaymentId, updateOrderStatus } from '@/app/actions';
+import { sendEmail } from '@/lib/nodemailer';
 import crypto from 'crypto';
 
-// Função para introduzir um atraso
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Sua chave secreta do webhook do Mercado Pago
 const WEBHOOK_SECRET = "507bc239502ea3a50de881b7de226e10adb6434c19078bfa0dac35322c8bcdc6";
 
-// Função para validar a assinatura do Mercado Pago
 async function validateSignature(req: NextRequest) {
     const signatureHeader = req.headers.get('x-signature');
     if (!signatureHeader) {
@@ -20,7 +17,6 @@ async function validateSignature(req: NextRequest) {
     const parts = signatureHeader.split(',').reduce((acc, part) => {
         const [key, value] = part.split('=');
         acc[key.trim()] = value.trim();
-        return acc[key.trim()] = value.trim();
         return acc;
     }, {} as Record<string, string>);
 
@@ -32,10 +28,8 @@ async function validateSignature(req: NextRequest) {
         return false;
     }
 
-    const searchParams = req.nextUrl.searchParams;
-    // O corpo precisa ser lido como texto bruto para a validação da assinatura
     const bodyText = await req.text(); 
-    
+    const searchParams = new URL(req.url).searchParams;
     const manifest = `id:${searchParams.get('data.id')};request-id:${req.headers.get('x-request-id')};ts:${ts};${bodyText}`;
 
     const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET);
@@ -50,14 +44,11 @@ async function validateSignature(req: NextRequest) {
     return true;
 }
 
-
 export async function POST(req: NextRequest) {
-    // Clonamos a requisição para poder ler o corpo múltiplas vezes se necessário
     const reqCloneForValidation = req.clone();
     const reqCloneForBodyParsing = req.clone();
 
     try {
-        // 1. Validar a assinatura primeiro com o corpo de texto bruto
         const isSignatureValid = await validateSignature(reqCloneForValidation);
         if (!isSignatureValid) {
             console.warn('[Webhook Security] Assinatura inválida. Requisição rejeitada.');
@@ -65,9 +56,7 @@ export async function POST(req: NextRequest) {
         }
         console.log('[Webhook Security] Assinatura validada com sucesso.');
 
-        // 2. Prosseguir com a lógica do webhook, agora fazendo o parse do JSON
         const body = await reqCloneForBodyParsing.json().catch(() => ({})); 
-        
         const topic = body.topic || body.type;
         const paymentId = body.data?.id;
 
@@ -84,28 +73,41 @@ export async function POST(req: NextRequest) {
                 
                 let orderResult = await getOrderByPaymentId(paymentId);
                 
-                // Lógica de espera para o caso da webhook chegar antes do pedido ser salvo
                 if (!orderResult.success) {
                     console.warn(`[Webhook] Pedido para o pagamento ${paymentId} não encontrado na 1ª tentativa. Tentando novamente em 3 segundos...`);
                     await delay(3000); 
                     orderResult = await getOrderByPaymentId(paymentId);
                 }
 
-                if (orderResult.success && orderResult.orderId) {
+                if (orderResult.success && orderResult.orderId && orderResult.data) {
+                    const orderData = orderResult.data;
                     console.log(`[Webhook] Pedido ${orderResult.orderId} encontrado! Atualizando status para 'Aprovado'.`);
                     
                     await updateOrderStatus(orderResult.orderId, 'Aprovado');
 
-                    // Enviar e-mail de confirmação
-                    if (orderResult.data?.customer?.email) {
-                        const siteUrl = 'https://homedecorinteriores.com';
-                        await fetch(`${siteUrl}/api/send-email`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ destinatario: orderResult.data.customer.email, type: 'orderApproved' }),
+                    // Enviar e-mail de confirmação para o cliente
+                    if (orderData.customer?.email) {
+                        await sendEmail({
+                            destinatario: orderData.customer.email,
+                            type: 'orderApproved',
+                            data: {
+                                orderId: orderResult.orderId,
+                                customerName: orderData.customer.firstName,
+                            }
                         });
-                         console.log(`[Webhook] E-mail de confirmação enviado para ${orderResult.data.customer.email}.`);
                     }
+
+                    // Enviar e-mail de notificação para o admin
+                    await sendEmail({
+                        destinatario: 'vvatassi@gmail.com',
+                        type: 'newSaleAdmin',
+                        data: {
+                            orderId: orderResult.orderId,
+                            customerName: `${orderData.customer.firstName} ${orderData.customer.lastName}`,
+                            total: orderData.payment.total,
+                            items: orderData.items,
+                        }
+                    });
                     
                     console.log(`[Webhook] Pedido ${orderResult.orderId} processado com sucesso.`);
                 } else {
@@ -123,5 +125,3 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ status: 'error', message: (error as Error).message }, { status: 500 });
     }
 }
-
-    

@@ -24,8 +24,7 @@ import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import OrderStatusTimeline from '@/components/shared/order-status-timeline';
-
-const SITE_URL = 'https://homedecorinteriores.com';
+import { sendEmail } from '@/lib/nodemailer';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   id: string;
@@ -34,7 +33,6 @@ interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
   trackingCode?: string;
 }
 
-// Helper to safely convert Firestore Timestamps to ISO strings
 const convertTimestamps = (data: any): any => {
     if (!data) return data;
     const convertedData = { ...data };
@@ -59,10 +57,13 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
         if (result.success) {
             toast({ title: 'Sucesso', description: 'Código de rastreio salvo e status atualizado.' });
             
-            await fetch(`${SITE_URL}/api/send-email`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ destinatario: order.customer.email, type: 'orderShipped' }),
+            await sendEmail({
+                destinatario: order.customer.email, 
+                type: 'orderShipped',
+                data: {
+                    orderId: order.id,
+                    customerName: order.customer.firstName,
+                }
             });
 
         } else {
@@ -83,10 +84,13 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
             else if (newStatus === 'Cancelado') emailType = 'orderCancelled';
 
             if (emailType) {
-                 await fetch(`${SITE_URL}/api/send-email`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ destinatario: order.customer.email, type: emailType }),
+                await sendEmail({
+                    destinatario: order.customer.email,
+                    type: emailType,
+                    data: {
+                        orderId: order.id,
+                        customerName: order.customer.firstName
+                    }
                 });
             }
 
@@ -236,11 +240,13 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
                                                 <SelectValue placeholder="Selecione o status" />
                                             </SelectTrigger>
                                             <SelectContent>
+                                                <SelectItem value="Pendente">Pendente</SelectItem>
                                                 <SelectItem value="Aprovado">Aprovado</SelectItem>
                                                 <SelectItem value="Em separação">Em separação</SelectItem>
                                                 <SelectItem value="A caminho">A caminho</SelectItem>
                                                 <SelectItem value="Entregue">Entregue</SelectItem>
                                                 <SelectItem value="Cancelado">Cancelado</SelectItem>
+                                                <SelectItem value="Devolução Solicitada">Devolução Solicitada</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -395,4 +401,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-

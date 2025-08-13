@@ -12,6 +12,7 @@ import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
 import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc, deleteDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { sendEmail } from '@/lib/nodemailer';
 
 
 // Adicione o Access Token do vendedor
@@ -120,10 +121,9 @@ export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'cre
     try {
         const ordersCollectionRef = collection(firestore, 'orders');
 
-        // Calcula as dimensões totais do pacote
         const totalWeight = orderDetails.items.reduce((acc, item) => acc + (item.weight * item.quantity), 0);
         const maxHeight = Math.max(...orderDetails.items.map(item => item.height));
-        const totalWidth = orderDetails.items.reduce((acc, item) => acc + (item.width * item.quantity), 0); // Empilhamento lado a lado
+        const totalWidth = orderDetails.items.reduce((acc, item) => acc + (item.width * item.quantity), 0);
         const maxLength = Math.max(...orderDetails.items.map(item => item.length));
 
 
@@ -137,10 +137,21 @@ export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'cre
                 length: maxLength,
             },
             createdAt: serverTimestamp(),
-            status: 'Pendente' // Inicia como pendente até o webhook confirmar
+            status: 'Pendente'
         };
 
         const docRef = await addDoc(ordersCollectionRef, finalOrderDetails);
+        
+        await sendEmail({
+          destinatario: finalOrderDetails.customer.email,
+          type: 'orderPendingPayment',
+          data: {
+            orderId: docRef.id,
+            customerName: finalOrderDetails.customer.firstName,
+            total: finalOrderDetails.payment.total,
+          },
+        });
+
         return { success: true, orderId: docRef.id };
     } catch (error: any) {
         console.error("Erro ao salvar pedido no Firestore:", error);
@@ -233,7 +244,6 @@ export async function addOrUpdateAddress(userId: string, address: Address) {
         
         let addressId = address.id;
         
-        // Se for um novo endereço principal, desmarca os outros
         if (address.isDefault) {
             const q = query(addressesRef, where("isDefault", "==", true));
             const querySnapshot = await getDocs(q);
@@ -245,12 +255,10 @@ export async function addOrUpdateAddress(userId: string, address: Address) {
         }
 
         if (addressId) {
-            // Atualiza endereço existente
             const addressRef = doc(addressesRef, addressId);
             await setDoc(addressRef, { ...address, id: addressId }, { merge: true });
         } else {
-            // Adiciona novo endereço
-            const newAddressRef = doc(addressesRef); // Gera ID automaticamente
+            const newAddressRef = doc(addressesRef);
             addressId = newAddressRef.id;
             await setDoc(newAddressRef, { ...address, id: addressId });
         }
@@ -292,14 +300,12 @@ export async function setDefaultAddress(userId: string, addressId: string) {
     const batch = writeBatch(firestore);
 
     try {
-        // Remove 'isDefault' de qualquer outro endereço
         const q = query(addressesRef, where("isDefault", "==", true));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach(doc => {
             batch.update(doc.ref, { isDefault: false });
         });
 
-        // Define o novo endereço como padrão
         const newDefaultRef = doc(addressesRef, addressId);
         batch.update(newDefaultRef, { isDefault: true });
 
@@ -311,7 +317,6 @@ export async function setDefaultAddress(userId: string, addressId: string) {
     }
 }
 
-// Função para buscar usuário no Firestore
 export async function getUserData(userId: string) {
     try {
         const userDocRef = doc(firestore, 'users', userId);
@@ -326,7 +331,6 @@ export async function getUserData(userId: string) {
     }
 }
 
-// Função para buscar um pedido específico
 export async function getOrderById(orderId: string) {
     try {
       const orderRef = doc(firestore, 'orders', orderId);
@@ -342,7 +346,6 @@ export async function getOrderById(orderId: string) {
     }
 }
 
-// Função para buscar um pedido pelo ID do pagamento do Mercado Pago
 export async function getOrderByPaymentId(paymentId: string | number) {
     try {
         const numPaymentId = Number(paymentId);
@@ -357,7 +360,6 @@ export async function getOrderByPaymentId(paymentId: string | number) {
             return { success: false, message: 'Nenhum pedido encontrado para este ID de pagamento.' };
         }
         
-        // Retorna o primeiro pedido encontrado (deve haver apenas um)
         const orderDoc = querySnapshot.docs[0];
         const plainData = convertTimestampsInDoc(orderDoc.data());
         return { success: true, orderId: orderDoc.id, data: plainData };
@@ -369,14 +371,13 @@ export async function getOrderByPaymentId(paymentId: string | number) {
 }
 
 
-// Função para atualizar o código de rastreio e o status
 export async function updateTrackingCode(orderId: string, trackingCode: string) {
     try {
         const orderRef = doc(firestore, 'orders', orderId);
         await updateDoc(orderRef, { 
             trackingCode: trackingCode,
-            status: 'A caminho', // Atualiza o status automaticamente
-            shippedAt: serverTimestamp() // Salva a data de envio
+            status: 'A caminho',
+            shippedAt: serverTimestamp()
         });
         return { success: true };
     } catch (error) {
@@ -385,7 +386,6 @@ export async function updateTrackingCode(orderId: string, trackingCode: string) 
     }
 }
 
-// Função para atualizar apenas o status do pedido
 export async function updateOrderStatus(orderId: string, status: string) {
     try {
         const orderRef = doc(firestore, 'orders', orderId);
@@ -423,30 +423,19 @@ export async function requestRefund(data: RefundRequestInput) {
   try {
     const { orderId, reason, customerEmail, photoUrls } = data;
 
-    // 1. Atualizar o status do pedido no Firestore
     const orderRef = doc(firestore, 'orders', orderId);
     await updateDoc(orderRef, { status: 'Devolução Solicitada' });
 
-    // 2. Enviar e-mail de notificação para o administrador
-    await fetch(`${SITE_URL}/api/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            type: 'refundRequestAdmin',
-            destinatario: 'vvatassi@gmail.com',
-            data: { orderId, reason, customerEmail, photoUrls },
-        }),
+    await sendEmail({
+        type: 'refundRequestAdmin',
+        destinatario: 'vvatassi@gmail.com',
+        data: { orderId, reason, customerEmail, photoUrls },
     });
 
-    // 3. Enviar e-mail de confirmação para o cliente
-    await fetch(`${SITE_URL}/api/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            type: 'refundRequestCustomer',
-            destinatario: customerEmail,
-            data: { orderId },
-        }),
+    await sendEmail({
+        type: 'refundRequestCustomer',
+        destinatario: customerEmail,
+        data: { orderId },
     });
 
     return { success: true, message: "Solicitação de devolução enviada com sucesso!" };
@@ -457,7 +446,6 @@ export async function requestRefund(data: RefundRequestInput) {
   }
 }
 
-// Funções de Gerenciamento de Produto
 export async function getProductById(productId: string) {
     try {
       const productRef = doc(firestore, 'products', productId);

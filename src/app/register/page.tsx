@@ -20,8 +20,7 @@ import Footer from '@/components/layout/footer';
 import { auth, firestore } from '@/lib/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-
-const SITE_URL = 'https://homedecorinteriores.com';
+import { sendEmail } from '@/lib/nodemailer';
 
 type FormData = z.infer<typeof registerSchema>;
 
@@ -56,14 +55,11 @@ export default function RegisterPage() {
     setSuccess(null);
     startTransition(async () => {
       try {
-        // 1. Create user in Firebase Auth
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
         const user = userCredential.user;
 
-        // 2. Update user profile with name
         await updateProfile(user, { displayName: values.name });
 
-        // 3. Save user data to Firestore
         const userDocRef = doc(firestore, "users", user.uid);
         await setDoc(userDocRef, {
             uid: user.uid,
@@ -72,12 +68,11 @@ export default function RegisterPage() {
             cpf: values.cpf,
             createdAt: serverTimestamp()
         });
-
-        // 4. Send welcome email by calling the API route
-        await fetch(`${SITE_URL}/api/send-email`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ destinatario: values.email, type: 'welcome' }),
+        
+        await sendEmail({
+            destinatario: values.email,
+            type: 'welcome',
+            data: { customerName: values.name }
         });
 
         setSuccess("Conta criada com sucesso! Redirecionando para o login...");
@@ -218,5 +213,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-    

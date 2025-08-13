@@ -154,7 +154,12 @@ export default function EditProductPage() {
     }
   };
   
-  const frameColors = ['black', 'white', 'hazel_oak', 'ebony_oak'];
+  const frameColors: Record<string, string> = {
+    black: 'Preta',
+    white: 'Branca',
+    hazel_oak: 'Carvalho Avelã',
+    ebony_oak: 'Carvalho Ébano',
+  };
 
   if (authLoading || loading || !product) {
     return (
@@ -225,13 +230,13 @@ export default function EditProductPage() {
                         <CardDescription>Envie uma imagem para cada variação de cor da moldura.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {frameColors.map(color => (
+                        {Object.entries(frameColors).map(([colorKey, colorName]) => (
                              <ImageUploadField
-                                key={color}
-                                label={`Moldura ${color.replace('_', ' ')}`}
-                                currentImageUrl={form.watch(`imagesByColor.${color}`)}
-                                onImageUpload={(file) => handleImageUpload(file, `imagesByColor.${color}`)}
-                                isUploading={isUploading[`imagesByColor.${color}`]}
+                                key={colorKey}
+                                label={`Moldura ${colorName}`}
+                                currentImageUrl={form.watch(`imagesByColor.${colorKey}`)}
+                                onImageUpload={(file) => handleImageUpload(file, `imagesByColor.${colorKey}`)}
+                                isUploading={isUploading[`imagesByColor.${colorKey}`]}
                             />
                         ))}
                     </CardContent>
@@ -252,4 +257,3 @@ export default function EditProductPage() {
     </div>
   );
 }
-

@@ -22,7 +22,7 @@ import type { Product } from '@/lib/schemas';
 const PRODUCTS_PER_PAGE = 20;
 
 export default function CollectionPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+  const { slug } = React.use(params);
   const collection = collections.find((c) => c.slug === slug);
   
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);

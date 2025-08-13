@@ -25,7 +25,7 @@ export async function sendEmail({ destinatario, type, data }: SendEmailParams) {
     const { subject, htmlContent } = getEmailContent({ type, data });
 
     if (!subject || !htmlContent) {
-      throw new Error('Tipo de e-mail inválido ou conteúdo não encontrado.');
+      throw new Error(`Tipo de e-mail inválido ou conteúdo não encontrado: ${type}`);
     }
 
     const mailOptions: nodemailer.SendMailOptions = {

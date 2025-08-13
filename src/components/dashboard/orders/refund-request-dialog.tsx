@@ -22,6 +22,7 @@ type RefundRequestDialogProps = {
     onOpenChange: (open: boolean) => void;
     orderId: string;
     customerEmail: string;
+    customerName: string;
     onSuccess: () => void;
 };
 
@@ -44,7 +45,7 @@ async function uploadImages(files: FileList): Promise<string[]> {
     return Promise.all(uploadPromises);
 }
 
-export default function RefundRequestDialog({ isOpen, onOpenChange, orderId, customerEmail, onSuccess }: RefundRequestDialogProps) {
+export default function RefundRequestDialog({ isOpen, onOpenChange, orderId, customerEmail, customerName, onSuccess }: RefundRequestDialogProps) {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -68,6 +69,7 @@ export default function RefundRequestDialog({ isOpen, onOpenChange, orderId, cus
             const result = await requestRefund({
                 orderId,
                 customerEmail,
+                customerName,
                 reason: data.reason,
                 photoUrls,
             });

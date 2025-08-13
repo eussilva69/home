@@ -435,7 +435,7 @@ export async function requestRefund(data: RefundRequestInput) {
     await sendEmail({
         type: 'refundRequestCustomer',
         destinatario: customerEmail,
-        data: { orderId },
+        data: { orderId, customerName: data.customerName },
     });
 
     return { success: true, message: "Solicitação de devolução enviada com sucesso!" };

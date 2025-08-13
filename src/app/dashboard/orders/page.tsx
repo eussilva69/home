@@ -79,7 +79,9 @@ const OrderDetailRow = ({ order, colSpan }: { order: OrderDocument; colSpan: num
             toast({ title: 'Sucesso!', description: 'Status do pedido atualizado.' });
             
             let emailType = '';
-            if (newStatus === 'A caminho') emailType = 'orderShipped';
+            if (newStatus === 'Aprovado') emailType = 'orderApproved';
+            else if (newStatus === 'Em separação') emailType = 'orderInSeparation';
+            else if (newStatus === 'A caminho') emailType = 'orderShipped';
             else if (newStatus === 'Entregue') emailType = 'orderDelivered';
             else if (newStatus === 'Cancelado') emailType = 'orderCancelled';
 

@@ -187,5 +187,6 @@ export type RefundRequestInput = {
     orderId: string;
     reason: string;
     customerEmail: string;
+    customerName: string;
     photoUrls: string[];
 };

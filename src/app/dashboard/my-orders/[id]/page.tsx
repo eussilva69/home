@@ -4,11 +4,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { getOrderById, updateOrderStatus, requestRefund } from '@/app/actions';
+import { getOrderById, requestRefund } from '@/app/actions';
 import type { OrderDetails } from '@/lib/schemas';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import { Loader2, Package, User, MapPin, Undo2 } from 'lucide-react';
+import { Loader2, Package, User, Undo2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import OrderStatusTimeline from '@/components/shared/order-status-timeline';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { useToast } from '@/hooks/use-toast';
 import RefundRequestDialog from '@/components/dashboard/orders/refund-request-dialog';
 
 
@@ -32,7 +31,6 @@ export default function OrderDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const orderId = params.id as string;
-  const { toast } = useToast();
 
   const [order, setOrder] = useState<OrderDocument | null>(null);
   const [loading, setLoading] = useState(true);
@@ -207,6 +205,7 @@ export default function OrderDetailsPage() {
             onOpenChange={setIsRefundDialogOpen}
             orderId={order.id}
             customerEmail={user.email || ''}
+            customerName={order.customer.firstName}
             onSuccess={handleRefundSuccess}
         />
      )}

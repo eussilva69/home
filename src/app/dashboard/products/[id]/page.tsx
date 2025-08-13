@@ -111,7 +111,10 @@ export default function EditProductPage() {
     const fieldId = fieldName.toString();
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
-    const result = await uploadImage(file);
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const result = await uploadImage(formData);
     
     if (result.success && result.url) {
       if (fieldName.startsWith('imagesByColor.')) {

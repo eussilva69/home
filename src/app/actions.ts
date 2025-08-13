@@ -516,10 +516,7 @@ export async function updateProduct(productId: string, data: ProductUpdatePayloa
     }
 }
 
-export async function uploadImage(file: File): Promise<{ success: boolean; url?: string; message?: string }> {
-    const formData = new FormData();
-    formData.append("image", file);
-
+export async function uploadImage(formData: FormData): Promise<{ success: boolean; url?: string; message?: string }> {
     try {
         const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_UPLOAD_KEY}`, {
             method: "POST",

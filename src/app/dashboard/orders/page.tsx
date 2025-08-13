@@ -294,10 +294,14 @@ export default function OrdersPage() {
     switch (status) {
         case 'Entregue': return 'default';
         case 'A caminho': return 'secondary';
-        case 'Cancelado': return 'destructive';
+        case 'Cancelado': 
+        case 'Devolução Solicitada':
+            return 'destructive';
         case 'Aprovado': return 'warning';
-        case 'Em separação': return 'outline';
-        default: return 'secondary';
+        case 'Em separação': 
+        case 'Pendente':
+            return 'outline';
+        default: return 'outline';
     }
   }
 
@@ -391,3 +395,4 @@ export default function OrdersPage() {
     </div>
   );
 }
+

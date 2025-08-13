@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Link from 'next/link';
 
 
 export default function ProductsPage() {
@@ -129,9 +130,11 @@ export default function ProductsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Produtos</CardTitle>
-                <Button disabled>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Adicionar Produto
+                <Button asChild>
+                  <Link href="/dashboard/products/new">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Adicionar Produto
+                  </Link>
                 </Button>
               </CardHeader>
               <CardContent>

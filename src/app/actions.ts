@@ -7,7 +7,7 @@ import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import type { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types';
 import type { PreferenceCreateData, PreferenceItem } from 'mercadopago/dist/clients/preference/create/types';
 import { randomUUID } from 'crypto';
-import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address, RefundRequestInput, ProductUpdatePayload, Product } from '@/lib/schemas';
+import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address, RefundRequestInput, ProductUpdatePayload, Product, NewProductPayload } from '@/lib/schemas';
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
@@ -380,7 +380,6 @@ export async function updateTrackingCode(orderId: string, trackingCode: string) 
             shippedAt: serverTimestamp()
         });
 
-        // Get updated order data to send email
         const orderSnap = await getDoc(orderRef);
         if (orderSnap.exists()) {
             const orderData = orderSnap.data() as OrderDetails;
@@ -406,7 +405,6 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
         const orderRef = doc(firestore, 'orders', orderId);
         await updateDoc(orderRef, { status: newStatus });
 
-        // Get updated order data to send email
         const orderSnap = await getDoc(orderRef);
         if (!orderSnap.exists()) {
             return { success: false, message: "Pedido não encontrado após atualização." };
@@ -539,5 +537,20 @@ export async function deleteProduct(productId: string) {
     } catch (error) {
         console.error("Erro ao excluir produto:", error);
         return { success: false, message: 'Falha ao excluir o produto.' };
+    }
+}
+
+export async function addProduct(data: NewProductPayload) {
+    try {
+        const newDocRef = doc(collection(firestore, 'products'));
+        const newProduct = {
+            ...data,
+            id: newDocRef.id,
+        };
+        await setDoc(newDocRef, newProduct);
+        return { success: true, message: 'Produto adicionado com sucesso!', productId: newDocRef.id };
+    } catch (error) {
+        console.error("Erro ao adicionar produto:", error);
+        return { success: false, message: 'Falha ao adicionar o produto.' };
     }
 }

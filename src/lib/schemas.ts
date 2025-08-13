@@ -190,3 +190,19 @@ export type RefundRequestInput = {
     customerName: string;
     photoUrls: string[];
 };
+
+export const newProductSchema = z.object({
+  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
+  price: z.number().min(0, "O preço não pode ser negativo."),
+  category: z.string().min(1, "A categoria é obrigatória."),
+  arrangement: z.string().min(1, "O arranjo é obrigatório."),
+  image: z.string().url("URL da imagem principal é obrigatória."),
+  image_alt: z.string().url("URL da imagem de ambiente é obrigatória."),
+  artwork_image: z.string().url("URL da arte original é obrigatória."),
+  imagesByColor: z.record(z.string().url()).refine(obj => Object.keys(obj).length > 0, {
+    message: "Pelo menos uma imagem de moldura é obrigatória.",
+  }),
+  hint: z.string().optional().default(''),
+  hint_alt: z.string().optional().default(''),
+});
+export type NewProductPayload = z.infer<typeof newProductSchema>;

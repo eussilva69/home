@@ -7,7 +7,7 @@ import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import type { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types';
 import type { PreferenceCreateData, PreferenceItem } from 'mercadopago/dist/clients/preference/create/types';
 import { randomUUID } from 'crypto';
-import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address, RefundRequestInput } from '@/lib/schemas';
+import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address, RefundRequestInput, ProductUpdatePayload } from '@/lib/schemas';
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
@@ -17,6 +17,8 @@ import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, 
 // Adicione o Access Token do vendedor
 const MERCADO_PAGO_ACCESS_TOKEN = 'APP_USR-669430014263398-080114-d9ae331ae39f4d3412d982254159a3ac-1118229328';
 const SITE_URL = 'https://homesdes.netlify.app';
+const IMG_UPLOAD_KEY = "7ecf5602b8f3c01d2df1b966c1d018af";
+
 
 const client = new MercadoPagoConfig({ 
     accessToken: MERCADO_PAGO_ACCESS_TOKEN,
@@ -453,4 +455,51 @@ export async function requestRefund(data: RefundRequestInput) {
     console.error("Erro ao processar solicitação de devolução:", error);
     return { success: false, message: 'Falha ao enviar a solicitação.' };
   }
+}
+
+// Funções de Gerenciamento de Produto
+export async function getProductById(productId: string) {
+    try {
+      const productRef = doc(firestore, 'products', productId);
+      const docSnap = await getDoc(productRef);
+      if (docSnap.exists()) {
+        return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
+      }
+      return { success: false, message: 'Produto não encontrado.' };
+    } catch (error) {
+      console.error('Erro ao buscar produto:', error);
+      return { success: false, message: 'Erro ao buscar dados do produto.' };
+    }
+}
+
+export async function updateProduct(productId: string, data: ProductUpdatePayload) {
+    try {
+        const productRef = doc(firestore, 'products', productId);
+        await updateDoc(productRef, data);
+        return { success: true, message: 'Produto atualizado com sucesso!' };
+    } catch (error) {
+        console.error("Erro ao atualizar produto:", error);
+        return { success: false, message: 'Falha ao atualizar o produto.' };
+    }
+}
+
+export async function uploadImage(file: File): Promise<{ success: boolean; url?: string; message?: string }> {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_UPLOAD_KEY}`, {
+            method: "POST",
+            body: formData,
+        });
+        const data = await response.json();
+        if (data.success) {
+            return { success: true, url: data.data.url };
+        } else {
+            throw new Error(data.error.message || "Erro desconhecido da API de imagem.");
+        }
+    } catch (error: any) {
+        console.error("Erro no upload:", error);
+        return { success: false, message: error.message || "Falha no upload da imagem." };
+    }
 }

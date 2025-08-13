@@ -162,8 +162,20 @@ export const ProductSchema = z.object({
   hint_alt: z.string(),
   category: z.string(),
   arrangement: z.string(),
+  imagesByColor: z.record(z.string()).optional(),
 });
 export type Product = z.infer<typeof ProductSchema>;
+
+export const productUpdateSchema = z.object({
+  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
+  price: z.number().min(0, "O preço não pode ser negativo."),
+  image: z.string().url("URL da imagem principal inválida.").optional(),
+  image_alt: z.string().url("URL da imagem de ambiente inválida.").optional(),
+  artwork_image: z.string().url("URL da arte original inválida.").optional(),
+  imagesByColor: z.record(z.string().url("URL da imagem de moldura inválida.")).optional(),
+});
+export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
+
 
 export const refundRequestSchema = z.object({
   orderId: z.string(),

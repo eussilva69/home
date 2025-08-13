@@ -26,21 +26,21 @@ export default function ProductCard({ product }: ProductCardProps) {
       <CardContent className="p-0">
         <Link href={`/product/${product.id}`} className="block relative aspect-[4/5] bg-secondary/30">
           <Image
-            src={product.image_alt}
-            alt={`'${product.name}' in a room`}
-            data-ai-hint={product.hint_alt}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
-            style={{ objectFit: 'cover' }}
-            className="transition-opacity duration-300 group-hover:opacity-0"
-          />
-          <Image
             src={product.image}
             alt={product.name}
             data-ai-hint={product.hint}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
             style={{ objectFit: 'contain' }}
+            className="transition-opacity duration-300 group-hover:opacity-0"
+          />
+          <Image
+            src={product.image_alt}
+            alt={`'${product.name}' in a room`}
+            data-ai-hint={product.hint_alt}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
+            style={{ objectFit: 'cover' }}
             className="opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           />
           <div className="absolute bottom-2 left-2 right-2 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:hidden">

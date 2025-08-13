@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { firestore } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { useAuth } from '@/hooks/use-auth';
@@ -9,20 +9,24 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { Loader2, PlusCircle } from 'lucide-react';
+import { Loader2, PlusCircle, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Product } from '@/lib/schemas';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { collections as allCollections } from '@/lib/mock-data';
 
 export default function ProductsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const isAdmin = user?.email === 'vvatassi@gmail.com';
 
@@ -33,8 +37,11 @@ export default function ProductsPage() {
       } else {
         const q = query(collection(firestore, 'products'), orderBy('name'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
-          const fetchedProducts = snapshot.docs.map(doc => doc.data() as Product);
+          const fetchedProducts = snapshot.docs.map(doc => ({...doc.data(), id: doc.id }) as Product);
           setProducts(fetchedProducts);
+          setLoading(false);
+        }, (error) => {
+          console.error("Error fetching products: ", error);
           setLoading(false);
         });
 
@@ -42,6 +49,16 @@ export default function ProductsPage() {
       }
     }
   }, [user, authLoading, isAdmin, router]);
+
+  const filteredProducts = useMemo(() => {
+    return products
+      .filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .filter(product =>
+        selectedCategory === 'all' || product.category === selectedCategory
+      );
+  }, [products, searchTerm, selectedCategory]);
 
   const adminLinks = [
     { href: '/dashboard', label: 'Início', icon: 'Home' as const },
@@ -73,12 +90,32 @@ export default function ProductsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Produtos</CardTitle>
-                <Button>
+                <Button disabled>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Adicionar Produto
                 </Button>
               </CardHeader>
               <CardContent>
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                    <div className="relative w-full sm:w-auto flex-grow">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Buscar por nome..."
+                            className="pl-9"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Filtrar por categoria" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todas as Categorias</SelectItem>
+                            {allCollections.map(c => <SelectItem key={c.slug} value={c.name}>{c.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -87,10 +124,11 @@ export default function ProductsPage() {
                       <TableHead>Categoria</TableHead>
                       <TableHead>Arranjo</TableHead>
                       <TableHead className="text-right">Preço Base</TableHead>
+                      <TableHead className="w-[80px]">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.map(product => (
+                    {filteredProducts.map(product => (
                       <TableRow key={product.id}>
                         <TableCell>
                           <Image
@@ -105,10 +143,20 @@ export default function ProductsPage() {
                         <TableCell><Badge variant="outline">{product.category}</Badge></TableCell>
                         <TableCell>{product.arrangement}</TableCell>
                         <TableCell className="text-right">R$ {product.price.toFixed(2).replace('.', ',')}</TableCell>
+                        <TableCell>
+                          <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/products/${product.id}`)}>
+                            Editar
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
+                 {filteredProducts.length === 0 && !loading && (
+                    <div className="text-center text-muted-foreground py-12">
+                        Nenhum produto encontrado.
+                    </div>
+                )}
               </CardContent>
             </Card>
           </main>

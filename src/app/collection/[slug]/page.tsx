@@ -3,7 +3,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
-import { collections, products } from '@/lib/mock-data';
+import { collections } from '@/lib/mock-data';
+import { getProducts } from '@/app/actions';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import ProductCard from '@/components/shared/product-card';
@@ -15,41 +16,41 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
+import type { Product } from '@/lib/schemas';
+
 
 const PRODUCTS_PER_PAGE = 20;
 
-type Product = typeof products[0];
-
 export default function CollectionPage({ params }: { params: { slug: string } }) {
-  const { slug } = React.use(params);
+  const { slug } = params;
   const collection = collections.find((c) => c.slug === slug);
   
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [allCollectionProducts, setAllCollectionProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [arrangement, setArrangement] = useState('todos');
 
   useEffect(() => {
-    if (collection) {
-      const collectionProducts = products.filter((p) => p.category === collection.name);
-      setAllCollectionProducts(collectionProducts);
-      
-      const solos = collectionProducts.filter(p => p.arrangement === 'Solo').slice(0, 4);
-      const duplas = collectionProducts.filter(p => p.arrangement === 'Dupla').slice(0, 3);
-      const trios = collectionProducts.filter(p => p.arrangement === 'Trio').slice(0, 2);
-      
-      const initialProducts = [...solos, ...duplas, ...trios];
-      setFilteredProducts(initialProducts);
-      setDisplayedProducts(initialProducts);
-    }
+    const fetchAndSetProducts = async () => {
+        setLoading(true);
+        if (collection) {
+            const allProducts = await getProducts();
+            const collectionProducts = allProducts.filter((p) => p.category === collection.name);
+            setAllCollectionProducts(collectionProducts);
+        }
+        setLoading(false);
+    };
+    fetchAndSetProducts();
   }, [collection]);
+
   
   useEffect(() => {
-    if (collection) {
+    if (collection && allCollectionProducts.length > 0) {
       let tempProducts = allCollectionProducts;
 
       // Filter by price
@@ -58,13 +59,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
       // Filter by arrangement
       if (arrangement !== 'todos') {
         tempProducts = tempProducts.filter(p => p.arrangement === arrangement);
-      } else {
-        // If 'todos', show the curated list first, then allow loading more
-        const solos = allCollectionProducts.filter(p => p.arrangement === 'Solo').slice(0, 4);
-        const duplas = allCollectionProducts.filter(p => p.arrangement === 'Dupla').slice(0, 3);
-        const trios = allCollectionProducts.filter(p => p.arrangement === 'Trio').slice(0, 2);
-        tempProducts = [...solos, ...duplas, ...trios];
-      }
+      } 
       
       setFilteredProducts(tempProducts);
       setDisplayedProducts(tempProducts.slice(0, PRODUCTS_PER_PAGE));
@@ -78,21 +73,18 @@ export default function CollectionPage({ params }: { params: { slug: string } })
   }
 
   const handleLoadMore = () => {
-    setLoading(true);
+    setLoadingMore(true);
     const nextPage = currentPage + 1;
-    // When loading more, we use all products, not just the initial curated list
-    const nextProducts = allCollectionProducts
-        .filter(p => p.price >= priceRange[0] && p.price <= priceRange[1])
-        .slice(0, nextPage * PRODUCTS_PER_PAGE);
+    const nextProducts = filteredProducts.slice(0, nextPage * PRODUCTS_PER_PAGE);
 
     setTimeout(() => {
       setDisplayedProducts(nextProducts);
       setCurrentPage(nextPage);
-      setLoading(false);
+      setLoadingMore(false);
     }, 500);
   };
   
-  const hasMoreProducts = displayedProducts.length < allCollectionProducts.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]).length;
+  const hasMoreProducts = displayedProducts.length < filteredProducts.length;
 
   const arrangementOptions = ['Solo', 'Dupla', 'Trio'];
 
@@ -120,7 +112,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
                             step={10}
                             minStepsBetweenThumbs={1}
                             onValueChange={setPriceRange}
-                            thumbs={2}
+                            value={priceRange}
                         />
                         <div className="flex justify-between text-sm text-muted-foreground mt-2">
                             <span>R$ {priceRange[0]}</span>
@@ -158,7 +150,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
                            <CardContent className="p-4 space-y-4">
                                 <div>
                                     <Label className="flex items-center gap-2 font-semibold mb-2"><SlidersHorizontal /> Preço</Label>
-                                    <Slider defaultValue={[0, 500]} max={500} step={10} onValueChange={setPriceRange} thumbs={2} />
+                                    <Slider defaultValue={[0, 500]} max={500} step={10} onValueChange={setPriceRange} value={priceRange} />
                                     <div className="flex justify-between text-sm text-muted-foreground mt-2">
                                         <span>R$ {priceRange[0]}</span>
                                         <span>R$ {priceRange[1]}</span>
@@ -179,7 +171,11 @@ export default function CollectionPage({ params }: { params: { slug: string } })
                     </CollapsibleContent>
                  </Collapsible>
             </div>
-            {displayedProducts.length > 0 ? (
+            {loading ? (
+                <div className="text-center py-16">
+                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+                </div>
+            ) : displayedProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
                     {displayedProducts.map((product) => (
@@ -188,8 +184,8 @@ export default function CollectionPage({ params }: { params: { slug: string } })
                 </div>
                 {hasMoreProducts && (
                     <div className="text-center mt-12">
-                        <Button onClick={handleLoadMore} disabled={loading} size="lg">
-                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Carregar Mais'}
+                        <Button onClick={handleLoadMore} disabled={loadingMore} size="lg">
+                            {loadingMore ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Carregar Mais'}
                         </Button>
                     </div>
                 )}

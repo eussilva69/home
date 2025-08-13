@@ -7,11 +7,11 @@ import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import type { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types';
 import type { PreferenceCreateData, PreferenceItem } from 'mercadopago/dist/clients/preference/create/types';
 import { randomUUID } from 'crypto';
-import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address, RefundRequestInput, ProductUpdatePayload } from '@/lib/schemas';
+import type { CreatePixPaymentInput, CreatePreferenceInput, OrderDetails, Address, RefundRequestInput, ProductUpdatePayload, Product } from '@/lib/schemas';
 import { melhorEnvioService } from '@/services/melhor-envio.service';
 import type { CartItemType } from '@/hooks/use-cart';
 import { firestore } from '@/lib/firebase';
-import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc, deleteDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, serverTimestamp, setDoc, getDocs, writeBatch, query, where, getDoc, deleteDoc, updateDoc, Timestamp, orderBy } from 'firebase/firestore';
 import { sendEmail } from '@/lib/nodemailer';
 
 
@@ -489,6 +489,21 @@ export async function requestRefund(data: RefundRequestInput) {
     console.error("Erro ao processar solicitação de devolução:", error);
     return { success: false, message: 'Falha ao enviar a solicitação.' };
   }
+}
+
+export async function getProducts(): Promise<Product[]> {
+    try {
+        const productsRef = collection(firestore, 'products');
+        const q = query(productsRef, orderBy('name'));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            return [];
+        }
+        return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }) as Product);
+    } catch (error) {
+        console.error("Erro ao buscar produtos:", error);
+        return [];
+    }
 }
 
 export async function getProductById(productId: string) {

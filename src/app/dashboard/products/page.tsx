@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { Loader2, PlusCircle, Search } from 'lucide-react';
+import { Loader2, PlusCircle, Search, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Product } from '@/lib/schemas';
@@ -19,14 +19,32 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { collections as allCollections } from '@/lib/mock-data';
+import { useToast } from '@/hooks/use-toast';
+import { deleteProduct } from '@/app/actions';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 
 export default function ProductsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   const isAdmin = user?.email === 'vvatassi@gmail.com';
 
@@ -60,6 +78,26 @@ export default function ProductsPage() {
       );
   }, [products, searchTerm, selectedCategory]);
 
+  const handleConfirmDelete = (product: Product) => {
+    setProductToDelete(product);
+    setIsDeleteDialogOpen(true);
+  }
+
+  const handleDelete = async () => {
+    if (!productToDelete) return;
+
+    const result = await deleteProduct(productToDelete.id);
+    if (result.success) {
+      toast({ title: "Sucesso!", description: result.message });
+      // The onSnapshot listener will automatically update the UI
+    } else {
+      toast({ title: "Erro", description: result.message, variant: "destructive" });
+    }
+    
+    setIsDeleteDialogOpen(false);
+    setProductToDelete(null);
+  };
+  
   const adminLinks = [
     { href: '/dashboard', label: 'Início', icon: 'Home' as const },
     { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' as const },
@@ -81,6 +119,7 @@ export default function ProductsPage() {
   }
 
   return (
+    <>
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <Header />
       <div className="flex-grow container mx-auto p-4 md:p-8">
@@ -124,7 +163,7 @@ export default function ProductsPage() {
                       <TableHead>Categoria</TableHead>
                       <TableHead>Arranjo</TableHead>
                       <TableHead className="text-right">Preço Base</TableHead>
-                      <TableHead className="w-[80px]">Ações</TableHead>
+                      <TableHead className="w-[120px] text-center">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -143,10 +182,15 @@ export default function ProductsPage() {
                         <TableCell><Badge variant="outline">{product.category}</Badge></TableCell>
                         <TableCell>{product.arrangement}</TableCell>
                         <TableCell className="text-right">R$ {product.price.toFixed(2).replace('.', ',')}</TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/products/${product.id}`)}>
-                            Editar
-                          </Button>
+                        <TableCell className="text-center">
+                          <div className="flex gap-2 justify-center">
+                            <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/products/${product.id}`)}>
+                                Editar
+                            </Button>
+                            <Button variant="destructive" size="icon" onClick={() => handleConfirmDelete(product)}>
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -164,5 +208,20 @@ export default function ProductsPage() {
       </div>
       <Footer />
     </div>
+     <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isso irá excluir permanentemente o produto <span className="font-semibold">"{productToDelete?.name}"</span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

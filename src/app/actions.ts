@@ -515,3 +515,14 @@ export async function updateProduct(productId: string, data: ProductUpdatePayloa
         return { success: false, message: 'Falha ao atualizar o produto.' };
     }
 }
+
+export async function deleteProduct(productId: string) {
+    try {
+        const productRef = doc(firestore, 'products', productId);
+        await deleteDoc(productRef);
+        return { success: true, message: 'Produto excluído com sucesso!' };
+    } catch (error) {
+        console.error("Erro ao excluir produto:", error);
+        return { success: false, message: 'Falha ao excluir o produto.' };
+    }
+}

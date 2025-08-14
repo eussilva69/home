@@ -30,6 +30,7 @@ const navLinks = [
 export default function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isCollectionsOpen, setCollectionsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { user } = useAuth();
   const { cartItems } = useCart();
   const router = useRouter();
@@ -41,6 +42,13 @@ export default function Header() {
     router.push('/');
   }
   
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+        router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const whatsappUrl = "https://wa.me/5534997222303";
@@ -55,12 +63,17 @@ export default function Header() {
         </Link>
         
         <div className="hidden lg:flex w-full max-w-md mx-4">
-           <div className="relative w-full">
-             <Input placeholder="Digite o que você procura" className="pr-10 h-11"/>
-             <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+           <form onSubmit={handleSearch} className="relative w-full">
+             <Input 
+                placeholder="Digite o que você procura" 
+                className="pr-10 h-11"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+             />
+             <Button type="submit" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
                 <Search className="h-5 w-5 text-muted-foreground"/>
              </Button>
-           </div>
+           </form>
         </div>
         
         <div className="hidden lg:flex items-center gap-4">
@@ -114,8 +127,8 @@ export default function Header() {
       <Separator/>
 
       {/* Bottom Bar (Desktop Only) */}
-      <div className="hidden lg:flex container mx-auto h-12 items-center justify-center px-4">
-        <nav className="flex items-center gap-6 text-sm font-medium">
+      <nav className="hidden lg:flex container mx-auto h-12 items-center justify-center px-4">
+        <div className="flex items-center gap-6 text-sm font-medium">
            <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
             <PopoverTrigger asChild>
                 <Button 
@@ -163,9 +176,9 @@ export default function Header() {
 
           <Link href="/furnitures" className="transition-colors hover:text-primary">Mobílias</Link>
           <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary">Monte seu Quadro</Link>
-          <Link href="/architects" className="transition-colors hover:text-primary">Arquitetos</Link>
-        </nav>
-      </div>
+          <Link href="/orcamento" className="transition-colors hover:text-primary">Orçamento</Link>
+        </div>
+      </nav>
 
     </header>
   );

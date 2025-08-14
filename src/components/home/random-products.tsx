@@ -2,9 +2,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { products } from '@/lib/mock-data';
 import ProductCard from '@/components/shared/product-card';
 import type { Product } from '@/lib/schemas';
+import { getProducts } from '@/app/actions';
+import { Loader2 } from 'lucide-react';
 
 // Função para embaralhar um array
 function shuffleArray(array: any[]) {
@@ -18,13 +19,35 @@ function shuffleArray(array: any[]) {
 
 export default function RandomProducts() {
   const [randomProducts, setRandomProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Embaralha os produtos e pega os 8 primeiros
-    const shuffled = shuffleArray(products);
-    setRandomProducts(shuffled.slice(0, 8));
+    const fetchAndSetProducts = async () => {
+      setLoading(true);
+      try {
+        const allProducts = await getProducts();
+        const shuffled = shuffleArray(allProducts);
+        setRandomProducts(shuffled.slice(0, 8));
+      } catch (error) {
+        console.error("Failed to fetch random products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAndSetProducts();
   }, []);
   
+  if (loading) {
+    return (
+        <section id="random-products" className="py-12 md:py-24 bg-secondary/50">
+            <div className="container mx-auto px-4 text-center">
+                 <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+            </div>
+        </section>
+    );
+  }
+
   if (randomProducts.length === 0) return null;
 
   return (

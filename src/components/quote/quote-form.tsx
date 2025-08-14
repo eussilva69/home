@@ -42,16 +42,20 @@ export default function QuoteForm() {
 
   const onSubmit = (data: QuoteFormValues) => {
     startTransition(() => {
-        const message = `Olá! Gostaria de solicitar um orçamento.
+        const message = `Olá, Home Designer!
 
-*Nome:* ${data.name}
-*Email:* ${data.email}
-*Telefone:* ${data.phone}
+Meu nome é *${data.name}* e gostaria de solicitar um orçamento para um móvel planejado.
 
-*Descrição do Projeto:*
+*Meus dados para contato são:*
+- E-mail: ${data.email}
+- Telefone: ${data.phone}
+
+*Minha ideia é a seguinte:*
 ${data.projectDescription}
 
-${data.files && data.files.length > 0 ? `\n(Foram anexadas ${data.files.length} imagens de referência que enviarei a seguir)` : ''}`;
+${data.files && data.files.length > 0 ? `\nTenho ${data.files.length} imagem(ns) de referência para enviar.` : ''}
+
+Aguardo o contato de vocês. Obrigado!`;
 
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;

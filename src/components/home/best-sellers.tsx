@@ -5,17 +5,21 @@ import { collection, getDocs } from 'firebase/firestore';
 import { products as mockProducts } from '@/lib/mock-data';
 import type { Product } from '@/lib/schemas';
 
-
-// Helper para extrair o ID base de um ID de item do carrinho (ex: 'AN-S1-size-color' -> 'AN-S1')
+// Helper to extract the base ID from a cart item ID (e.g., 'AN-S1-size-color' -> 'AN-S1')
 const getBaseProductId = (cartItemId: string): string => {
-    // Tenta encontrar um padrão de ID de produto mockado (ex: AN-S1, MO-C2, etc.)
     const match = cartItemId.match(/^[A-Z]{2}-[A-Z0-9]{1,2}/);
     if (match) {
         return match[0];
     }
-    // Como fallback, se não corresponder, retorna a string antes do primeiro '-'
     return cartItemId.split('-')[0];
 };
+
+// Helper function to shuffle an array and get the first N items
+function getFirstNRandomItems<T>(array: T[], n: number): T[] {
+  const shuffled = [...array].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, n);
+}
+
 
 export default async function BestSellers() {
   let bestSellers: Product[] = [];
@@ -24,8 +28,8 @@ export default async function BestSellers() {
     const ordersSnapshot = await getDocs(collection(firestore, 'orders'));
     
     if (ordersSnapshot.empty) {
-      // Fallback para mock data se não houver pedidos
-      bestSellers = mockProducts.slice(0, 4);
+      // Fallback para 4 produtos aleatórios se não houver pedidos
+      bestSellers = getFirstNRandomItems(mockProducts, 4);
     } else {
       const productCounts = new Map<string, number>();
       
@@ -45,15 +49,16 @@ export default async function BestSellers() {
         bestSellers = top4Ids.map(id => allProducts.find(p => p.id === id)).filter((p): p is Product => p !== undefined);
       }
       
-      // Se, por algum motivo, não houver produtos mais vendidos (ex: pedidos sem itens), usa o fallback
-      if (bestSellers.length === 0) {
-        bestSellers = mockProducts.slice(0, 4);
+      // Se não houver produtos suficientes, preenche com produtos aleatórios
+      if (bestSellers.length < 4) {
+        const randomFallback = getFirstNRandomItems(mockProducts, 4 - bestSellers.length);
+        bestSellers.push(...randomFallback);
       }
     }
   } catch (error) {
     console.error("Erro ao buscar os mais vendidos:", error);
-    // Em caso de erro, usa o fallback
-    bestSellers = mockProducts.slice(0, 4);
+    // Em caso de erro, usa o fallback de 4 produtos aleatórios
+    bestSellers = getFirstNRandomItems(mockProducts, 4);
   }
 
   return (

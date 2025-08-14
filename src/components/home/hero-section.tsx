@@ -2,6 +2,7 @@
 "use client";
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -75,8 +76,8 @@ export default function HeroSection() {
                       <p className="mt-2 text-base md:text-xl max-w-2xl mx-auto drop-shadow-md">
                         {slide.description}
                       </p>
-                      <Button size="lg" className="mt-6 bg-primary hover:bg-accent hover:text-accent-foreground text-primary-foreground text-sm md:text-base">
-                        Compre Agora
+                      <Button asChild size="lg" className="mt-6 bg-primary hover:bg-accent hover:text-accent-foreground text-primary-foreground text-sm md:text-base">
+                        <Link href="/#bestsellers">Compre Agora</Link>
                       </Button>
                     </div>
                   </CardContent>

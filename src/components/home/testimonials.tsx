@@ -1,8 +1,6 @@
 
-import Image from 'next/image';
 import { testimonials } from '@/lib/mock-data';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
 import { Star } from 'lucide-react';
 
 export default function Testimonials() {
@@ -13,26 +11,20 @@ export default function Testimonials() {
           <h2 className="text-3xl md:text-4xl font-headline text-primary">O Que Nossos Clientes Dizem</h2>
           <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">Avaliações reais de amantes da arte felizes.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="flex flex-col text-center shadow-lg rounded-lg p-4">
-              <CardHeader className="flex-grow pb-4">
-                <p className="text-muted-foreground italic text-sm md:text-base">"{testimonial.quote}"</p>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center">
-                <Avatar className="h-14 w-14 md:h-16 md:w-16 mb-4">
-                  <AvatarImage src={testimonial.avatar} alt={testimonial.name} data-ai-hint={testimonial.hint} />
-                  <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <h4 className="font-headline text-base md:text-lg font-semibold">{testimonial.name}</h4>
-                <div className="flex justify-center mt-2">
+            <Card key={index} className="flex flex-col text-left shadow-sm rounded-lg p-6">
+               <CardContent className="p-0 flex-grow">
+                 <h4 className="font-semibold text-base mb-1">{testimonial.name}</h4>
+                 <div className="flex items-center mb-4">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 md:h-5 md:w-5 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                      className={`h-5 w-5 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
                     />
                   ))}
                 </div>
+                <p className="text-muted-foreground text-sm">"{testimonial.quote}"</p>
               </CardContent>
             </Card>
           ))}

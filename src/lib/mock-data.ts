@@ -114,33 +114,32 @@ export const products = [
 ];
 
 export const compositions = [
-    { id: 'c1', name: 'Galeria Monocromática', image: 'https://placehold.co/600x400.png', hint: 'gallery wall' },
-    { id: 'c2', name: 'Splash Pop Art', image: 'https://placehold.co/600x400.png', hint: 'colorful living room' },
-    { id: 'c3', name: 'Sonho Boêmio', image: 'https://placehold.co/600x400.png', hint: 'boho bedroom' },
-    { id: 'c4', name: 'Calma Nórdica', image: 'https://placehold.co/600x400.png', hint: 'scandinavian interior' },
+    { id: 'c1', name: 'Galeria Monocromática', image: 'https://i0.wp.com/www.portobello.com.br/archtrends/media/2019/08/monocromia_preta_sala_de_estar_projeto_paulo_castellotti.jpg?w=1000', hint: 'gallery wall' },
+    { id: 'c2', name: 'Splash Pop Art', image: 'https://acdn.mitiendanube.com/stores/002/097/572/products/composicao-de-quadros-decorativos-pop-art-para-sala-quarto-1-987a050f249339e80216480119865181-1024-1024.jpg', hint: 'colorful living room' },
+    { id: 'c3', name: 'Sonho Boêmio', image: 'https://static.vecteezy.com/ti/fotos-gratis/p1/23308257-quarto-com-decoracao-boho-gratis-foto.jpg', hint: 'boho bedroom' },
+    { id: 'c4', name: 'Calma Nórdica', image: 'https://i.pinimg.com/736x/87/a6/63/87a663955b9a895475e5337575344383.jpg', hint: 'scandinavian interior' },
 ];
 
 export const testimonials = [
     {
-        name: "Jéssica P.",
-        avatar: "https://placehold.co/100x100.png",
-        hint: "woman portrait",
+        name: "Sara M. MINAS GERAIS",
         rating: 5,
-        quote: "A qualidade é incrível e ficou deslumbrante na minha sala. As sugestões de composição da IA foram perfeitas!"
+        quote: "Atendimento perfeito. Amei o profissionalismo e o carinho em todo o processo de venda. Amei a obra que escolhi, superou as minhas expectativas. Super recomendo!"
     },
     {
-        name: "Davi R.",
-        avatar: "https://placehold.co/100x100.png",
-        hint: "man smiling",
+        name: "Arnedio C. RIO GRANDE DO SUL",
         rating: 5,
-        quote: "Envio rápido e a impressão era ainda mais vibrante pessoalmente. Usei o chatbot para uma pergunta e obtive uma resposta instantânea e útil."
+        quote: "Casa e Coração está de parabéns, nota 10 em todos os quesitos, atendimento, prazos, (bem antes do previsto), qualidade, contato via whatsAp excelente, etc, recomento sempre sem dúvidas!"
     },
     {
-        name: "Chloe T.",
-        avatar: "https://placehold.co/100x100.png",
-        hint: "person selfie",
-        rating: 4,
-        quote: "Adoro os designs exclusivos. Meu único desejo é por mais opções de tamanho, mas no geral foi uma ótima experiência."
+        name: "Wanessa L. SERGIPE",
+        rating: 5,
+        quote: "Nossa melhor escolha foi a Casa & Coração Quadros, uma consultoria de qualidade e dai ficou fácil escolher o quadro para combinar com nosso ambiente! Estamos apaixonados pela nossa sala, agora sim, completa! Muito obrigado por tudo."
+    },
+    {
+        name: "Larissa D. RIO GRANDE DO NORTE",
+        rating: 5,
+        quote: "A empresa surpreendeu-me na qualidade e na agilidade. Produto chegou como pensei e em prazo anterior ao informado pela loja. Recomendo!"
     }
 ];
 

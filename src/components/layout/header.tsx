@@ -191,6 +191,16 @@ export default function Header() {
                                             className="flex items-center gap-3 p-2 -m-2 rounded-md hover:bg-accent"
                                             onClick={() => setMenuOpen(false)}
                                           >
+                                            <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 relative">
+                                                <Image
+                                                  src={collection.image}
+                                                  alt={collection.name}
+                                                  data-ai-hint={collection.hint}
+                                                  fill
+                                                  sizes="40px"
+                                                  className="w-full h-full object-cover"
+                                                />
+                                             </div>
                                             <span className="text-sm">{collection.name}</span>
                                           </Link>
                                         ))}

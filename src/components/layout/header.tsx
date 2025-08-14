@@ -114,7 +114,7 @@ export default function Header() {
       <Separator/>
 
       {/* Bottom Bar (Desktop Only) */}
-      <div className="hidden lg:flex container mx-auto h-12 items-center justify-between px-4">
+      <div className="hidden lg:flex container mx-auto h-12 items-center justify-center px-4">
         <nav className="flex items-center gap-6 text-sm font-medium">
            <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
             <PopoverTrigger asChild>
@@ -165,7 +165,6 @@ export default function Header() {
           <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary">Monte seu Quadro</Link>
           <Link href="/architects" className="transition-colors hover:text-primary">Arquitetos</Link>
         </nav>
-        <Button className="bg-black text-white hover:bg-black/80 rounded-md">OUTLET até 50% OFF</Button>
       </div>
 
     </header>

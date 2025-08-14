@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, MessageSquareText } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, MessageSquareText, LogOut } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { collections } from '@/lib/mock-data';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
@@ -66,12 +67,14 @@ export default function Header() {
         router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
         setSearchTerm('');
         setSuggestions([]);
+        if (isMenuOpen) setMenuOpen(false);
     }
   };
 
   const handleSuggestionClick = () => {
     setSearchTerm('');
     setSuggestions([]);
+    if (isMenuOpen) setMenuOpen(false);
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -137,7 +140,17 @@ export default function Header() {
            </Link>
         </div>
 
-        <div className="lg:hidden flex items-center">
+        <div className="lg:hidden flex items-center gap-2">
+            <Link href="/cart" className="relative">
+             <Button variant="ghost" size="icon">
+                <ShoppingCart className="h-6 w-6" />
+                 {isClient && totalItems > 0 && (
+                    <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                      {totalItems}
+                    </span>
+                  )}
+              </Button>
+           </Link>
             <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -149,11 +162,76 @@ export default function Header() {
                 <SheetHeader className="p-4 border-b">
                    <SheetTitle className="text-left">Menu</SheetTitle>
                 </SheetHeader>
-                {/* Mobile Menu Content Here */}
+                <div className="flex-grow overflow-y-auto">
+                    <div className="p-4">
+                        <form onSubmit={handleSearchSubmit}>
+                            <div className="relative">
+                                <Input 
+                                    placeholder="Buscar..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <Button type="submit" variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
+                                    <Search className="h-5 w-5 text-muted-foreground" />
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <nav className="flex flex-col gap-1 p-4">
+                        <Accordion type="single" collapsible className="w-full">
+                            <AccordionItem value="collections">
+                                <AccordionTrigger className="text-base font-semibold py-3">Coleções</AccordionTrigger>
+                                <AccordionContent className="pl-4">
+                                     <div className="flex flex-col gap-1">
+                                        {collections.map((collection) => (
+                                          <Link
+                                            key={collection.name}
+                                            href={`/collection/${collection.slug}`}
+                                            className="flex items-center gap-3 p-2 -m-2 rounded-md hover:bg-accent"
+                                            onClick={() => setMenuOpen(false)}
+                                          >
+                                            <span className="text-sm">{collection.name}</span>
+                                          </Link>
+                                        ))}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                        <Link href="/furnitures" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Mobílias</Link>
+                        <Link href="/monte-seu-quadro" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Monte seu Quadro</Link>
+                        <Link href="/orcamento" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Orçamento</Link>
+                    </nav>
+                </div>
+
+                <div className="mt-auto p-4 border-t">
+                    {user ? (
+                        <div className="space-y-2">
+                             <Link href="/dashboard" className="w-full" onClick={() => setMenuOpen(false)}>
+                                <Button variant="outline" className="w-full justify-start gap-2">
+                                    <User className="h-5 w-5" /> Minha Conta
+                                </Button>
+                            </Link>
+                             <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleLogout}>
+                                <LogOut className="h-5 w-5" /> Sair
+                            </Button>
+                        </div>
+                    ) : (
+                         <Link href="/login" className="w-full" onClick={() => setMenuOpen(false)}>
+                            <Button className="w-full">
+                                <User className="mr-2"/> Entrar ou Cadastrar
+                            </Button>
+                        </Link>
+                    )}
+                     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-full mt-2">
+                        <Button variant="outline" className="w-full justify-center gap-2">
+                            <MessageSquareText className="h-5 w-5"/> Atendimento
+                        </Button>
+                    </a>
+                </div>
             </SheetContent>
             </Sheet>
         </div>
-
       </div>
       
       <Separator/>

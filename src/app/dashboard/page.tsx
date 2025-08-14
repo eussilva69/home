@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -38,18 +39,19 @@ export default function DashboardPage() {
   const isAdmin = user.email === 'vvatassi@gmail.com';
   
   const adminLinks = [
-      { href: '/dashboard', label: 'Início', icon: 'Home' },
-      { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' },
-      { href: '/dashboard/products', label: 'Produtos', icon: 'Box' },
-      { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' },
-      { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' },
+      { href: '/dashboard', label: 'Início', icon: 'Home' as const },
+      { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' as const },
+      { href: '/dashboard/products', label: 'Quadros', icon: 'Box' as const },
+      { href: '/dashboard/furnitures', label: 'Mobílias', icon: 'Sofa' as const },
+      { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' as const },
+      { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' as const },
     ];
 
   const customerLinks = [
-    { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' },
-    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' },
-    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' },
-    { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' },
+    { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' as const },
+    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' as const },
+    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' as const },
+    { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' as const },
   ];
 
   const isRootDashboard = pathname === '/dashboard';

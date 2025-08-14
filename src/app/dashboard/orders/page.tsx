@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { Loader2, ChevronDown, Package, User, MapPin, CreditCard, Box, Weight, Ruler, ArrowUpRight, PlusCircle, Download } from 'lucide-react';
+import { Loader2, ChevronDown, Package, User, MapPin, CreditCard, Box, Weight, Ruler, ArrowUpRight, PlusCircle, Download, Sofa } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -299,7 +299,8 @@ export default function OrdersPage() {
   const adminLinks = [
     { href: '/dashboard', label: 'Início', icon: 'Home' as const },
     { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' as const },
-    { href: '/dashboard/products', label: 'Produtos', icon: 'Box' as const },
+    { href: '/dashboard/products', label: 'Quadros', icon: 'Box' as const },
+    { href: '/dashboard/furnitures', label: 'Mobílias', icon: 'Sofa' as const },
     { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' as const },
     { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' as const },
   ];

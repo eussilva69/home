@@ -9,7 +9,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Package, Users, DollarSign, Loader2 } from 'lucide-react';
+import { Package, Users, DollarSign, Loader2, Sofa } from 'lucide-react';
 import { firestore } from '@/lib/firebase';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 
@@ -60,7 +60,8 @@ export default function FinancialPage() {
   const adminLinks = [
     { href: '/dashboard', label: 'Início', icon: 'Home' as const },
     { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' as const },
-    { href: '/dashboard/products', label: 'Produtos', icon: 'Box' as const },
+    { href: '/dashboard/products', label: 'Quadros', icon: 'Box' as const },
+    { href: '/dashboard/furnitures', label: 'Mobílias', icon: 'Sofa' as const },
     { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' as const },
     { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' as const },
   ];

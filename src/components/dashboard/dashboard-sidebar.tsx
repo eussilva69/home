@@ -1,9 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, Package, Box, Users, User, MapPin, Heart, ArrowLeftRight, LogOut, DollarSign } from 'lucide-react';
+import { Home, Package, Box, Users, User, MapPin, Heart, ArrowLeftRight, LogOut, DollarSign, Sofa } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
@@ -20,7 +21,8 @@ const iconMap = {
   MapPin,
   Heart,
   ArrowLeftRight,
-  DollarSign
+  DollarSign,
+  Sofa,
 };
 
 type LinkType = {

@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { Loader2, PlusCircle, Search, Trash2, Sofa } from 'lucide-react';
+import { Loader2, PlusCircle, Search, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Product } from '@/lib/schemas';
@@ -17,8 +17,6 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { collections as allCollections } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { deleteProduct } from '@/app/actions';
 import {
@@ -34,7 +32,7 @@ import {
 import Link from 'next/link';
 
 
-export default function ProductsPage() {
+export default function FurnituresPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -42,7 +40,6 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -55,17 +52,18 @@ export default function ProductsPage() {
         router.push('/login');
       } else {
         const productsRef = collection(firestore, 'products');
-        const q = query(productsRef, where("category", "!=", "Mobílias"));
+        const q = query(productsRef, where("category", "==", "Mobílias"));
+        
         const unsubscribe = onSnapshot(q, (snapshot) => {
           let fetchedProducts = snapshot.docs.map(doc => ({...doc.data(), id: doc.id }) as Product);
           
-           // Sort alphabetically by name client-side
+          // Sort alphabetically by name client-side
           fetchedProducts = fetchedProducts.sort((a, b) => a.name.localeCompare(b.name));
 
           setProducts(fetchedProducts);
           setLoading(false);
         }, (error) => {
-          console.error("Error fetching products: ", error);
+          console.error("Error fetching furnitures: ", error);
           setLoading(false);
         });
 
@@ -78,11 +76,8 @@ export default function ProductsPage() {
     return products
       .filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .filter(product =>
-        selectedCategory === 'all' || product.category === selectedCategory
       );
-  }, [products, searchTerm, selectedCategory]);
+  }, [products, searchTerm]);
 
   const handleConfirmDelete = (product: Product) => {
     setProductToDelete(product);
@@ -135,11 +130,12 @@ export default function ProductsPage() {
           <main className="flex-1">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Quadros</CardTitle>
+                <CardTitle>Mobílias</CardTitle>
                 <Button asChild>
-                  <Link href="/dashboard/products/new">
+                  {/* This will eventually lead to a page to add new furniture */}
+                  <Link href="#"> 
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Adicionar Quadro
+                    Adicionar Mobília
                   </Link>
                 </Button>
               </CardHeader>
@@ -154,24 +150,14 @@ export default function ProductsPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger className="w-full sm:w-[180px]">
-                            <SelectValue placeholder="Filtrar por categoria" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas as Categorias</SelectItem>
-                            {allCollections.filter(c => c.name !== 'Mobílias').map(c => <SelectItem key={c.slug} value={c.name}>{c.name}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
                 </div>
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[80px]">Imagem</TableHead>
                       <TableHead>Nome</TableHead>
-                      <TableHead>Categoria</TableHead>
-                      <TableHead>Arranjo</TableHead>
-                      <TableHead className="text-right">Preço Base</TableHead>
+                      <TableHead>Sub-Categoria</TableHead>
+                      <TableHead className="text-right">Preço</TableHead>
                       <TableHead className="w-[120px] text-center">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -188,8 +174,7 @@ export default function ProductsPage() {
                           />
                         </TableCell>
                         <TableCell className="font-medium">{product.name}</TableCell>
-                        <TableCell><Badge variant="outline">{product.category}</Badge></TableCell>
-                        <TableCell>{product.arrangement}</TableCell>
+                        <TableCell><Badge variant="outline">{product.arrangement}</Badge></TableCell>
                         <TableCell className="text-right">R$ {product.price.toFixed(2).replace('.', ',')}</TableCell>
                         <TableCell className="text-center">
                           <div className="flex gap-2 justify-center">
@@ -207,7 +192,7 @@ export default function ProductsPage() {
                 </Table>
                  {filteredProducts.length === 0 && !loading && (
                     <div className="text-center text-muted-foreground py-12">
-                        Nenhum produto encontrado.
+                        Nenhuma mobília encontrada.
                     </div>
                 )}
               </CardContent>

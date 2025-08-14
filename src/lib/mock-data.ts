@@ -96,6 +96,21 @@ export const products = [
   { id: 'RE-D2', name: 'Alfa e Ômega', price: 175.00, image: 'https://placehold.co/800x500.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: 'https://placehold.co/800x500.png', hint: 'alpha omega', hint_alt: 'symbolic decor', category: 'Religião', arrangement: 'Dupla', imagesByColor: { black: 'https://placehold.co/800x500.png', white: 'https://placehold.co/800x500.png', hazel_oak: 'https://placehold.co/800x500.png', ebony_oak: 'https://placehold.co/800x500.png' } },
   { id: 'RE-T1', name: 'Fé, Esperança, Amor', price: 260.00, image: 'https://placehold.co/1200x500.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: 'https://placehold.co/1200x500.png', hint: 'faith hope love', hint_alt: 'christian triptych', category: 'Religião', arrangement: 'Trio', imagesByColor: { black: 'https://placehold.co/1200x500.png', white: 'https://placehold.co/1200x500.png', hazel_oak: 'https://placehold.co/1200x500.png', ebony_oak: 'https://placehold.co/1200x500.png' } },
   { id: 'RE-T2', name: 'Santíssima Trindade', price: 260.00, image: 'https://placehold.co/1200x500.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: 'https://placehold.co/1200x500.png', hint: 'holy trinity', hint_alt: 'religious decor', category: 'Religião', arrangement: 'Trio', imagesByColor: { black: 'https://placehold.co/1200x500.png', white: 'https://placehold.co/1200x500.png', hazel_oak: 'https://placehold.co/1200x500.png', ebony_oak: 'https://placehold.co/1200x500.png' } },
+
+  // --- MOBÍLIAS ---
+  // Mesas
+  { id: 'MO-M1', name: 'Mesa de Centro Rústica', price: 450.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'rustic coffee table', hint_alt: 'living room', category: 'Mobílias', arrangement: 'Mesas' },
+  { id: 'MO-M2', name: 'Mesa de Jantar Industrial', price: 1200.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'industrial dining table', hint_alt: 'dining room', category: 'Mobílias', arrangement: 'Mesas' },
+  { id: 'MO-M3', name: 'Mesa Lateral de Mármore', price: 320.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'marble side table', hint_alt: 'chic living room', category: 'Mobílias', arrangement: 'Mesas' },
+  // Nichos
+  { id: 'MO-N1', name: 'Nicho de Parede Hexagonal', price: 120.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'hexagonal wall shelf', hint_alt: 'modern wall', category: 'Mobílias', arrangement: 'Nichos' },
+  { id: 'MO-N2', name: 'Kit 3 Nichos Quadrados', price: 150.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'square shelves', hint_alt: 'organized wall', category: 'Mobílias', arrangement: 'Nichos' },
+  { id: 'MO-N3', name: 'Nicho Flutuante com Gaveta', price: 180.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'floating shelf drawer', hint_alt: 'bedroom wall', category: 'Mobílias', arrangement: 'Nichos' },
+  // Cabeceiras
+  { id: 'MO-C1', name: 'Cabeceira Estofada', price: 400.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'upholstered headboard', hint_alt: 'cozy bedroom', category: 'Mobílias', arrangement: 'Cabeceiras' },
+  { id: 'MO-C2', name: 'Cabeceira de Madeira Ripado', price: 550.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'slatted wood headboard', hint_alt: 'modern bedroom', category: 'Mobílias', arrangement: 'Cabeceiras' },
+  { id: 'MO-C3', name: 'Cabeceira Suspensa em Couro', price: 350.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'leather hanging headboard', hint_alt: 'scandinavian bedroom', category: 'Mobílias', arrangement: 'Cabeceiras' },
+  { id: 'MO-C4', name: 'Cabeceira de Palhinha', price: 480.00, image: 'https://placehold.co/400x400.png', image_alt: 'https://placehold.co/800x600.png', artwork_image: '', hint: 'rattan headboard', hint_alt: 'boho bedroom', category: 'Mobílias', arrangement: 'Cabeceiras' },
 ];
 
 export const compositions = [
@@ -142,6 +157,7 @@ export const collections = [
   { slug: 'minimalista', name: 'Minimalista', image: 'https://st2.depositphotos.com/8815532/44724/v/450/depositphotos_447247498-stock-illustration-one-line-drawing-face-abstract.jpg', hint: 'line art face' },
   { slug: 'femme', name: 'Femme', image: 'https://medias.artmajeur.com/home/14141927_17c76aac-e019-48f9-af9d-a05a7a6aa5c1.jpg?v=1739181916', hint: 'woman face' },
   { slug: 'religiao', name: 'Religião', image: 'https://carolinarochas.com.br/wp-content/uploads/2025/03/Pintura-sacra-de-Jesus-Cristo-pintado-a-mao.jpg', hint: 'jesus christ painting' },
+  { slug: 'mobilias', name: 'Mobílias', image: 'https://img.elo7.com.br/product/original/2C511B4/aparador-de-sala-madeira-macica-moveis-de-madeira.jpg', hint: 'modern furniture' },
 ];
 
     

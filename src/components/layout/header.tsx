@@ -20,6 +20,7 @@ import { signOut } from 'firebase/auth';
 import { useClientOnly } from '@/hooks/use-client-only';
 
 const navLinks = [
+  { href: '/furnitures', label: 'Mobílias' },
   { href: '/monte-seu-quadro', label: 'Monte seu Quadro' },
   { href: '#bestsellers', label: 'Mais Vendidos' },
   { href: '#compositions', label: 'Composições' },

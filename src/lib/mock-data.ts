@@ -157,7 +157,6 @@ export const collections = [
   { slug: 'minimalista', name: 'Minimalista', image: 'https://st2.depositphotos.com/8815532/44724/v/450/depositphotos_447247498-stock-illustration-one-line-drawing-face-abstract.jpg', hint: 'line art face' },
   { slug: 'femme', name: 'Femme', image: 'https://medias.artmajeur.com/home/14141927_17c76aac-e019-48f9-af9d-a05a7a6aa5c1.jpg?v=1739181916', hint: 'woman face' },
   { slug: 'religiao', name: 'Religião', image: 'https://carolinarochas.com.br/wp-content/uploads/2025/03/Pintura-sacra-de-Jesus-Cristo-pintado-a-mao.jpg', hint: 'jesus christ painting' },
-  { slug: 'mobilias', name: 'Mobílias', image: 'https://img.elo7.com.br/product/original/2C511B4/aparador-de-sala-madeira-macica-moveis-de-madeira.jpg', hint: 'modern furniture' },
 ];
 
     

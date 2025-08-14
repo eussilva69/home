@@ -87,7 +87,7 @@ export default function Header() {
         </Link>
         
         <div className="hidden lg:flex w-full max-w-md mx-4 relative">
-           <form onSubmit={handleSearchSubmit} className="relative w-full">
+           <form onSubmit={handleSearchSubmit} className="w-full">
              <Input 
                 placeholder="Digite o que você procura" 
                 className="pr-10 h-11"

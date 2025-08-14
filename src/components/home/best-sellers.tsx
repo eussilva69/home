@@ -2,7 +2,6 @@ import ProductCard from '@/components/shared/product-card';
 import { getProducts } from '@/app/actions';
 import { firestore } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { products as mockProducts } from '@/lib/mock-data';
 import type { Product } from '@/lib/schemas';
 
 // Helper to extract the base ID from a cart item ID (e.g., 'AN-S1-size-color' -> 'AN-S1')
@@ -11,6 +10,7 @@ const getBaseProductId = (cartItemId: string): string => {
     if (match) {
         return match[0];
     }
+    // Fallback for custom products or different ID structures
     return cartItemId.split('-')[0];
 };
 
@@ -23,13 +23,16 @@ function getFirstNRandomItems<T>(array: T[], n: number): T[] {
 
 export default async function BestSellers() {
   let bestSellers: Product[] = [];
+  let allProducts: Product[] = [];
 
   try {
+    // Fetch all products from Firestore first, this will be our source of truth.
+    allProducts = await getProducts();
     const ordersSnapshot = await getDocs(collection(firestore, 'orders'));
     
     if (ordersSnapshot.empty) {
-      // Fallback para 4 produtos aleatórios se não houver pedidos
-      bestSellers = getFirstNRandomItems(mockProducts, 4);
+      // Fallback para 4 produtos aleatórios se não houver pedidos, usando a lista real de produtos.
+      bestSellers = getFirstNRandomItems(allProducts, 4);
     } else {
       const productCounts = new Map<string, number>();
       
@@ -45,20 +48,24 @@ export default async function BestSellers() {
       const top4Ids = sortedProducts.slice(0, 4).map(entry => entry[0]);
       
       if (top4Ids.length > 0) {
-        const allProducts = await getProducts();
         bestSellers = top4Ids.map(id => allProducts.find(p => p.id === id)).filter((p): p is Product => p !== undefined);
       }
       
-      // Se não houver produtos suficientes, preenche com produtos aleatórios
+      // Se não houver produtos suficientes, preenche com produtos aleatórios da lista real.
       if (bestSellers.length < 4) {
-        const randomFallback = getFirstNRandomItems(mockProducts, 4 - bestSellers.length);
+        const remainingNeeded = 4 - bestSellers.length;
+        const existingIds = new Set(bestSellers.map(p => p.id));
+        const potentialFallbacks = allProducts.filter(p => !existingIds.has(p.id));
+        const randomFallback = getFirstNRandomItems(potentialFallbacks, remainingNeeded);
         bestSellers.push(...randomFallback);
       }
     }
   } catch (error) {
     console.error("Erro ao buscar os mais vendidos:", error);
-    // Em caso de erro, usa o fallback de 4 produtos aleatórios
-    bestSellers = getFirstNRandomItems(mockProducts, 4);
+    // Em caso de erro, tenta usar o fallback de produtos aleatórios se allProducts foi populado.
+    if (allProducts.length > 0) {
+        bestSellers = getFirstNRandomItems(allProducts, 4);
+    }
   }
 
   return (

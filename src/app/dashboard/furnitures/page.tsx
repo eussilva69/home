@@ -132,8 +132,7 @@ export default function FurnituresPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Mobílias</CardTitle>
                 <Button asChild>
-                  {/* This will eventually lead to a page to add new furniture */}
-                  <Link href="#"> 
+                  <Link href="/dashboard/furnitures/new"> 
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Adicionar Mobília
                   </Link>

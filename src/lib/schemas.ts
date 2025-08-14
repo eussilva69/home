@@ -206,3 +206,14 @@ export const newProductSchema = z.object({
   hint_alt: z.string().optional().default(''),
 });
 export type NewProductPayload = z.infer<typeof newProductSchema>;
+
+
+export const newFurnitureSchema = z.object({
+  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
+  price: z.number().min(0, "O preço não pode ser negativo."),
+  // Categoria é fixa, então não precisa estar no formulário, mas será adicionada antes de salvar.
+  arrangement: z.string().min(1, "A sub-categoria (tipo) é obrigatória."),
+  image: z.string().url("A imagem principal é obrigatória."),
+  image_alt: z.string().url("A imagem de ambiente é obrigatória."),
+});
+export type NewFurniturePayload = z.infer<typeof newFurnitureSchema>;

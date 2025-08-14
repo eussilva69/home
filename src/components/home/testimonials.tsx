@@ -12,22 +12,31 @@ export default function Testimonials() {
           <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">Avaliações reais de amantes da arte felizes.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="flex flex-col text-left shadow-sm rounded-lg p-6">
-               <CardContent className="p-0 flex-grow">
-                 <h4 className="font-semibold text-base mb-1">{testimonial.name}</h4>
-                 <div className="flex items-center mb-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-5 w-5 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
-                    />
-                  ))}
-                </div>
-                <p className="text-muted-foreground text-sm">"{testimonial.quote}"</p>
-              </CardContent>
-            </Card>
-          ))}
+          {testimonials.map((testimonial, index) => {
+            const nameParts = testimonial.name.split(' ');
+            const state = nameParts.pop(); // Assume o último elemento é o estado
+            const name = nameParts.join(' ');
+
+            return (
+                <Card key={index} className="flex flex-col text-left shadow-sm rounded-lg p-6">
+                   <CardContent className="p-0 flex-grow">
+                     <div className="mb-2">
+                       <h4 className="font-semibold text-base">{name}</h4>
+                       <p className="text-xs text-muted-foreground">{state}</p>
+                     </div>
+                     <div className="flex items-center mb-4">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-5 w-5 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-muted-foreground text-sm">"{testimonial.quote}"</p>
+                  </CardContent>
+                </Card>
+            );
+          })}
         </div>
       </div>
     </section>

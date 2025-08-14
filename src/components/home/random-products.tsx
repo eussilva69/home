@@ -1,0 +1,45 @@
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import { products } from '@/lib/mock-data';
+import ProductCard from '@/components/shared/product-card';
+import type { Product } from '@/lib/schemas';
+
+// Função para embaralhar um array
+function shuffleArray(array: any[]) {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
+export default function RandomProducts() {
+  const [randomProducts, setRandomProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    // Embaralha os produtos e pega os 8 primeiros
+    const shuffled = shuffleArray(products);
+    setRandomProducts(shuffled.slice(0, 8));
+  }, []);
+  
+  if (randomProducts.length === 0) return null;
+
+  return (
+    <section id="random-products" className="py-12 md:py-24 bg-secondary/50">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-headline text-primary">Explore Mais</h2>
+          <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">Uma seleção de artes para todos os gostos.</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {randomProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

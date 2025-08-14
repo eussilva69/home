@@ -7,6 +7,7 @@ import Testimonials from "@/components/home/testimonials";
 import FrameArrangements from "@/components/home/frame-arrangements";
 import Footer from "@/components/layout/footer";
 import FeatureBar from "@/components/home/feature-bar";
+import RandomProducts from "@/components/home/random-products";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
         <BestSellers />
         <ServicesSection />
         <FrameArrangements />
+        <RandomProducts />
         <Testimonials />
       </main>
       <Footer />

@@ -76,6 +76,7 @@ export default function NewFurniturePage() {
         arrangement: '',
         image: '',
         image_alt: '',
+        gallery_images: [],
     }
   });
 
@@ -85,7 +86,7 @@ export default function NewFurniturePage() {
     }
   }, [user, authLoading, router]);
   
-  const handleImageUpload = async (file: File, fieldName: keyof NewFurniturePayload) => {
+  const handleImageUpload = async (file: File, fieldName: `gallery_images.${number}` | keyof Omit<NewFurniturePayload, 'gallery_images'>) => {
     const fieldId = fieldName.toString();
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
@@ -101,7 +102,15 @@ export default function NewFurniturePage() {
         
         if (data.success) {
             const imageUrl = data.data.url;
-            form.setValue(fieldName, imageUrl, { shouldValidate: true });
+            if (fieldName.startsWith('gallery_images.')) {
+                const index = parseInt(fieldName.split('.')[1]);
+                const currentGallery = form.getValues('gallery_images') || [];
+                const newGallery = [...currentGallery];
+                newGallery[index] = imageUrl;
+                form.setValue('gallery_images', newGallery, { shouldValidate: true });
+            } else {
+                form.setValue(fieldName, imageUrl, { shouldValidate: true });
+            }
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
         } else {
             throw new Error(data.error.message || "Erro desconhecido da API de imagem.");
@@ -176,8 +185,8 @@ export default function NewFurniturePage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Imagens</CardTitle>
-                        <CardDescription>Defina as imagens para a mobília.</CardDescription>
+                        <CardTitle>Imagens Principais</CardTitle>
+                        <CardDescription>Defina as imagens de capa e de hover para a mobília.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                          <FormField control={form.control} name="image" render={() => (
@@ -193,6 +202,28 @@ export default function NewFurniturePage() {
                            </FormItem>
                          )} />
                     </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Galeria de Imagens de Detalhe</CardTitle>
+                    <CardDescription>Adicione até 4 imagens extras que serão exibidas na página do produto.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     {[0, 1, 2, 3].map(index => (
+                        <FormField key={index} control={form.control} name={`gallery_images.${index}` as any} render={() => (
+                          <FormItem>
+                             <ImageUploadField
+                                label={`Imagem de Detalhe ${index + 1}`}
+                                currentImageUrl={form.watch(`gallery_images.${index}` as any)}
+                                onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
+                                isUploading={isUploading[`gallery_images.${index}`]}
+                             />
+                             <FormMessage/>
+                          </FormItem>
+                       )} />
+                     ))}
+                  </CardContent>
                 </Card>
                 
                 <div className="flex justify-end gap-2">

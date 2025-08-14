@@ -2,7 +2,7 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  email: z.string().email('Por favor, insira um email válido.'),
+  email: z.string().email("Por favor, insira um email válido."),
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres.'),
 });
 
@@ -163,6 +163,7 @@ export const ProductSchema = z.object({
   category: z.string(),
   arrangement: z.string(),
   imagesByColor: z.record(z.string()).optional(),
+  gallery_images: z.array(z.string()).optional(),
 });
 export type Product = z.infer<typeof ProductSchema>;
 
@@ -173,6 +174,7 @@ export const productUpdateSchema = z.object({
   image_alt: z.string().url("URL da imagem de ambiente inválida.").optional(),
   artwork_image: z.string().url("URL da arte original inválida.").optional(),
   imagesByColor: z.record(z.string().url("URL da imagem de moldura inválida.")).optional(),
+  gallery_images: z.array(z.string().url("URL da galeria inválida")).optional(),
 });
 export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
 
@@ -204,6 +206,7 @@ export const newProductSchema = z.object({
   }),
   hint: z.string().optional().default(''),
   hint_alt: z.string().optional().default(''),
+  gallery_images: z.array(z.string().url()).optional(),
 });
 export type NewProductPayload = z.infer<typeof newProductSchema>;
 
@@ -211,9 +214,9 @@ export type NewProductPayload = z.infer<typeof newProductSchema>;
 export const newFurnitureSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
   price: z.number().min(0, "O preço não pode ser negativo."),
-  // Categoria é fixa, então não precisa estar no formulário, mas será adicionada antes de salvar.
   arrangement: z.string().min(1, "A sub-categoria (tipo) é obrigatória."),
   image: z.string().url("A imagem principal é obrigatória."),
   image_alt: z.string().url("A imagem de ambiente é obrigatória."),
+  gallery_images: z.array(z.string().url()).optional(),
 });
 export type NewFurniturePayload = z.infer<typeof newFurnitureSchema>;

@@ -92,6 +92,7 @@ export default function EditProductPage() {
           image_alt: productData.image_alt,
           artwork_image: productData.artwork_image,
           imagesByColor: productData.imagesByColor || {},
+          gallery_images: productData.gallery_images || [],
         });
       } else {
         toast({ variant: 'destructive', title: 'Erro', description: result.message });
@@ -109,7 +110,7 @@ export default function EditProductPage() {
     }
   }, [user, authLoading, router, fetchProduct]);
   
-  const handleImageUpload = async (file: File, fieldName: keyof ProductUpdatePayload | `imagesByColor.${string}`) => {
+  const handleImageUpload = async (file: File, fieldName: keyof ProductUpdatePayload | `imagesByColor.${string}` | `gallery_images.${number}`) => {
     const fieldId = fieldName.toString();
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
@@ -129,7 +130,14 @@ export default function EditProductPage() {
                 const color = fieldName.split('.')[1];
                 const currentImagesByColor = form.getValues('imagesByColor') || {};
                 form.setValue('imagesByColor', {...currentImagesByColor, [color]: imageUrl });
-            } else {
+            } else if (fieldName.startsWith('gallery_images.')) {
+                const index = parseInt(fieldName.split('.')[1]);
+                const currentGallery = form.getValues('gallery_images') || [];
+                const newGallery = [...currentGallery];
+                newGallery[index] = imageUrl;
+                form.setValue('gallery_images', newGallery, { shouldValidate: true });
+            }
+            else {
                 form.setValue(fieldName as keyof ProductUpdatePayload, imageUrl);
             }
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
@@ -241,6 +249,27 @@ export default function EditProductPage() {
                         ))}
                     </CardContent>
                 </Card>
+                 
+                {product.category === 'Mobílias' && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Galeria de Imagens de Detalhe</CardTitle>
+                      <CardDescription>Adicione até 4 imagens extras que serão exibidas na página do produto.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {[0, 1, 2, 3].map(index => (
+                          <ImageUploadField
+                              key={index}
+                              label={`Imagem de Detalhe ${index + 1}`}
+                              currentImageUrl={form.watch(`gallery_images.${index}` as any)}
+                              onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
+                              isUploading={isUploading[`gallery_images.${index}`]}
+                          />
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+
 
                 <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>

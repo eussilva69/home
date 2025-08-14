@@ -1,10 +1,9 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { products } from '@/lib/mock-data';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,9 @@ import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/hooks/use-cart';
+import { getProductById } from '@/app/actions';
+import type { Product } from '@/lib/schemas';
+import { Loader2 } from 'lucide-react';
 
 const pricingData = {
   "Teste": [
@@ -52,23 +54,41 @@ const frames = {
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const { id } = React.use(params);
-  const product = products.find((p) => p.id === id);
-  
-  if (!product) {
-    notFound();
-  }
-  
-  const { addToCart } = useCart();
-  const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const arrangementKey = product.arrangement as keyof typeof pricingData;
+  const { addToCart } = useCart();
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      setLoading(true);
+      const result = await getProductById(id);
+      if (result.success && result.data) {
+        setProduct(result.data as Product);
+      } else {
+        notFound();
+      }
+      setLoading(false);
+    };
+    fetchProductData();
+  }, [id]);
+
+  const arrangementKey = product?.arrangement as keyof typeof pricingData || 'Solo';
   const availableSizes = pricingData[arrangementKey] || pricingData['Solo'];
   
   const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
   const [withGlass, setWithGlass] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
-  const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('environment');
+  const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('frame_only');
   
+  useEffect(() => {
+      if (product) {
+        const newAvailableSizes = pricingData[product.arrangement as keyof typeof pricingData] || pricingData['Solo'];
+        setSelectedSize(newAvailableSizes[0].tamanho);
+      }
+  }, [product]);
+
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
   const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
 
@@ -92,11 +112,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   const handleFrameChange = (value: string) => {
     setSelectedFrame(value);
-    setViewMode('frame_only');
   }
 
   const humanHeightPx = 120;
-  const humanImage = "https://i.ibb.co/q3tBWm6C/pngwing-com.png";
+  const humanImage = "https://i.ibb.co/qD3tBWm6C/pngwing-com.png";
 
   const getFrameDimensions = (sizeString: string) => {
     const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);
@@ -108,8 +127,21 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   };
   
   const displayedImage = viewMode === 'environment' 
-    ? product.image_alt 
-    : (product as any).imagesByColor?.[selectedFrame] || product.image;
+    ? product?.image_alt 
+    : product?.imagesByColor?.[selectedFrame] || product?.image;
+
+
+  if (loading || !product) {
+      return (
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow flex items-center justify-center">
+                <Loader2 className="h-10 w-10 animate-spin" />
+            </main>
+            <Footer />
+          </div>
+      );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -127,14 +159,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 </Button>
             </div>
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
-                 <Image 
-                    src={displayedImage}
-                    alt={viewMode === 'environment' ? product.name + ' no ambiente' : `${product.name} com moldura ${frames[selectedFrame as keyof typeof frames].label}`}
-                    layout="fill"
-                    objectFit={viewMode === 'environment' ? 'cover' : 'contain'}
-                    className="transition-opacity duration-300"
-                    key={displayedImage} // força a recriação da imagem
-                />
+                 {displayedImage && (
+                    <Image 
+                        src={displayedImage}
+                        alt={viewMode === 'environment' ? product.name + ' no ambiente' : `${product.name} com moldura ${frames[selectedFrame as keyof typeof frames].label}`}
+                        layout="fill"
+                        objectFit={viewMode === 'environment' ? 'cover' : 'contain'}
+                        className="transition-opacity duration-300"
+                        key={displayedImage} // força a recriação da imagem
+                    />
+                 )}
             </div>
           </div>
 

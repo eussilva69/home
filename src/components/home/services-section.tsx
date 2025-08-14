@@ -7,15 +7,15 @@ const services = [
   {
     title: 'CONSULTORIA E SIMULAÇÃO',
     description: 'Clique aqui para simular e escolher o quadro perfeito.',
-    href: '#',
-    image: 'https://placehold.co/800x600.png',
+    href: '/monte-seu-quadro',
+    image: 'https://images.tcdn.com.br/img/img_prod/703418/papel_de_parede_adesivo_ariana_clean_756_1_20200217074948.jpg',
     hint: 'modern dining room',
   },
   {
     title: 'ARQUITETOS E DESIGNERS',
     description: 'Clique aqui para incluir nossos quadros em seus projetos.',
-    href: '#',
-    image: 'https://placehold.co/800x600.png',
+    href: '/architects',
+    image: 'https://www.papeleparede.com.br/image/cache/data/blog/posts/conteudo_5/decoracao-industrial-papeis-de-parede-01-1200x800.jpg',
     hint: 'luxury living room',
   },
 ];

@@ -183,7 +183,7 @@ export default function Header() {
                             <AccordionItem value="collections">
                                 <AccordionTrigger className="text-base font-semibold py-3">Coleções</AccordionTrigger>
                                 <AccordionContent className="pl-4">
-                                     <div className="flex flex-col gap-1">
+                                     <div className="grid grid-cols-2 gap-2">
                                         {collections.map((collection) => (
                                           <Link
                                             key={collection.name}

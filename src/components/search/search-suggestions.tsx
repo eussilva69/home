@@ -25,19 +25,18 @@ export default function SearchSuggestions({ suggestions, isLoading, onSuggestion
           {suggestions.map((product, index) => (
             <li key={product.id} onClick={onSuggestionClick}>
               <Link href={`/product/${product.id}`} className="block hover:bg-accent">
-                <div className="flex items-center gap-4 p-3">
-                  <div className="relative w-12 h-16 rounded-md overflow-hidden bg-muted">
+                <div className="flex items-center gap-4 p-2">
+                  <div className="relative w-10 h-10 rounded-sm overflow-hidden bg-muted flex-shrink-0">
                      <Image
                         src={product.image}
                         alt={product.name}
                         fill
-                        sizes="48px"
-                        className="object-contain"
+                        sizes="40px"
+                        className="object-cover"
                       />
                   </div>
                   <div className="flex-grow">
                     <p className="font-medium text-sm">{product.name}</p>
-                    <p className="text-sm text-primary">R$ {product.price.toFixed(2).replace('.', ',')}</p>
                   </div>
                 </div>
               </Link>

@@ -11,9 +11,9 @@ const services = [
     hint: 'modern dining room',
   },
   {
-    title: 'ARQUITETOS E DESIGNERS',
-    description: 'Clique aqui para incluir nossos quadros em seus projetos.',
-    href: '/architects',
+    title: 'MÓVEIS PLANEJADOS',
+    description: 'Tem uma ideia? Fale conosco e solicite um orçamento.',
+    href: '/orcamento',
     image: 'https://dl7j1x8aohko6.cloudfront.net/2024/08/estilos-contemporaneo-industrial-retro-ape-despojado-180-m2-escala-arquitetura-credito-andre-nazareth-8.webp',
     hint: 'luxury living room',
   },

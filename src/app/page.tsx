@@ -2,7 +2,7 @@ import Header from "@/components/layout/header";
 import HeroSection from "@/components/home/hero-section";
 import FeaturedCollections from "@/components/home/featured-collections";
 import BestSellers from "@/components/home/best-sellers";
-import ReadyCompositions from "@/components/home/ready-compositions";
+import CustomArtCta from "@/components/home/custom-art-cta";
 import Testimonials from "@/components/home/testimonials";
 import FrameArrangements from "@/components/home/frame-arrangements";
 import Footer from "@/components/layout/footer";
@@ -15,7 +15,7 @@ export default function Home() {
         <HeroSection />
         <FeaturedCollections />
         <BestSellers />
-        <ReadyCompositions />
+        <CustomArtCta />
         <FrameArrangements />
         <Testimonials />
       </main>

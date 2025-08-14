@@ -43,7 +43,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'acdn-us.mitiendanube.com',
+        hostname: 'acdn.mitiendanube.com',
         port: '',
         pathname: '/**',
       },
@@ -163,6 +163,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'media.cdnandroid.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'dl7j1x8aohko6.cloudfront.net',
         port: '',
         pathname: '/**',
       }

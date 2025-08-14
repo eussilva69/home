@@ -1,4 +1,3 @@
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,7 +14,7 @@ const services = [
     title: 'ARQUITETOS E DESIGNERS',
     description: 'Clique aqui para incluir nossos quadros em seus projetos.',
     href: '/architects',
-    image: 'https://www.papeleparede.com.br/image/cache/data/blog/posts/conteudo_5/decoracao-industrial-papeis-de-parede-01-1200x800.jpg',
+    image: 'https://dl7j1x8aohko6.cloudfront.net/2024/08/estilos-contemporaneo-industrial-retro-ape-despojado-180-m2-escala-arquitetura-credito-andre-nazareth-8.webp',
     hint: 'luxury living room',
   },
 ];

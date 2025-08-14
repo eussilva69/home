@@ -67,9 +67,6 @@ export default function Footer() {
                 <h3 className="font-headline text-lg font-semibold mb-4">Siga-nos</h3>
                 <div className="flex space-x-4">
                     <Link href="#" aria-label="Instagram"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
-                    <Link href="#" aria-label="Facebook"><Facebook className="h-6 w-6 hover:text-primary" /></Link>
-                    <Link href="#" aria-label="Pinterest"><PinterestIcon className="h-6 w-6 hover:text-primary" /></Link>
-                    <Link href="#" aria-label="Twitter"><Twitter className="h-6 w-6 hover:text-primary" /></Link>
                 </div>
             </div>
           </div>

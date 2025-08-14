@@ -73,10 +73,10 @@ export default function Footer() {
         </div>
         <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
           <p className="mb-2">&copy; {new Date().getFullYear()} Home Designer. Todos os direitos reservados.</p>
-          <a href="https://glcweb.com.br" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary">
-            Desenvolvido por 
-            <Image src="https://media.cdnandroid.com/5c/50/6b/6b/imagen-glc-web-0big.jpg" alt="GLC Web" width={24} height={24} />
-            GLC Web
+          <a href="https://glcoding.online" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary">
+            Desenvolvido por
+            <Image src="https://iili.io/FMvMmva.png" alt="GL Coding" width={24} height={24} />
+            GL Coding
           </a>
         </div>
       </div>

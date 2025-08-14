@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useTransition } from 'react';
-import { Loader2, UploadCloud } from 'lucide-react';
+import { Loader2, UploadCloud, Send } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 const quoteSchema = z.object({
@@ -23,10 +23,11 @@ const quoteSchema = z.object({
 
 type QuoteFormValues = z.infer<typeof quoteSchema>;
 
+const WHATSAPP_NUMBER = "5534997222303"; // Número da empresa sem máscaras
+
 export default function QuoteForm() {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteSchema),
@@ -41,47 +42,31 @@ export default function QuoteForm() {
 
   const onSubmit = (data: QuoteFormValues) => {
     startTransition(() => {
-      // Simulação de envio com FormData
-      const formData = new FormData();
-      formData.append('name', data.name);
-      formData.append('email', data.email);
-      formData.append('phone', data.phone);
-      formData.append('projectDescription', data.projectDescription);
-      if (data.files) {
-        Array.from(data.files).forEach(file => {
-          formData.append('files', file);
-        });
-      }
+        const message = `Olá! Gostaria de solicitar um orçamento.
+
+*Nome:* ${data.name}
+*Email:* ${data.email}
+*Telefone:* ${data.phone}
+
+*Descrição do Projeto:*
+${data.projectDescription}
+
+${data.files && data.files.length > 0 ? `\n(Foram anexadas ${data.files.length} imagens de referência que enviarei a seguir)` : ''}`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
       
-      console.log('Dados do formulário a serem enviados:', {
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          description: data.projectDescription,
-          fileCount: data.files?.length || 0,
+      window.open(whatsappUrl, '_blank');
+      
+      toast({
+        title: "Quase lá!",
+        description: "Sua mensagem está pronta para ser enviada no WhatsApp.",
       });
-      
-      setTimeout(() => {
-        setIsSuccess(true);
-        form.reset();
-        toast({
-          title: "Orçamento Solicitado!",
-          description: "Recebemos sua solicitação e entraremos em contato em breve.",
-        });
-      }, 1000);
+
+      form.reset();
     });
   };
   
-  if (isSuccess) {
-      return (
-          <Alert variant="default" className="bg-green-50 border-green-200">
-            <AlertTitle className="font-bold text-green-800">Solicitação Enviada!</AlertTitle>
-            <AlertDescription className="text-green-700">
-                Obrigado pelo seu interesse! Nossa equipe analisará seu projeto e entrará em contato o mais breve possível.
-            </AlertDescription>
-          </Alert>
-      )
-  }
 
   return (
     <Form {...form}>
@@ -131,8 +116,8 @@ export default function QuoteForm() {
             )}
         />
         <Button type="submit" className="w-full" disabled={isPending}>
-          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Enviar Solicitação
+          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4"/>}
+          Enviar via WhatsApp
         </Button>
       </form>
     </Form>

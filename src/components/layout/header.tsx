@@ -43,6 +43,8 @@ export default function Header() {
   
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  const whatsappUrl = "https://wa.me/5534997222303";
+
   return (
     <header className="sticky top-0 z-50 w-full bg-background border-b">
       {/* Top Bar */}
@@ -62,13 +64,13 @@ export default function Header() {
         </div>
         
         <div className="hidden lg:flex items-center gap-4">
-           <div className="flex items-center gap-2">
+           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer">
                 <MessageSquareText className="h-7 w-7 text-primary"/>
                 <div>
                     <p className="text-xs">Central de</p>
                     <p className="text-sm font-semibold">Atendimento</p>
                 </div>
-           </div>
+           </a>
            <div className="flex items-center gap-2">
                 <User className="h-7 w-7 text-primary"/>
                  <div>
@@ -172,4 +174,3 @@ export default function Header() {
     </header>
   );
 }
-

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -23,7 +22,7 @@ export default function RandomProducts() {
 
   useEffect(() => {
     const fetchAndSetProducts = async () => {
-      setLoading(true);
+      if (!loading) return; // Evita re-buscas desnecessárias
       try {
         const allProducts = await getProducts();
         const shuffled = shuffleArray(allProducts);
@@ -36,7 +35,7 @@ export default function RandomProducts() {
     };
     
     fetchAndSetProducts();
-  }, []);
+  }, [loading]); // Dependência em 'loading' para re-executar se necessário
   
   if (loading) {
     return (

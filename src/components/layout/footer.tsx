@@ -64,30 +64,18 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <h3 className="font-headline text-lg font-semibold mb-4">Newsletter</h3>
-              <p className="text-sm mb-4">Ganhe 10% de desconto no seu primeiro pedido. Inscreva-se agora!</p>
-              <form className="flex flex-col sm:flex-row gap-2">
-                <Input type="email" placeholder="Seu email" className="bg-background/70" />
-                <Button type="submit" className="bg-primary hover:bg-primary/90 flex-shrink-0">Inscrever</Button>
-              </form>
-              <div className="flex space-x-4 mt-6">
-                <Link href="#" aria-label="Instagram"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
-                <Link href="#" aria-label="Facebook"><Facebook className="h-6 w-6 hover:text-primary" /></Link>
-                <Link href="#" aria-label="Pinterest"><PinterestIcon className="h-6 w-6 hover:text-primary" /></Link>
-                <Link href="#" aria-label="Twitter"><Twitter className="h-6 w-6 hover:text-primary" /></Link>
-              </div>
+                <h3 className="font-headline text-lg font-semibold mb-4">Siga-nos</h3>
+                <div className="flex space-x-4">
+                    <Link href="#" aria-label="Instagram"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
+                    <Link href="#" aria-label="Facebook"><Facebook className="h-6 w-6 hover:text-primary" /></Link>
+                    <Link href="#" aria-label="Pinterest"><PinterestIcon className="h-6 w-6 hover:text-primary" /></Link>
+                    <Link href="#" aria-label="Twitter"><Twitter className="h-6 w-6 hover:text-primary" /></Link>
+                </div>
             </div>
           </div>
         </div>
         <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
           <p className="mb-2">&copy; {new Date().getFullYear()} Home Designer. Todos os direitos reservados.</p>
-          <div className="flex justify-center items-center gap-2">
-            <span>Desenvolvido por</span>
-            <a href="https://glcoding.online" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-primary">
-              <Image src="https://iili.io/FMvMmva.png" alt="GL Coding Logo" width={24} height={24} />
-              <span>GL Coding</span>
-            </a>
-          </div>
         </div>
       </div>
     </footer>

@@ -1,36 +1,34 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Menu, Search, Heart, ShoppingCart, User, Brush, ChevronDown, LogOut, MessageSquareText } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, MessageSquareText } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { collections } from '@/lib/mock-data';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
-import { logoutAction } from '@/app/actions';
+import { logoutAction, getProducts } from '@/app/actions';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useClientOnly } from '@/hooks/use-client-only';
 import { Input } from '../ui/input';
+import SearchSuggestions from '../search/search-suggestions';
+import type { Product } from '@/lib/schemas';
 
-const navLinks = [
-  { href: '/collection/todos-os-quadros', label: 'Todos os Quadros' },
-  { href: '/monte-seu-quadro', label: 'Monte seu Quadro' },
-  { href: '/architects', label: 'Arquitetos' },
-  { href: '/blog', label: 'Blog' },
-];
 
 export default function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isCollectionsOpen, setCollectionsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [suggestions, setSuggestions] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
   const { user } = useAuth();
   const { cartItems } = useCart();
   const router = useRouter();
@@ -41,16 +39,42 @@ export default function Header() {
     await logoutAction();
     router.push('/');
   }
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchTerm.trim().length > 1) {
+        setIsLoading(true);
+        const allProducts = await getProducts();
+        const filtered = allProducts.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        setSuggestions(filtered);
+        setIsLoading(false);
+      } else {
+        setSuggestions([]);
+      }
+    };
+    
+    const debounceFetch = setTimeout(() => {
+      fetchSuggestions();
+    }, 300);
+
+    return () => clearTimeout(debounceFetch);
+  }, [searchTerm]);
   
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
         router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+        setSearchTerm('');
+        setSuggestions([]);
     }
   };
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const handleSuggestionClick = () => {
+    setSearchTerm('');
+    setSuggestions([]);
+  };
 
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const whatsappUrl = "https://wa.me/5534997222303";
 
   return (
@@ -62,18 +86,26 @@ export default function Header() {
           <h1 className="text-2xl font-headline font-bold text-primary whitespace-nowrap">Home Designer</h1>
         </Link>
         
-        <div className="hidden lg:flex w-full max-w-md mx-4">
-           <form onSubmit={handleSearch} className="relative w-full">
+        <div className="hidden lg:flex w-full max-w-md mx-4 relative">
+           <form onSubmit={handleSearchSubmit} className="relative w-full">
              <Input 
                 placeholder="Digite o que você procura" 
                 className="pr-10 h-11"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => { if (searchTerm.length > 1) setSuggestions(suggestions); }}
              />
              <Button type="submit" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
                 <Search className="h-5 w-5 text-muted-foreground"/>
              </Button>
            </form>
+           {suggestions.length > 0 && searchTerm.length > 1 && (
+             <SearchSuggestions 
+               suggestions={suggestions}
+               isLoading={isLoading}
+               onSuggestionClick={handleSuggestionClick}
+             />
+           )}
         </div>
         
         <div className="hidden lg:flex items-center gap-4">

@@ -13,16 +13,25 @@ export default function Testimonials() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {testimonials.map((testimonial, index) => {
-            const nameParts = testimonial.name.split(' ');
-            const state = nameParts.pop(); // Assume o último elemento é o estado
-            const name = nameParts.join(' ');
+            // Updated logic to handle multi-word states
+            const states = ["MINAS GERAIS", "RIO GRANDE DO SUL", "SERGIPE", "RIO GRANDE DO NORTE"];
+            let name = testimonial.name;
+            let state = '';
 
+            for (const s of states) {
+                if (name.endsWith(s)) {
+                    state = s;
+                    name = name.replace(s, '').trim();
+                    break;
+                }
+            }
+            
             return (
                 <Card key={index} className="flex flex-col text-left shadow-sm rounded-lg p-6">
                    <CardContent className="p-0 flex-grow">
                      <div className="mb-2">
                        <h4 className="font-semibold text-base">{name}</h4>
-                       <p className="text-xs text-muted-foreground">{state}</p>
+                       {state && <p className="text-xs text-muted-foreground">{state}</p>}
                      </div>
                      <div className="flex items-center mb-4">
                       {Array.from({ length: 5 }).map((_, i) => (

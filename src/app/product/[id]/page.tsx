@@ -19,9 +19,6 @@ import type { Product } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
 
 const pricingData = {
-  "Teste": [
-    { tamanho: "10x15 cm", valor_sem_vidro: 0.50, valor_com_vidro: 0.50, weight: 0.1, width: 10, height: 15, length: 1 },
-  ],
   "Solo": [
     { tamanho: "30x42 cm", valor_sem_vidro: 75.00, valor_com_vidro: 100.00, weight: 1.2, width: 33, height: 45, length: 3 },
     { tamanho: "42x60 cm", valor_sem_vidro: 140.00, valor_com_vidro: 195.00, weight: 1.8, width: 45, height: 63, length: 3 },

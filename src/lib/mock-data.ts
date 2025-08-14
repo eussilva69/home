@@ -1,9 +1,6 @@
 
 
 export const products = [
-  // --- Produto de Teste ---
-  { id: 'TEST-01', name: 'Produto de Teste', price: 0.50, image: 'https://placehold.co/400x500.png', image_alt: 'https://images.tcdn.com.br/img/img_prod/703418/papel_de_parede_adesivo_ariana_clean_756_1_20200217074948.jpg', artwork_image: 'https://placehold.co/400x500.png', hint: 'test product', hint_alt: 'living room', category: 'Minimalista', arrangement: 'Teste', imagesByColor: { black: 'https://placehold.co/600x800.png', white: 'https://placehold.co/600x800.png', hazel_oak: 'https://placehold.co/600x800.png', ebony_oak: 'https://placehold.co/600x800.png' } },
-
   // --- Coleção Animais ---
   { id: 'AN-S1', name: 'Leão Majestoso', price: 75.00, image: 'https://iili.io/F4dSPrF.jpg', image_alt: 'https://iili.io/F4dS4qP.jpg', artwork_image: 'https://i.ibb.co/s91GxBq8/download-1.jpg', hint: 'lion', hint_alt: 'living room', category: 'Animais', arrangement: 'Solo', imagesByColor: { black: 'https://iili.io/F4dSPrF.jpg', white: 'https://iili.io/F4dSUXV.jpg', hazel_oak: 'https://iili.io/F4dS611.png', ebony_oak: 'https://iili.io/F4dSgLB.jpg' } },
   { id: 'AN-S2', name: 'Águia Soberana', price: 75.00, image: 'https://iili.io/F42eBbp.png', image_alt: 'https://iili.io/F42eKdJ.jpg', artwork_image: 'https://placehold.co/400x500.png', hint: 'eagle', hint_alt: 'living room', category: 'Animais', arrangement: 'Solo', imagesByColor: { black: 'https://iili.io/F42eBbp.png', white: 'https://iili.io/F42eHs1.jpg', hazel_oak: 'https://iili.io/F42e3ga.jpg', ebony_oak: 'https://iili.io/F42edqF.jpg' } },

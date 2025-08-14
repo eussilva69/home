@@ -14,7 +14,6 @@ import type { Product } from '@/lib/schemas';
 import type { CartItemType } from '@/hooks/use-cart';
 
 const pricingData = {
-  "Teste": [ { tamanho: "10x15 cm", valor_sem_vidro: 0.50, valor_com_vidro: 0.50, weight: 0.1, width: 10, height: 15, length: 1 } ],
   "Solo": [
     { tamanho: "30x42 cm", valor_sem_vidro: 75.00, valor_com_vidro: 100.00, weight: 1.2, width: 33, height: 45, length: 3 }, { tamanho: "42x60 cm", valor_sem_vidro: 140.00, valor_com_vidro: 195.00, weight: 1.8, width: 45, height: 63, length: 3 }, { tamanho: "50x70 cm", valor_sem_vidro: 180.00, valor_com_vidro: 340.00, weight: 2.5, width: 53, height: 73, length: 3 }, { tamanho: "60x84 cm", valor_sem_vidro: 455.00, valor_com_vidro: 631.00, weight: 3.5, width: 63, height: 87, length: 3 }, { tamanho: "84x120 cm", valor_sem_vidro: 760.00, valor_com_vidro: 1070.00, weight: 5.0, width: 87, height: 123, length: 3 },
   ],

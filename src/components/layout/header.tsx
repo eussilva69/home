@@ -116,15 +116,11 @@ export default function Header() {
       {/* Bottom Bar (Desktop Only) */}
       <div className="hidden lg:flex container mx-auto h-12 items-center justify-between px-4">
         <nav className="flex items-center gap-6 text-sm font-medium">
-          <Button variant="ghost" className="font-bold gap-2">
-            <Menu className="h-5 w-5"/> Todos os Quadros
-          </Button>
-
            <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
             <PopoverTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="flex items-center gap-1 transition-colors hover:text-primary"
+                  className="font-bold flex items-center gap-1 transition-colors hover:text-primary"
                   onMouseEnter={() => setCollectionsOpen(true)}
                   onMouseLeave={() => setCollectionsOpen(false)}
                 >
@@ -165,6 +161,7 @@ export default function Header() {
             </PopoverContent>
           </Popover>
 
+          <Link href="/furnitures" className="transition-colors hover:text-primary">Mobílias</Link>
           <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary">Monte seu Quadro</Link>
           <Link href="/architects" className="transition-colors hover:text-primary">Arquitetos</Link>
         </nav>

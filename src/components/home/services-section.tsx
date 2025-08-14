@@ -7,7 +7,7 @@ const services = [
     title: 'CONSULTORIA E SIMULAÇÃO',
     description: 'Clique aqui para simular e escolher o quadro perfeito.',
     href: '/monte-seu-quadro',
-    image: 'https://images.tcdn.com.br/img/img_prod/703418/papel_de_parede_adesivo_ariana_clean_756_1_20200217074948.jpg',
+    image: 'https://acdn-us.mitiendanube.com/stores/001/894/418/products/661-585f96c42ff96adc2716866869659063-640-0.jpg',
     hint: 'modern dining room',
   },
   {

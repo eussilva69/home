@@ -171,6 +171,12 @@ const nextConfig: NextConfig = {
         hostname: 'dl7j1x8aohko6.cloudfront.net',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'acdn-us.mitiendanube.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

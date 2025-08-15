@@ -78,7 +78,6 @@ export default function Header() {
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const whatsappUrl = "https://wa.me/5534997222303";
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background border-b">
@@ -112,13 +111,6 @@ export default function Header() {
         </div>
         
         <div className="hidden lg:flex items-center gap-4">
-           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer">
-                <MessageSquareText className="h-7 w-7 text-primary"/>
-                <div>
-                    <p className="text-xs">Central de</p>
-                    <p className="text-sm font-semibold">Atendimento</p>
-                </div>
-           </a>
            <div className="flex items-center gap-2">
                 <User className="h-7 w-7 text-primary"/>
                  <div>
@@ -211,6 +203,7 @@ export default function Header() {
                         <Link href="/furnitures" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Mobílias</Link>
                         <Link href="/monte-seu-quadro" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Monte seu Quadro</Link>
                         <Link href="/orcamento" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Orçamento</Link>
+                        <Link href="/contato" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Contato</Link>
                     </nav>
                 </div>
 
@@ -233,11 +226,6 @@ export default function Header() {
                             </Button>
                         </Link>
                     )}
-                     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-full mt-2">
-                        <Button variant="outline" className="w-full justify-center gap-2">
-                            <MessageSquareText className="h-5 w-5"/> Atendimento
-                        </Button>
-                    </a>
                 </div>
             </SheetContent>
             </Sheet>
@@ -297,6 +285,7 @@ export default function Header() {
           <Link href="/furnitures" className="transition-colors hover:text-primary">Mobílias</Link>
           <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary">Monte seu Quadro</Link>
           <Link href="/orcamento" className="transition-colors hover:text-primary">Orçamento</Link>
+          <Link href="/contato" className="transition-colors hover:text-primary">Contato</Link>
         </div>
       </nav>
 

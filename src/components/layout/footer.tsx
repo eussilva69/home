@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -40,13 +41,13 @@ export default function Footer() {
               <h3 className="font-headline text-lg font-semibold mb-4">Links Rápidos</h3>
               <ul className="space-y-2 text-sm">
                 <li><Link href="#" className="hover:text-primary">Sobre Nós</Link></li>
-                <li><Link href="#" className="hover:text-primary">Contato</Link></li>
+                <li><Link href="/contato" className="hover:text-primary">Contato</Link></li>
                 <li><Link href="#" className="hover:text-primary">FAQ</Link></li>
                 <li><Link href="/exchanges" className="hover:text-primary">Trocas e Devoluções</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-headline text-lg font-semibold mb-4">Contato</h3>
+              <h3 className="font-headline text-lg font-semibold mb-4">Atendimento</h3>
               <ul className="space-y-3 text-sm">
                   <li className="flex items-start gap-2">
                       <Phone className="h-4 w-4 mt-1 flex-shrink-0" />
@@ -63,10 +64,12 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-                <h3 className="font-headline text-lg font-semibold mb-4">Siga-nos</h3>
-                <div className="flex space-x-4">
-                    <Link href="https://www.instagram.com/home.designerplanejados?igsh=NWZsNnh1dHB1MjVy" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
-                </div>
+                <h3 className="font-headline text-lg font-semibold mb-4">Newsletter</h3>
+                <p className="text-sm text-muted-foreground mb-3">Receba ofertas e novidades em primeira mão.</p>
+                <form className="flex gap-2">
+                    <Input type="email" placeholder="Seu melhor e-mail" className="bg-background"/>
+                    <Button type="submit">Inscrever</Button>
+                </form>
             </div>
           </div>
         </div>

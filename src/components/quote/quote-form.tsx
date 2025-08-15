@@ -77,22 +77,22 @@ Aguardo o contato de vocês. Obrigado!`;
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField control={form.control} name="name" render={({ field }) => (
-                <FormItem><FormLabel>Nome Completo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Nome Completo</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
             )} />
              <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem><FormLabel>E-mail</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>E-mail</FormLabel><FormControl><Input type="email" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
             )} />
         </div>
         <FormField control={form.control} name="phone" render={({ field }) => (
-            <FormItem><FormLabel>Telefone / WhatsApp</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Telefone / WhatsApp</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
         )} />
         <FormField control={form.control} name="projectDescription" render={({ field }) => (
-            <FormItem><FormLabel>Descreva sua ideia ou projeto</FormLabel><FormControl><Textarea rows={4} {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Descreva sua ideia ou projeto</FormLabel><FormControl><Textarea rows={4} {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
         )} />
          <FormField
             control={form.control}
             name="files"
-            render={({ field: { onChange, ...fieldProps } }) => (
+            render={({ field: { onChange, value, ...fieldProps } }) => (
                 <FormItem>
                     <FormLabel>Imagens de Referência (Opcional)</FormLabel>
                     <FormControl>

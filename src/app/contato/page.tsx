@@ -24,7 +24,7 @@ export default function ContatoPage() {
             <main className="flex-grow">
                  <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
                     <Image 
-                        src="https://www.melhorenvio.com.br/blog/wp-content/uploads/2022/02/atendimento-ao-cliente-humanizado.webp"
+                        src="https://finger.ind.br/wp-content/uploads/2021/02/post_thumbnail-757ae398373789e34f676db879790a25.jpeg"
                         alt="Atendimento ao cliente"
                         layout="fill"
                         objectFit="cover"

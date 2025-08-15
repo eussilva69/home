@@ -177,6 +177,12 @@ const nextConfig: NextConfig = {
         hostname: 'acdn-us.mitiendanube.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'finger.ind.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

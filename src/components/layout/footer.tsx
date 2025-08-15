@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -66,7 +65,7 @@ export default function Footer() {
             <div>
                 <h3 className="font-headline text-lg font-semibold mb-4">Siga-nos</h3>
                 <div className="flex space-x-4">
-                    <Link href="#" aria-label="Instagram"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
+                    <Link href="https://www.instagram.com/home.designerplanejados?igsh=NWZsNnh1dHB1MjVy" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><Instagram className="h-6 w-6 hover:text-primary" /></Link>
                 </div>
             </div>
           </div>

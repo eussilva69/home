@@ -155,10 +155,10 @@ export default function MonteSeuQuadroPage() {
                 }
                 toast({ title: "Sucesso!", description: "Sua imagem foi enviada." });
             } else {
-                throw new Error(data.error.message);
+                throw new Error(data.error.message || "Erro desconhecido da API de imagem.");
             }
-        } catch (error) {
-            toast({ variant: "destructive", title: "Erro no Upload", description: "Não foi possível enviar sua imagem." });
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Erro no Upload", description: error.message || "Não foi possível enviar sua imagem." });
         } finally {
             setUploading(prev => prev.map((_, i) => i === index ? false : false));
         }

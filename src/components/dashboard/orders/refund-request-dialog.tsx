@@ -40,7 +40,7 @@ async function uploadImages(files: FileList): Promise<string[]> {
         if (data.success) {
             return data.data.url;
         }
-        throw new Error(`Falha no upload da imagem: ${data.error.message}`);
+        throw new Error(data.error.message || "Falha no upload da imagem.");
     });
     return Promise.all(uploadPromises);
 }

@@ -114,10 +114,10 @@ export const products = [
 ];
 
 export const compositions = [
-    { id: 'c1', name: 'Galeria Monocromática', image: 'https://i0.wp.com/www.portobello.com.br/archtrends/media/2019/08/monocromia_preta_sala_de_estar_projeto_paulo_castellotti.jpg?w=1000', hint: 'gallery wall' },
-    { id: 'c2', name: 'Splash Pop Art', image: 'https://acdn.mitiendanube.com/stores/002/097/572/products/composicao-de-quadros-decorativos-pop-art-para-sala-quarto-1-987a050f249339e80216480119865181-1024-1024.jpg', hint: 'colorful living room' },
-    { id: 'c3', name: 'Sonho Boêmio', image: 'https://static.vecteezy.com/ti/fotos-gratis/p1/23308257-quarto-com-decoracao-boho-gratis-foto.jpg', hint: 'boho bedroom' },
-    { id: 'c4', name: 'Calma Nórdica', image: 'https://i.pinimg.com/736x/87/a6/63/87a663955b9a895475e5337575344383.jpg', hint: 'scandinavian interior' },
+    { id: 'c1', name: 'Galeria Monocromática', image: 'https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-permanentes/cindra/imagens/sem.jpg.gif/image', hint: 'gallery wall' },
+    { id: 'c2', name: 'Splash Pop Art', image: 'https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-permanentes/cindra/imagens/sem.jpg.gif/image', hint: 'colorful living room' },
+    { id: 'c3', name: 'Sonho Boêmio', image: 'https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-permanentes/cindra/imagens/sem.jpg.gif/image', hint: 'boho bedroom' },
+    { id: 'c4', name: 'Calma Nórdica', image: 'https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-permanentes/cindra/imagens/sem.jpg.gif/image', hint: 'scandinavian interior' },
 ];
 
 export const testimonials = [

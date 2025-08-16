@@ -19,7 +19,7 @@ import { newFurnitureSchema, type NewFurniturePayload } from '@/lib/schemas';
 import NextImage from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const IMG_UPLOAD_KEY = "7ecf5602b8f3c01d2df1b966c1d018af";
+const IMG_UPLOAD_KEY = "8e66608bd9aefb38edfd1b1751da5c76";
 
 const ImageUploadField = ({
   label,

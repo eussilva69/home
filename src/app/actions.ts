@@ -18,7 +18,7 @@ import { sendEmail } from '@/lib/nodemailer';
 // Adicione o Access Token do vendedor
 const MERCADO_PAGO_ACCESS_TOKEN = 'APP_USR-669430014263398-080114-d9ae331ae39f4d3412d982254159a3ac-1118229328';
 const SITE_URL = 'https://homedecorinteriores.com';
-const IMG_UPLOAD_KEY = "7ecf5602b8f3c01d2df1b966c1d018af";
+const IMG_UPLOAD_KEY = "8e66608bd9aefb38edfd1b1751da5c76";
 
 
 const client = new MercadoPagoConfig({ 

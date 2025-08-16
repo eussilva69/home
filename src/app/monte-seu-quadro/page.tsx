@@ -15,7 +15,7 @@ import { useCart } from '@/hooks/use-cart';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
-const IMG_UPLOAD_KEY = "7ecf5602b8f3c01d2df1b966c1d018af";
+const IMG_UPLOAD_KEY = "8e66608bd9aefb38edfd1b1751da5c76";
 
 // Preços com R$5 de acréscimo
 const pricingData = {

@@ -15,9 +15,6 @@ import { useCart } from '@/hooks/use-cart';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
-const IMG_UPLOAD_KEY = "8e66608bd9aefb38edfd1b1751da5c76";
-
-// Preços com R$5 de acréscimo
 const pricingData = {
   "Solo": [
     { tamanho: "30x42 cm", valor_sem_vidro: 80.00, valor_com_vidro: 105.00, weight: 1.2, width: 33, height: 45, length: 3 },
@@ -138,16 +135,16 @@ export default function MonteSeuQuadroPage() {
     const handleImageUpload = useCallback(async (file: File, index: number) => {
         setUploading(prev => prev.map((u, i) => i === index ? true : u));
         const formData = new FormData();
-        formData.append("image", file);
+        formData.append("file", file);
 
         try {
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_UPLOAD_KEY}`, {
+            const response = await fetch(`/api/upload-image`, {
                 method: "POST",
                 body: formData,
             });
             const data = await response.json();
             if (data.success) {
-                const imageUrl = data.data.url;
+                const imageUrl = data.url;
                 if (imageMode === 'individual') {
                     setImagePreviews(prev => prev.map((p, i) => i === index ? imageUrl : p));
                 } else {
@@ -155,7 +152,7 @@ export default function MonteSeuQuadroPage() {
                 }
                 toast({ title: "Sucesso!", description: "Sua imagem foi enviada." });
             } else {
-                throw new Error(data.error.message || "Erro desconhecido da API de imagem.");
+                throw new Error(data.details || "Erro desconhecido ao fazer upload.");
             }
         } catch (error: any) {
             toast({ variant: "destructive", title: "Erro no Upload", description: error.message || "Não foi possível enviar sua imagem." });

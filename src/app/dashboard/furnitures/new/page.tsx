@@ -19,8 +19,6 @@ import { newFurnitureSchema, type NewFurniturePayload } from '@/lib/schemas';
 import NextImage from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const IMG_UPLOAD_KEY = "8e66608bd9aefb38edfd1b1751da5c76";
-
 const ImageUploadField = ({
   label,
   currentImageUrl,
@@ -91,17 +89,17 @@ export default function NewFurniturePage() {
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file);
 
     try {
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_UPLOAD_KEY}`, {
+        const response = await fetch(`/api/upload-image`, {
             method: "POST",
             body: formData,
         });
         const data = await response.json();
         
         if (data.success) {
-            const imageUrl = data.data.url;
+            const imageUrl = data.url;
             if (fieldName.startsWith('gallery_images.')) {
                 const index = parseInt(fieldName.split('.')[1]);
                 const currentGallery = form.getValues('gallery_images') || [];
@@ -113,7 +111,7 @@ export default function NewFurniturePage() {
             }
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
         } else {
-            throw new Error(data.error.message || "Erro desconhecido da API de imagem.");
+            throw new Error(data.details || "Erro desconhecido ao fazer upload.");
         }
     } catch (error: any) {
          toast({ variant: 'destructive', title: 'Erro de Upload', description: error.message || "Falha no upload da imagem." });

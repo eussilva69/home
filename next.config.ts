@@ -183,11 +183,15 @@ const nextConfig: NextConfig = {
         hostname: 'finger.ind.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
 };
 
 export default nextConfig;
-
-    

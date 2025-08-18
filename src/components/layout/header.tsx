@@ -209,7 +209,34 @@ export default function Header() {
           
           <nav className="hidden lg:flex items-center gap-8">
              <Link href="/collection/animais" className={cn("font-medium", textColorClass)}>Loja</Link>
-             <Link href="/collection/abstrato" className={cn("font-medium", textColorClass)}>Estilos</Link>
+             <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
+                <PopoverTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className={cn("font-medium flex items-center gap-1", textColorClass)}
+                    >
+                      Coleções <ChevronDown className="h-4 w-4" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[48rem] p-6 bg-white text-primary border-border shadow-lg" align="start">
+                    <div className="grid grid-cols-3 gap-x-8 gap-y-2">
+                      {collectionColumns.map((column, colIndex) => (
+                        <div key={colIndex} className="flex flex-col gap-2">
+                          {column.map((collection) => (
+                            <Link
+                              key={collection.name}
+                              href={`/collection/${collection.slug}`}
+                              className="block p-2 rounded-md text-sm hover:bg-accent"
+                              onClick={() => setCollectionsOpen(false)}
+                            >
+                              {collection.name}
+                            </Link>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                </PopoverContent>
+              </Popover>
              <Link href="/collection/floral" className={cn("font-medium", textColorClass)}>Mais Vendidos</Link>
              <Link href="/collection/botanico" className={cn("font-medium", textColorClass)}>Novidades</Link>
              <Link href="/monte-seu-quadro" className={cn("font-medium", textColorClass)}>Composições</Link>

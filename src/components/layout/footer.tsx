@@ -36,7 +36,8 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Logo and Social */}
             <div className="md:col-span-1">
-              <h2 className="text-3xl font-light text-gray-800 mb-4">BOEMI</h2>
+              <h2 className="text-3xl font-light text-gray-800 mb-2">Home Designer</h2>
+              <p className="text-sm text-muted-foreground mb-4">Arte moderna e vibrante para o seu espaço. Feito à mão com paixão.</p>
               <div className="flex space-x-4">
                 <a href="#" aria-label="Instagram" className="text-gray-600 hover:text-primary"><Instagram /></a>
                 <a href="#" aria-label="Pinterest"><PinterestIcon /></a>

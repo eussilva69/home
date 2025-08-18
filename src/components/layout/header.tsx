@@ -39,7 +39,7 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      setIsScrolled(window.scrollY > 50); // Mudar de cor depois de rolar 50px
     };
     
     handleScroll();
@@ -102,17 +102,14 @@ export default function Header() {
   
   const headerClasses = cn(
     "fixed top-0 z-50 w-full transition-all duration-300",
-    {
-        'bg-transparent': isHomePage && !isScrolled,
-        'bg-[#efe7da] text-primary shadow-md': !isHomePage || isScrolled
-    }
+    isHomePage && !isScrolled ? 'bg-transparent' : 'bg-[#efe7da] text-primary shadow-md'
   );
   
   const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";
   const finalPositionClass = isHomePage && !isScrolled ? 'absolute' : 'fixed';
 
   return (
-    <header className={headerClasses} style={{ position: finalPositionClass }}>
+    <header className={headerClasses} style={{ position: 'absolute' }}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <Brush className={cn("h-8 w-8", textColorClass)} />
@@ -152,7 +149,7 @@ export default function Header() {
              <Link href="/collection/floral" className={cn("font-medium", textColorClass)}>Mais Vendidos</Link>
              <Link href="/collection/botanico" className={cn("font-medium", textColorClass)}>Novidades</Link>
              <Link href="/monte-seu-quadro" className={cn("font-medium", textColorClass)}>Composições</Link>
-             <Link href="/orcamento" className={cn("font-medium", textColorClass)}>Promoções</Link>
+             <Link href="/orcamento" className={cn("font-medium", textColorClass)}>ORÇAMENTOS</Link>
           </nav>
 
           <div className="flex items-center gap-4">

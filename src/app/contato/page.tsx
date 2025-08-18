@@ -21,7 +21,7 @@ export default function ContatoPage() {
     return (
         <div className="flex flex-col min-h-screen bg-secondary/50">
             <Header />
-            <main className="flex-grow">
+            <main className="flex-grow pt-20">
                  <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
                     <Image 
                         src="https://finger.ind.br/wp-content/uploads/2021/02/post_thumbnail-757ae398373789e34f676db879790a25.jpeg"

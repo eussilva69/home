@@ -102,102 +102,11 @@ export default function Header() {
   const collectionColumns = categoriesInColumns();
   
   const headerClasses = cn(
-    "absolute top-10 z-50 w-full transition-all duration-300",
-    isHomePage && isScrolled && "fixed top-0 bg-white text-primary shadow-md",
+    "fixed top-0 z-50 w-full transition-all duration-300",
+    isHomePage && !isScrolled ? 'bg-transparent' : 'bg-[#efe7da] text-primary shadow-md',
   );
   
   const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";
-
-  if (!isHomePage) {
-    return (
-        <header className="sticky top-0 z-50 w-full bg-primary border-b shadow-md">
-            <div className="bg-primary text-primary-foreground">
-                <div className="container mx-auto flex h-20 items-center justify-between px-4">
-                  <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-                     <Image src="https://i.ibb.co/hK5yF01/logo-sem-fundo.png" alt="Home Designer Logo" width={80} height={80} />
-                    <h1 className="text-2xl font-headline font-bold text-white whitespace-nowrap">Home Designer</h1>
-                  </Link>
-                  <div className="hidden lg:flex w-full max-w-md mx-4 relative">
-                     <form onSubmit={handleSearchSubmit} className="w-full">
-                       <Input 
-                          placeholder="Buscar..." 
-                          className="pr-10 h-11 bg-white text-black"
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                       />
-                       <Button type="submit" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-black">
-                          <Search className="h-5 w-5"/>
-                       </Button>
-                     </form>
-                     {suggestions.length > 0 && searchTerm.length > 1 && (
-                       <SearchSuggestions 
-                         suggestions={suggestions}
-                         isLoading={isLoading}
-                         onSuggestionClick={handleSuggestionClick}
-                       />
-                     )}
-                  </div>
-                  <div className="hidden lg:flex items-center gap-6">
-                     <Link href={user ? '/dashboard' : '/login'} className="flex items-center gap-2 text-white hover:text-gray-300">
-                          <User className="h-7 w-7"/>
-                           <div>
-                              <p className="text-xs">{user ? `${user.displayName?.split(' ')[0]}`: 'Minha Conta'}</p>
-                              <span className="text-sm font-semibold">{user ? 'Ver Perfil' : 'Entrar'}</span>
-                          </div>
-                     </Link>
-                     <Link href="/cart" className="relative flex items-center gap-2 text-white hover:text-gray-300">
-                        <ShoppingCart className="h-7 w-7" />
-                         {isClient && totalItems > 0 && (
-                            <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold">
-                              {totalItems}
-                            </span>
-                          )}
-                          <div>
-                              <p className="text-xs">Carrinho</p>
-                              <span className="text-sm font-semibold">Ver Itens</span>
-                          </div>
-                     </Link>
-                  </div>
-                </div>
-            </div>
-             <nav className="hidden lg:flex container mx-auto h-12 items-center justify-center px-4 bg-primary text-primary-foreground">
-                <div className="flex items-center gap-6 text-sm font-medium">
-                   <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
-                    <PopoverTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          className="font-bold flex items-center gap-1 transition-colors hover:bg-primary/80"
-                        >
-                          Coleções <ChevronDown className="h-4 w-4" />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[48rem] p-6 bg-primary text-primary-foreground border-white/20 shadow-lg" align="start">
-                        <div className="grid grid-cols-3 gap-x-8 gap-y-2">
-                          {collectionColumns.map((column, colIndex) => (
-                            <div key={colIndex} className="flex flex-col gap-2">
-                              {column.map((collection) => (
-                                <Link
-                                  key={collection.name}
-                                  href={`/collection/${collection.slug}`}
-                                  className="block p-1 rounded-md text-sm hover:bg-accent hover:text-accent-foreground"
-                                  onClick={() => setCollectionsOpen(false)}
-                                >
-                                  {collection.name}
-                                </Link>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                    </PopoverContent>
-                  </Popover>
-                  <Link href="/furnitures" className="transition-colors hover:text-primary-foreground/80">Mobílias</Link>
-                  <Link href="/monte-seu-quadro" className="transition-colors hover:text-red-400 font-bold text-red-500">Personalize sua Foto</Link>
-                  <Link href="/contato" className="transition-colors hover:text-primary-foreground/80">Atendimento</Link>
-                </div>
-              </nav>
-        </header>
-    )
-  }
 
   return (
     <header className={headerClasses}>
@@ -213,7 +122,7 @@ export default function Header() {
                 <PopoverTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      className={cn("font-medium flex items-center gap-1", textColorClass)}
+                      className={cn("font-medium flex items-center gap-1", textColorClass, "hover:bg-black/10")}
                     >
                       Coleções <ChevronDown className="h-4 w-4" />
                     </Button>

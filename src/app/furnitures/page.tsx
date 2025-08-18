@@ -76,7 +76,7 @@ export default function FurnituresPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-8 pt-28">
         <div className="text-center mb-8">
             <h1 className="text-3xl md:text-5xl font-bold text-primary">Mobílias</h1>
             <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Explore nossa seleção de móveis para complementar seu espaço.</p>

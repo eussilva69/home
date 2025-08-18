@@ -10,7 +10,7 @@ export default function QuotePage() {
     return (
         <div className="flex flex-col min-h-screen bg-secondary/50">
             <Header />
-            <main className="flex-grow">
+            <main className="flex-grow pt-20">
                 <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
                     <Image 
                         src="https://img.freepik.com/fotos-gratis/a-luz-brilha-atraves-da-janela-em-um-apartamento-vazio-com-paredes-brancas-e-um-piso-de-madeira_1217-2130.jpg"

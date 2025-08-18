@@ -3,6 +3,7 @@ import HeroSection from "@/components/home/hero-section";
 import FeaturedCollections from "@/components/home/featured-collections";
 import Footer from "@/components/layout/footer";
 import FeatureBar from "@/components/home/feature-bar";
+import EnvironmentsSection from "@/components/home/environments-section";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
         <HeroSection />
         <FeatureBar />
         <FeaturedCollections />
+        <EnvironmentsSection />
       </main>
       <Footer />
     </div>

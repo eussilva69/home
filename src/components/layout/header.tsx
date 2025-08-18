@@ -260,7 +260,7 @@ export default function Header() {
                 </Button>
             </PopoverTrigger>
             <PopoverContent 
-                className="w-[48rem] p-6 bg-primary text-primary-foreground" 
+                className="w-[48rem] p-6 bg-primary text-primary-foreground border border-white/20 shadow-lg shadow-white/10" 
                 align="start"
                 onMouseEnter={() => setCollectionsOpen(true)}
                 onMouseLeave={() => setCollectionsOpen(false)}

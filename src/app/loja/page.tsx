@@ -1,46 +1,212 @@
 
+'use client';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { getProducts } from '@/app/actions';
+import { collections } from '@/lib/mock-data';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import Image from 'next/image';
+import ProductCard from '@/components/shared/product-card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Loader2, Search, ListFilter, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import type { Product } from '@/lib/schemas';
+
+const PRODUCTS_PER_PAGE = 24;
+
+const SidebarContent = ({
+  selectedCategory,
+  onSelectCategory,
+}: {
+  selectedCategory: string;
+  onSelectCategory: (category: string) => void;
+}) => (
+  <aside className="w-full lg:w-64 lg:pr-8 space-y-4">
+    <h2 className="text-xl font-semibold text-primary">Categorias</h2>
+    <ul className="space-y-2">
+      <li>
+        <button
+          onClick={() => onSelectCategory('all')}
+          className={`w-full text-left p-2 rounded-md transition-colors ${
+            selectedCategory === 'all' ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-primary/5'
+          }`}
+        >
+          Todas
+        </button>
+      </li>
+      {collections.map((cat) => (
+        <li key={cat.slug}>
+          <button
+            onClick={() => onSelectCategory(cat.name)}
+            className={`w-full text-left p-2 rounded-md transition-colors ${
+              selectedCategory === cat.name ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-primary/5'
+            }`}
+          >
+            {cat.name}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </aside>
+);
 
 export default function LojaPage() {
-    return (
-        <div className="flex flex-col min-h-screen bg-secondary/50">
-            <Header />
-            <main className="flex-grow pt-20">
-                <section className="relative h-64 md:h-80 w-full flex items-center justify-center text-center text-white">
-                    <Image 
-                        src="https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt="Interior de loja de decoração"
-                        layout="fill"
-                        objectFit="cover"
-                        className="brightness-50"
-                        priority
-                    />
-                    <div className="relative z-10 p-4">
-                        <h1 className="text-4xl md:text-5xl font-bold font-headline drop-shadow-lg">Nossa Loja</h1>
-                        <p className="mt-2 text-lg md:text-xl drop-shadow-md">Explore nossas coleções e encontre a arte perfeita para seu espaço.</p>
-                    </div>
-                </section>
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-                <section className="container mx-auto px-4 py-12 md:py-20 text-center">
-                   <h2 className="text-3xl font-bold text-primary mb-4">Bem-vindo à Home Designer</h2>
-                   <p className="max-w-3xl mx-auto text-muted-foreground mb-8">
-                       Navegue por nossas categorias cuidadosamente selecionadas ou explore todas as nossas peças. Cada quadro é uma oportunidade de transformar seu ambiente.
-                   </p>
-                   <div className="flex justify-center gap-4">
-                        <Button size="lg" asChild>
-                            <Link href="/collection/abstrato">Ver Coleções</Link>
-                        </Button>
-                        <Button size="lg" variant="outline" asChild>
-                            <Link href="/monte-seu-quadro">Monte seu Quadro</Link>
-                        </Button>
-                   </div>
-                </section>
-            </main>
-            <Footer />
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('relevant');
+
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      setLoading(true);
+      const products = await getProducts();
+      setAllProducts(products);
+      setLoading(false);
+    };
+    fetchAllProducts();
+  }, []);
+
+  const filteredProducts = useMemo(() => {
+    let products = [...allProducts];
+
+    // Filter by search term
+    if (searchTerm) {
+      products = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+
+    // Filter by category
+    if (selectedCategory !== 'all') {
+      products = products.filter((p) => p.category === selectedCategory);
+    }
+
+    // Sort products
+    switch (sortBy) {
+      case 'price-asc':
+        products.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        products.sort((a, b) => b.price - a.price);
+        break;
+      case 'name-asc':
+        products.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        products.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+    }
+
+    return products;
+  }, [allProducts, searchTerm, selectedCategory, sortBy]);
+
+  useEffect(() => {
+    setDisplayedProducts(filteredProducts.slice(0, PRODUCTS_PER_PAGE));
+    setCurrentPage(1);
+  }, [filteredProducts]);
+
+  const handleLoadMore = () => {
+    setLoadingMore(true);
+    const nextPage = currentPage + 1;
+    const nextProducts = filteredProducts.slice(0, nextPage * PRODUCTS_PER_PAGE);
+    setTimeout(() => {
+      setDisplayedProducts(nextProducts);
+      setCurrentPage(nextPage);
+      setLoadingMore(false);
+    }, 500);
+  };
+
+  const hasMoreProducts = displayedProducts.length < filteredProducts.length;
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
+      <Header />
+      <main className="flex-grow container mx-auto px-4 py-8 pt-28">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold text-primary">Nossa Loja</h1>
+          <p className="text-base text-muted-foreground mt-2">Explore um universo de arte e encontre a peça perfeita.</p>
         </div>
-    );
+
+        <div className="flex flex-col lg:flex-row gap-10">
+          {/* Sidebar for Desktop */}
+          <div className="hidden lg:block">
+            <SidebarContent selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+          </div>
+
+          {/* Main Content */}
+          <div className="flex-1">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-6 p-4 border rounded-lg bg-muted/40">
+              <div className="relative w-full md:flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  placeholder="O que você procura?"
+                  className="pl-10 h-11"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-4 w-full md:w-auto">
+                {/* Mobile Filter Trigger */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="lg:hidden flex-1 h-11">
+                      <ListFilter className="mr-2 h-4 w-4" /> Filtros
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="p-6">
+                    <SidebarContent selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+                  </SheetContent>
+                </Sheet>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="flex-1 h-11">
+                    <SelectValue placeholder="Ordenar por" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="relevant">Mais Relevantes</SelectItem>
+                    <SelectItem value="price-asc">Menor Preço</SelectItem>
+                    <SelectItem value="price-desc">Maior Preço</SelectItem>
+                    <SelectItem value="name-asc">Nome (A-Z)</SelectItem>
+                    <SelectItem value="name-desc">Nome (Z-A)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center items-center h-96">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                  {displayedProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+                {hasMoreProducts && (
+                  <div className="text-center mt-12">
+                    <Button onClick={handleLoadMore} disabled={loadingMore} size="lg">
+                      {loadingMore ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Carregar Mais Produtos'}
+                    </Button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
+                 <X className="mx-auto h-12 w-12 mb-4" />
+                <h3 className="text-xl font-semibold">Nenhum produto encontrado</h3>
+                <p>Tente ajustar sua busca ou filtros.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
 }

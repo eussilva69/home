@@ -101,16 +101,18 @@ export default function Header() {
   const collectionColumns = categoriesInColumns();
   
   const headerClasses = cn(
-    "fixed top-0 z-50 w-full transition-all duration-300",
-    isHomePage && !isScrolled ? 'bg-transparent' : 'bg-[#efe7da] text-primary shadow-md'
+    "z-50 w-full transition-all duration-300",
+    isHomePage && !isScrolled ? 'bg-transparent' : 'bg-[#efe7da] text-primary shadow-md',
+    isHomePage ? (isScrolled ? 'fixed' : 'absolute') : 'fixed'
   );
   
   const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";
   
-  const positionClass = isHomePage ? (isScrolled ? 'fixed' : 'absolute') : 'fixed';
+  const paddingTopClass = isHomePage ? (isScrolled ? 'pt-0' : 'pt-4') : 'pt-0';
+
 
   return (
-    <header className={cn(headerClasses, "pt-4")} style={{ position: positionClass }}>
+    <header className={cn(headerClasses, paddingTopClass)}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <Brush className={cn("h-8 w-8", textColorClass)} />
@@ -118,6 +120,7 @@ export default function Header() {
           </Link>
           
           <nav className="hidden lg:flex items-center gap-8">
+             <Link href="/loja" className={cn("font-medium", textColorClass)}>Loja</Link>
              <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
                 <PopoverTrigger asChild>
                     <Button 

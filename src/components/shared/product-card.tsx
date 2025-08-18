@@ -1,10 +1,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingCart } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 type ProductCardProps = {
   product: {
@@ -22,41 +18,22 @@ type ProductCardProps = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <Card className="group overflow-hidden rounded-lg shadow-sm hover:shadow-xl transition-shadow duration-300">
-      <CardContent className="p-0">
-        <Link href={`/product/${product.id}`} className="block relative aspect-[4/5] bg-secondary/30">
-          <Image
-            src={product.image}
-            alt={product.name}
-            data-ai-hint={product.hint}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
-            style={{ objectFit: 'contain' }}
-            className="transition-opacity duration-300 group-hover:opacity-0"
-          />
-          <Image
-            src={product.image_alt}
-            alt={`'${product.name}' in a room`}
-            data-ai-hint={product.hint_alt}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
-            style={{ objectFit: 'cover' }}
-            className="opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          />
-          <div className="absolute bottom-2 left-2 right-2 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:hidden">
-             <Button size="sm" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-8 text-xs">
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Ver Produto
-            </Button>
+    <Link href={`/product/${product.id}`} className="group block relative aspect-[4/5] bg-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
+        <Image
+          src={product.image}
+          alt={product.name}
+          data-ai-hint={product.hint}
+          fill
+          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
+          className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+        <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-lg">Ver mais</span>
+            <span className="text-lg font-semibold">R$ {product.price.toFixed(2).replace('.', ',')}</span>
           </div>
-        </Link>
-        <div className="p-3 md:p-4 bg-background">
-          <h3 className="font-headline text-base md:text-lg truncate">{product.name}</h3>
-          <p className="text-sm md:text-md font-semibold text-primary">
-            A partir de R$ {product.price.toFixed(2).replace('.', ',')}
-          </p>
         </div>
-      </CardContent>
-    </Card>
+    </Link>
   );
 }

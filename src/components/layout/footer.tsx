@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Instagram, Phone, Mail, Clock } from 'lucide-react';
+import { Instagram, Phone, Mail, MapPin } from 'lucide-react';
 
 const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -70,19 +70,16 @@ export default function Footer() {
                 <h3 className="font-semibold text-gray-800 mb-4 tracking-wider">ATENDIMENTO</h3>
                 <ul className="space-y-3 text-sm">
                     <li className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 flex-shrink-0" />
-                        <div>
-                            <span>Seg. a Sex. 09h00 - 18h00</span><br />
-                            <span>Sáb. 09h00 - 13h00</span>
-                        </div>
+                        <Phone className="h-4 w-4 flex-shrink-0" />
+                        <span>(34) 99722-2303</span>
                     </li>
                     <li className="flex items-center gap-2">
                         <Mail className="h-4 w-4 flex-shrink-0" />
-                        <span className="break-all">suporte@boemi.com.br</span>
+                        <span className="break-all">homedecorinterioresplanejados@gmail.com</span>
                     </li>
-                     <li className="flex items-center gap-2">
-                        <WhatsAppIcon className="h-4 w-4 flex-shrink-0" />
-                        <span>WhatsApp: (11) 98218-9203</span>
+                     <li className="flex items-start gap-2">
+                        <MapPin className="h-4 w-4 flex-shrink-0 mt-1" />
+                        <span>Rua Virgílio Carrijo, 1045 - Bairro Minas Gerais, Uberlândia - MG</span>
                     </li>
                 </ul>
               </div>

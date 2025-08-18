@@ -27,6 +27,7 @@ export default function Header() {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const { user } = useAuth();
   const { cartItems } = useCart();
@@ -38,20 +39,14 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Para a página inicial, a rolagem ativa o fundo. Para outras, está sempre "rolado".
-      if (window.scrollY > (isHomePage ? 50 : 0) ) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 0);
     };
     
-    // Executa no carregamento para o caso de a página já estar rolada
     handleScroll();
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHomePage]);
+  }, []);
 
 
   useEffect(() => {
@@ -81,6 +76,7 @@ export default function Header() {
         setSearchTerm('');
         setSuggestions([]);
         if (isMenuOpen) setMenuOpen(false);
+        if (isSearchOpen) setIsSearchOpen(false);
     }
   };
 
@@ -88,6 +84,7 @@ export default function Header() {
     setSearchTerm('');
     setSuggestions([]);
     if (isMenuOpen) setMenuOpen(false);
+    if (isSearchOpen) setIsSearchOpen(false);
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -105,13 +102,17 @@ export default function Header() {
   
   const headerClasses = cn(
     "fixed top-0 z-50 w-full transition-all duration-300",
-    isHomePage && !isScrolled ? 'bg-transparent pt-4' : 'bg-[#efe7da] text-primary shadow-md',
+    {
+        'bg-transparent': isHomePage && !isScrolled,
+        'bg-[#efe7da] text-primary shadow-md': !isHomePage || isScrolled
+    }
   );
   
   const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";
+  const finalPositionClass = isHomePage && !isScrolled ? 'absolute' : 'fixed';
 
   return (
-    <header className={headerClasses}>
+    <header className={headerClasses} style={{ position: finalPositionClass }}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <Brush className={cn("h-8 w-8", textColorClass)} />
@@ -155,7 +156,7 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-4">
-             <Button variant="ghost" size="icon" className={textColorClass}><Search className="h-5 w-5" /></Button>
+             <Button variant="ghost" size="icon" className={textColorClass} onClick={() => setIsSearchOpen(prev => !prev)}><Search className="h-5 w-5" /></Button>
              <Link href={user ? '/dashboard' : '/login'}><Button variant="ghost" size="icon" className={textColorClass}><User className="h-5 w-5" /></Button></Link>
              <Link href="/cart" className="relative">
                 <Button variant="ghost" size="icon" className={textColorClass}>
@@ -169,6 +170,24 @@ export default function Header() {
              </Link>
           </div>
         </div>
+        {isSearchOpen && (
+            <div className="w-full bg-[#efe7da] px-4 py-3 shadow-md">
+                <form onSubmit={handleSearchSubmit} className="relative container mx-auto">
+                    <Input 
+                        placeholder="Buscar produtos..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-white text-primary"
+                    />
+                    <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-primary">
+                        <Search className="h-5 w-5" />
+                    </Button>
+                    {suggestions.length > 0 && (
+                        <SearchSuggestions suggestions={suggestions} isLoading={isLoading} onSuggestionClick={handleSuggestionClick} />
+                    )}
+                </form>
+            </div>
+        )}
     </header>
   );
 }

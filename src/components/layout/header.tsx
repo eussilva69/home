@@ -92,7 +92,7 @@ export default function Header() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background border-b shadow-md">
+    <header className="sticky top-0 z-50 w-full bg-primary border-b shadow-md">
       {/* Top Bar */}
       <div className="bg-primary text-primary-foreground">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
@@ -247,12 +247,12 @@ export default function Header() {
       
       {/* Bottom Bar (Desktop Only) */}
       <nav className="hidden lg:flex container mx-auto h-12 items-center justify-center px-4">
-        <div className="flex items-center gap-6 text-sm font-medium text-primary">
+        <div className="flex items-center gap-6 text-sm font-medium text-primary-foreground">
            <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
             <PopoverTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="font-bold flex items-center gap-1 transition-colors hover:text-primary"
+                  className="font-bold flex items-center gap-1 transition-colors hover:bg-primary/80"
                   onMouseEnter={() => setCollectionsOpen(true)}
                   onMouseLeave={() => setCollectionsOpen(false)}
                 >
@@ -260,7 +260,7 @@ export default function Header() {
                 </Button>
             </PopoverTrigger>
             <PopoverContent 
-                className="w-[48rem] p-6" 
+                className="w-[48rem] p-6 bg-primary text-primary-foreground" 
                 align="start"
                 onMouseEnter={() => setCollectionsOpen(true)}
                 onMouseLeave={() => setCollectionsOpen(false)}
@@ -273,7 +273,7 @@ export default function Header() {
                         <Link
                           key={collection.name}
                           href={`/collection/${collection.slug}`}
-                          className="block p-1 rounded-md text-sm hover:bg-accent"
+                          className="block p-1 rounded-md text-sm hover:bg-accent hover:text-accent-foreground"
                           onClick={() => setCollectionsOpen(false)}
                         >
                           {collection.name}
@@ -285,9 +285,9 @@ export default function Header() {
             </PopoverContent>
           </Popover>
 
-          <Link href="/furnitures" className="transition-colors hover:text-primary">Mobílias</Link>
-          <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary font-bold text-red-600">Personalize sua Foto</Link>
-          <Link href="/contato" className="transition-colors hover:text-primary">Atendimento</Link>
+          <Link href="/furnitures" className="transition-colors hover:text-primary-foreground/80">Mobílias</Link>
+          <Link href="/monte-seu-quadro" className="transition-colors hover:text-red-400 font-bold text-red-500">Personalize sua Foto</Link>
+          <Link href="/contato" className="transition-colors hover:text-primary-foreground/80">Atendimento</Link>
         </div>
       </nav>
 

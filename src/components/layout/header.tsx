@@ -149,7 +149,7 @@ export default function Header() {
              <Link href="/collection/floral" className={cn("font-medium", textColorClass)}>Mais Vendidos</Link>
              <Link href="/collection/botanico" className={cn("font-medium", textColorClass)}>Novidades</Link>
              <Link href="/monte-seu-quadro" className={cn("font-medium", textColorClass)}>Composições</Link>
-             <Link href="/orcamento" className={cn("font-medium", textColorClass)}>ORÇAMENTOS</Link>
+             <Link href="/orcamento" className={cn("font-medium", textColorClass)}>Orcamento</Link>
           </nav>
 
           <div className="flex items-center gap-4">

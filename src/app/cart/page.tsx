@@ -35,7 +35,7 @@ export default function CartPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-32">
+      <main className="flex-grow container mx-auto px-4 py-8 pt-28">
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-headline text-black font-bold tracking-wide">Seu Carrinho</h1>
         </div>

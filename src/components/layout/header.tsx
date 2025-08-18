@@ -39,7 +39,7 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50); // Mudar de cor depois de rolar 50px
+      setIsScrolled(window.scrollY > 50);
     };
     
     handleScroll();
@@ -106,10 +106,11 @@ export default function Header() {
   );
   
   const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";
-  const finalPositionClass = isHomePage && !isScrolled ? 'absolute' : 'fixed';
+  
+  const positionClass = isHomePage ? (isScrolled ? 'fixed' : 'absolute') : 'fixed';
 
   return (
-    <header className={headerClasses} style={{ position: 'absolute' }}>
+    <header className={cn(headerClasses, "pt-4")} style={{ position: positionClass }}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <Brush className={cn("h-8 w-8", textColorClass)} />
@@ -117,7 +118,6 @@ export default function Header() {
           </Link>
           
           <nav className="hidden lg:flex items-center gap-8">
-             <Link href="/collection/animais" className={cn("font-medium", textColorClass)}>Loja</Link>
              <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
                 <PopoverTrigger asChild>
                     <Button 

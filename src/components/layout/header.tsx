@@ -286,7 +286,6 @@ export default function Header() {
           </Popover>
 
           <Link href="/furnitures" className="transition-colors hover:text-primary">Mobílias</Link>
-          <Link href="/collection/lancamentos" className="transition-colors hover:text-primary">Lançamentos</Link>
           <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary font-bold text-red-600">Personalize sua Foto</Link>
           <Link href="/contato" className="transition-colors hover:text-primary">Atendimento</Link>
         </div>

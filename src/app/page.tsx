@@ -6,20 +6,19 @@ import BestSellers from "@/components/home/best-sellers";
 import RandomProducts from "@/components/home/random-products";
 import Link from "next/link";
 import Image from "next/image";
-import FeatureBar from "@/components/home/feature-bar";
 import MinimalistSection from "@/components/home/minimalist-section";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-       <Header />
-      <div className="relative bg-[#efe7da] text-primary">
+      <div className="relative bg-[#efe7da] text-primary pt-4">
          {/* Top Announcement Bar */}
         <div className="text-center bg-[#f6f3ef] text-xs p-2 text-gray-600">
           Winter Sale - Ganhe 20%OFF + Frete Grátis. <Link href="#" className="underline">Saiba mais</Link>
         </div>
 
         {/* Hero Content */}
+        <Header />
         <div className="relative w-full h-[800px]">
            <Image
               src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=2148&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -43,7 +42,6 @@ export default function Home() {
         <EnvironmentsSection />
         <RandomProducts />
         <BestSellers />
-        <FeatureBar />
       </main>
       <Footer />
     </div>

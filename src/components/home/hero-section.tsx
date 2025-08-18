@@ -2,28 +2,29 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Truck, CreditCard, BadgePercent, ShieldCheck } from 'lucide-react';
+import { Truck, CreditCard, BadgePercent, Clock } from 'lucide-react';
+import { Button } from '../ui/button';
 
 const features = [
     {
+        icon: <BadgePercent className="h-6 w-6" />,
+        title: 'DESCONTO NO PIX',
+        description: '10% Desconto na sua compra'
+    },
+    {
         icon: <Truck className="h-6 w-6" />,
-        title: 'Entregamos em todo BR',
-        description: 'Consulte os prazos'
+        title: 'FRETE GRÁTIS',
+        description: 'Regiões Sul e Sudeste'
     },
     {
         icon: <CreditCard className="h-6 w-6" />,
-        title: 'Parcele Sem Juros',
-        description: 'Em até 12x no cartão'
+        title: 'PARCELAMENTO',
+        description: 'Em até 10x sem juros no cartão'
     },
     {
-        icon: <BadgePercent className="h-6 w-6" />,
-        title: '10% de Desconto',
-        description: 'Pix ou boleto bancário'
-    },
-    {
-        icon: <ShieldCheck className="h-6 w-6" />,
-        title: 'Compra Segura',
-        description: 'Seus dados protegidos'
+        icon: <Clock className="h-6 w-6" />,
+        title: 'ATENDIMENTO',
+        description: 'Segunda à sexta das 8h00 ás 18h00'
     }
 ];
 

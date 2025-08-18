@@ -48,17 +48,17 @@ export default function Footer() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4 tracking-wider">SOBRE</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><Link href="#" className="hover:text-primary">LOJA</Link></li>
-                  <li><Link href="#" className="hover:text-primary">BLOG</Link></li>
-                  <li><Link href="#" className="hover:text-primary">QUEM SOMOS</Link></li>
-                  <li><Link href="#" className="hover:text-primary">VALE PRESENTE</Link></li>
+                  <li><Link href="/loja" className="hover:text-primary">LOJA</Link></li>
+                  <li><Link href="/blog" className="hover:text-primary">BLOG</Link></li>
+                  <li><Link href="/quem-somos" className="hover:text-primary">QUEM SOMOS</Link></li>
+                  <li><Link href="/vale-presente" className="hover:text-primary">VALE PRESENTE</Link></li>
                   <li><Link href="/contato" className="hover:text-primary">CONTATO</Link></li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4 tracking-wider">AJUDA</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><Link href="#" className="hover:text-primary">DETALHES DO PEDIDO</Link></li>
+                  <li><Link href="/dashboard/my-orders" className="hover:text-primary">DETALHES DO PEDIDO</Link></li>
                   <li><Link href="#" className="hover:text-primary">COMO COMPRAR</Link></li>
                   <li><Link href="#" className="hover:text-primary">COMO PENDURAR</Link></li>
                   <li><Link href="#" className="hover:text-primary">GUIA DO PRODUTO</Link></li>
@@ -92,8 +92,8 @@ export default function Footer() {
                 {/* Payment icons would go here */}
             </div>
             <div className="flex items-center gap-4">
-                 <a href="#" className="hover:text-primary">Minha Conta</a>
-                 <a href="#" className="hover:text-primary">Finalizar compra</a>
+                 <a href="/dashboard" className="hover:text-primary">Minha Conta</a>
+                 <a href="/checkout" className="hover:text-primary">Finalizar compra</a>
             </div>
           </div>
 

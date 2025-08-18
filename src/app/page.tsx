@@ -7,6 +7,7 @@ import RandomProducts from "@/components/home/random-products";
 import Link from "next/link";
 import Image from "next/image";
 import FeatureBar from "@/components/home/feature-bar";
+import MinimalistSection from "@/components/home/minimalist-section";
 
 export default function Home() {
   return (
@@ -38,6 +39,7 @@ export default function Home() {
       
       <main className="flex-grow">
         <FeaturedCollections />
+        <MinimalistSection />
         <EnvironmentsSection />
         <RandomProducts />
         <BestSellers />

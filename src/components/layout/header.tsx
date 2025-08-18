@@ -38,23 +38,20 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
+      // Para a página inicial, a rolagem ativa o fundo. Para outras, está sempre "rolado".
+      if (window.scrollY > (isHomePage ? 50 : 0) ) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
     };
+    
+    // Executa no carregamento para o caso de a página já estar rolada
+    handleScroll();
 
-    if (isHomePage) {
-      window.addEventListener('scroll', handleScroll);
-      // Ensure initial state is correct on first load
-      handleScroll(); 
-      return () => window.removeEventListener('scroll', handleScroll);
-    } else {
-      // For all other pages, header should always be "scrolled"
-      setIsScrolled(true);
-    }
-  }, [isHomePage, pathname]);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isHomePage]);
 
 
   useEffect(() => {
@@ -108,7 +105,7 @@ export default function Header() {
   
   const headerClasses = cn(
     "fixed top-0 z-50 w-full transition-all duration-300",
-    isHomePage && !isScrolled ? 'bg-transparent' : 'bg-[#efe7da] text-primary shadow-md',
+    isHomePage && !isScrolled ? 'bg-transparent pt-4' : 'bg-[#efe7da] text-primary shadow-md',
   );
   
   const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, MessageSquareText, LogOut } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, LogOut } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { collections } from '@/lib/mock-data';
@@ -80,163 +80,162 @@ export default function Header() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background border-b">
+    <header className="sticky top-0 z-50 w-full bg-background border-b shadow-md">
       {/* Top Bar */}
-      <div className="container mx-auto flex h-20 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-          <Brush className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-headline font-bold text-primary whitespace-nowrap">Home Designer</h1>
-        </Link>
-        
-        <div className="hidden lg:flex w-full max-w-md mx-4 relative">
-           <form onSubmit={handleSearchSubmit} className="w-full">
-             <Input 
-                placeholder="Digite o que você procura" 
-                className="pr-10 h-11"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={() => { if (searchTerm.length > 1) setSuggestions(suggestions); }}
-             />
-             <Button type="submit" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
-                <Search className="h-5 w-5 text-muted-foreground"/>
-             </Button>
-           </form>
-           {suggestions.length > 0 && searchTerm.length > 1 && (
-             <SearchSuggestions 
-               suggestions={suggestions}
-               isLoading={isLoading}
-               onSuggestionClick={handleSuggestionClick}
-             />
-           )}
-        </div>
-        
-        <div className="hidden lg:flex items-center gap-4">
-           <div className="flex items-center gap-2">
-                <User className="h-7 w-7 text-primary"/>
-                 <div>
-                    <p className="text-xs">{user ? `Olá, ${user.displayName?.split(' ')[0] || ''}`: 'Olá, bem vindo(a)'}</p>
-                    <Link href={user ? '/dashboard' : '/login'} className="text-sm font-semibold hover:underline">
-                        {user ? 'Minha Conta' : 'Entrar ou Cadastrar'}
-                    </Link>
-                </div>
-           </div>
-           <Link href="/cart" className="relative">
-             <Button variant="ghost" size="icon">
+      <div className="bg-primary text-primary-foreground">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4">
+          <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
+             <Image src="https://i.ibb.co/hK5yF01/logo-sem-fundo.png" alt="Home Designer Logo" width={80} height={80} />
+            <h1 className="text-2xl font-headline font-bold text-white whitespace-nowrap">Home Designer</h1>
+          </Link>
+          
+          <div className="hidden lg:flex w-full max-w-md mx-4 relative">
+             <form onSubmit={handleSearchSubmit} className="w-full">
+               <Input 
+                  placeholder="Buscar..." 
+                  className="pr-10 h-11 bg-white text-black"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onFocus={() => { if (searchTerm.length > 1) setSuggestions(suggestions); }}
+               />
+               <Button type="submit" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-black">
+                  <Search className="h-5 w-5"/>
+               </Button>
+             </form>
+             {suggestions.length > 0 && searchTerm.length > 1 && (
+               <SearchSuggestions 
+                 suggestions={suggestions}
+                 isLoading={isLoading}
+                 onSuggestionClick={handleSuggestionClick}
+               />
+             )}
+          </div>
+          
+          <div className="hidden lg:flex items-center gap-6">
+             <Link href={user ? '/dashboard' : '/login'} className="flex items-center gap-2 text-white hover:text-gray-300">
+                  <User className="h-7 w-7"/>
+                   <div>
+                      <p className="text-xs">{user ? `${user.displayName?.split(' ')[0]}`: 'Minha Conta'}</p>
+                      <span className="text-sm font-semibold">{user ? 'Ver Perfil' : 'Entrar'}</span>
+                  </div>
+             </Link>
+             <Link href="/cart" className="relative flex items-center gap-2 text-white hover:text-gray-300">
                 <ShoppingCart className="h-7 w-7" />
                  {isClient && totalItems > 0 && (
-                    <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold">
                       {totalItems}
                     </span>
                   )}
-              </Button>
-           </Link>
-        </div>
+                  <div>
+                      <p className="text-xs">Carrinho</p>
+                      <span className="text-sm font-semibold">Ver Itens</span>
+                  </div>
+             </Link>
+          </div>
 
-        <div className="lg:hidden flex items-center gap-2">
-            <Link href="/cart" className="relative">
-             <Button variant="ghost" size="icon">
-                <ShoppingCart className="h-6 w-6" />
-                 {isClient && totalItems > 0 && (
-                    <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                      {totalItems}
-                    </span>
-                  )}
-              </Button>
-           </Link>
-            <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Abrir menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-full max-w-sm flex flex-col p-0">
-                <SheetHeader className="p-4 border-b">
-                   <SheetTitle className="text-left">Menu</SheetTitle>
-                </SheetHeader>
-                <div className="flex-grow overflow-y-auto">
-                    <div className="p-4">
-                        <form onSubmit={handleSearchSubmit}>
-                            <div className="relative">
-                                <Input 
-                                    placeholder="Buscar..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                                <Button type="submit" variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
-                                    <Search className="h-5 w-5 text-muted-foreground" />
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <nav className="flex flex-col gap-1 p-4">
-                        <Accordion type="single" collapsible className="w-full">
-                            <AccordionItem value="collections">
-                                <AccordionTrigger className="text-base font-semibold py-3">Coleções</AccordionTrigger>
-                                <AccordionContent className="pl-4">
-                                     <div className="grid grid-cols-2 gap-2">
-                                        {collections.map((collection) => (
-                                          <Link
-                                            key={collection.name}
-                                            href={`/collection/${collection.slug}`}
-                                            className="flex items-center gap-3 p-2 -m-2 rounded-md hover:bg-accent"
-                                            onClick={() => setMenuOpen(false)}
-                                          >
-                                            <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 relative">
-                                                <Image
-                                                  src={collection.image}
-                                                  alt={collection.name}
-                                                  data-ai-hint={collection.hint}
-                                                  fill
-                                                  sizes="40px"
-                                                  className="w-full h-full object-cover"
-                                                />
-                                             </div>
-                                            <span className="text-sm">{collection.name}</span>
-                                          </Link>
-                                        ))}
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
-                        <Link href="/furnitures" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Mobílias</Link>
-                        <Link href="/monte-seu-quadro" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Monte seu Quadro</Link>
-                        <Link href="/orcamento" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Orçamento</Link>
-                        <Link href="/contato" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-accent block" onClick={() => setMenuOpen(false)}>Contato</Link>
-                    </nav>
-                </div>
-
-                <div className="mt-auto p-4 border-t">
-                    {user ? (
-                        <div className="space-y-2">
-                             <Link href="/dashboard" className="w-full" onClick={() => setMenuOpen(false)}>
-                                <Button variant="outline" className="w-full justify-start gap-2">
-                                    <User className="h-5 w-5" /> Minha Conta
-                                </Button>
-                            </Link>
-                             <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleLogout}>
-                                <LogOut className="h-5 w-5" /> Sair
-                            </Button>
-                        </div>
-                    ) : (
-                         <Link href="/login" className="w-full" onClick={() => setMenuOpen(false)}>
-                            <Button className="w-full">
-                                <User className="mr-2"/> Entrar ou Cadastrar
-                            </Button>
-                        </Link>
+          <div className="lg:hidden flex items-center gap-2">
+              <Link href="/cart" className="relative">
+               <Button variant="ghost" size="icon" className="text-white">
+                  <ShoppingCart className="h-6 w-6" />
+                   {isClient && totalItems > 0 && (
+                      <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold">
+                        {totalItems}
+                      </span>
                     )}
-                </div>
-            </SheetContent>
-            </Sheet>
+                </Button>
+             </Link>
+              <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Abrir menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-full max-w-sm flex flex-col p-0 bg-primary text-primary-foreground">
+                  <SheetHeader className="p-4 border-b border-gray-700">
+                     <SheetTitle className="text-left text-white">Menu</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex-grow overflow-y-auto">
+                      <div className="p-4">
+                          <form onSubmit={handleSearchSubmit}>
+                              <div className="relative">
+                                  <Input 
+                                      placeholder="Buscar..."
+                                      value={searchTerm}
+                                      onChange={(e) => setSearchTerm(e.target.value)}
+                                      className="bg-gray-800 border-gray-600 text-white"
+                                  />
+                                  <Button type="submit" variant="ghost" size="icon" className="absolute right-0 top-0 h-full text-white">
+                                      <Search className="h-5 w-5" />
+                                  </Button>
+                              </div>
+                          </form>
+                      </div>
+
+                      <nav className="flex flex-col gap-1 p-4">
+                          <Accordion type="single" collapsible className="w-full">
+                              <AccordionItem value="collections" className="border-b-0">
+                                  <AccordionTrigger className="text-base font-semibold py-3 hover:no-underline">Coleções</AccordionTrigger>
+                                  <AccordionContent className="pl-4">
+                                       <div className="grid grid-cols-1 gap-2">
+                                          {collections.map((collection) => (
+                                            <Link
+                                              key={collection.name}
+                                              href={`/collection/${collection.slug}`}
+                                              className="flex items-center gap-3 p-2 -m-2 rounded-md hover:bg-gray-700"
+                                              onClick={() => setMenuOpen(false)}
+                                            >
+                                              <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 relative">
+                                                  <Image
+                                                    src={collection.image}
+                                                    alt={collection.name}
+                                                    data-ai-hint={collection.hint}
+                                                    fill
+                                                    sizes="40px"
+                                                    className="w-full h-full object-cover"
+                                                  />
+                                               </div>
+                                              <span className="text-sm">{collection.name}</span>
+                                            </Link>
+                                          ))}
+                                      </div>
+                                  </AccordionContent>
+                              </AccordionItem>
+                          </Accordion>
+                          <Link href="/monte-seu-quadro" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-gray-700 block" onClick={() => setMenuOpen(false)}>Personalize sua Foto</Link>
+                          <Link href="/contato" className="text-base font-semibold p-3 -m-3 rounded-md hover:bg-gray-700 block" onClick={() => setMenuOpen(false)}>Atendimento</Link>
+                      </nav>
+                  </div>
+
+                  <div className="mt-auto p-4 border-t border-gray-700">
+                      {user ? (
+                          <div className="space-y-2">
+                               <Link href="/dashboard" className="w-full" onClick={() => setMenuOpen(false)}>
+                                  <Button variant="outline" className="w-full justify-start gap-2 bg-transparent text-white hover:bg-gray-700">
+                                      <User className="h-5 w-5" /> Minha Conta
+                                  </Button>
+                              </Link>
+                               <Button variant="ghost" className="w-full justify-start gap-2 text-red-400 hover:text-red-400 hover:bg-red-400/10" onClick={handleLogout}>
+                                  <LogOut className="h-5 w-5" /> Sair
+                              </Button>
+                          </div>
+                      ) : (
+                           <Link href="/login" className="w-full" onClick={() => setMenuOpen(false)}>
+                              <Button className="w-full bg-white text-black hover:bg-gray-200">
+                                  <User className="mr-2"/> Entrar ou Cadastrar
+                              </Button>
+                          </Link>
+                      )}
+                  </div>
+              </SheetContent>
+              </Sheet>
+          </div>
         </div>
       </div>
       
-      <Separator/>
-
       {/* Bottom Bar (Desktop Only) */}
       <nav className="hidden lg:flex container mx-auto h-12 items-center justify-center px-4">
-        <div className="flex items-center gap-6 text-sm font-medium">
+        <div className="flex items-center gap-6 text-sm font-medium text-primary">
            <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
             <PopoverTrigger asChild>
                 <Button 
@@ -282,10 +281,10 @@ export default function Header() {
             </PopoverContent>
           </Popover>
 
-          <Link href="/furnitures" className="transition-colors hover:text-primary">Mobílias</Link>
-          <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary">Monte seu Quadro</Link>
-          <Link href="/orcamento" className="transition-colors hover:text-primary">Orçamento</Link>
-          <Link href="/contato" className="transition-colors hover:text-primary">Contato</Link>
+          <Link href="/collection/mais-vendidos" className="transition-colors hover:text-primary">Mais Vendidos</Link>
+          <Link href="/collection/lancamentos" className="transition-colors hover:text-primary">Lançamentos</Link>
+          <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary font-bold text-red-600">Personalize sua Foto</Link>
+          <Link href="/contato" className="transition-colors hover:text-primary">Atendimento</Link>
         </div>
       </nav>
 

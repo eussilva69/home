@@ -78,6 +78,18 @@ export default function Header() {
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  
+  const categoriesInColumns = () => {
+    const total = collections.length;
+    const itemsPerColumn = Math.ceil(total / 3);
+    const columns = [];
+    for (let i = 0; i < 3; i++) {
+        columns.push(collections.slice(i * itemsPerColumn, (i + 1) * itemsPerColumn));
+    }
+    return columns;
+  };
+  const collectionColumns = categoriesInColumns();
+
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background border-b shadow-md">
@@ -248,40 +260,32 @@ export default function Header() {
                 </Button>
             </PopoverTrigger>
             <PopoverContent 
-                className="w-[30rem] p-0" 
+                className="w-[48rem] p-6" 
                 align="start"
                 onMouseEnter={() => setCollectionsOpen(true)}
                 onMouseLeave={() => setCollectionsOpen(false)}
             >
-                <div className="p-4">
-                   <p className="font-medium text-lg mb-4">Temas</p>
-                   <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                    {collections.map((collection) => (
-                      <Link
-                        key={collection.name}
-                        href={`/collection/${collection.slug}`}
-                        className="flex items-center gap-3 p-2 -m-2 rounded-md hover:bg-accent"
-                        onClick={() => setCollectionsOpen(false)}
-                      >
-                         <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 relative">
-                            <Image
-                              src={collection.image}
-                              alt={collection.name}
-                              data-ai-hint={collection.hint}
-                              fill
-                              sizes="40px"
-                              className="w-full h-full object-cover"
-                            />
-                         </div>
-                        <span className="text-sm">{collection.name}</span>
-                      </Link>
-                    ))}
-                   </div>
+                <p className="font-bold text-lg mb-4 uppercase tracking-wider text-center">Categorias</p>
+                <div className="grid grid-cols-3 gap-x-8 gap-y-2">
+                  {collectionColumns.map((column, colIndex) => (
+                    <div key={colIndex} className="flex flex-col gap-2">
+                      {column.map((collection) => (
+                        <Link
+                          key={collection.name}
+                          href={`/collection/${collection.slug}`}
+                          className="block p-1 rounded-md text-sm hover:bg-accent"
+                          onClick={() => setCollectionsOpen(false)}
+                        >
+                          {collection.name}
+                        </Link>
+                      ))}
+                    </div>
+                  ))}
                 </div>
             </PopoverContent>
           </Popover>
 
-          <Link href="/collection/mais-vendidos" className="transition-colors hover:text-primary">Mais Vendidos</Link>
+          <Link href="/furnitures" className="transition-colors hover:text-primary">Mobílias</Link>
           <Link href="/collection/lancamentos" className="transition-colors hover:text-primary">Lançamentos</Link>
           <Link href="/monte-seu-quadro" className="transition-colors hover:text-primary font-bold text-red-600">Personalize sua Foto</Link>
           <Link href="/contato" className="transition-colors hover:text-primary">Atendimento</Link>

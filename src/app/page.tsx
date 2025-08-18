@@ -4,6 +4,8 @@ import FeaturedCollections from "@/components/home/featured-collections";
 import Footer from "@/components/layout/footer";
 import FeatureBar from "@/components/home/feature-bar";
 import EnvironmentsSection from "@/components/home/environments-section";
+import BestSellers from "@/components/home/best-sellers";
+import RandomProducts from "@/components/home/random-products";
 
 export default function Home() {
   return (
@@ -14,6 +16,8 @@ export default function Home() {
         <FeatureBar />
         <FeaturedCollections />
         <EnvironmentsSection />
+        <RandomProducts />
+        <BestSellers />
       </main>
       <Footer />
     </div>

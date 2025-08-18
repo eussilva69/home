@@ -41,7 +41,7 @@ export default function HeroSection() {
               priority
             />
         </Link>
-        <div className="absolute inset-x-0 bottom-0 pb-6 pt-20 bg-gradient-to-t from-black via-black/80 to-transparent">
+        <div className="absolute inset-x-0 bottom-0 pb-10 pt-32 bg-gradient-to-t from-black via-black/80 to-transparent">
              <div className="container mx-auto px-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4 text-white">
                     {features.map((feature, index) => (

@@ -6,6 +6,7 @@ import BestSellers from "@/components/home/best-sellers";
 import RandomProducts from "@/components/home/random-products";
 import Link from "next/link";
 import Image from "next/image";
+import FeatureBar from "@/components/home/feature-bar";
 
 export default function Home() {
   return (
@@ -42,6 +43,7 @@ export default function Home() {
         <EnvironmentsSection />
         <RandomProducts />
         <BestSellers />
+        <FeatureBar />
       </main>
       <Footer />
     </div>

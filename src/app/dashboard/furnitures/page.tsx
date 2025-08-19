@@ -190,6 +190,7 @@ export default function FurnituresPage() {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

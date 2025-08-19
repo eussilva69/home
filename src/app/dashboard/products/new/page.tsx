@@ -234,6 +234,7 @@ export default function NewProductPage() {
             </FormProvider>
           </main>
       </div>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

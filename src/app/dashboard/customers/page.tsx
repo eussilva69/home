@@ -109,6 +109,7 @@ export default function CustomersPage() {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

@@ -361,6 +361,7 @@ export default function OrdersPage() {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

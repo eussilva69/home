@@ -67,6 +67,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

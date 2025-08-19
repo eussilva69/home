@@ -389,6 +389,8 @@ export default function NewOrderPage() {
           </main>
         </div>
       </div>
+       <div className="h-[10cm]" />
+      <Footer />
     </div>
     <ProductConfigDialog
         isOpen={isConfigDialogOpen}

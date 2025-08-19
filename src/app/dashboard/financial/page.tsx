@@ -122,6 +122,7 @@ export default function FinancialPage() {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

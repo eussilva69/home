@@ -162,6 +162,7 @@ export default function AddressesPage() {
           </div>
         </div>
       </main>
+       <div className="h-[10cm]" />
       <Footer />
     </div>
     <AddressFormDialog 

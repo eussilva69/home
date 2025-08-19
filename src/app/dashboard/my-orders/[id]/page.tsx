@@ -192,6 +192,7 @@ export default function OrderDetailsPage() {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
      {order && user && (

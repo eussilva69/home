@@ -280,6 +280,7 @@ export default function EditProductPage() {
             </FormProvider>
           </main>
       </div>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

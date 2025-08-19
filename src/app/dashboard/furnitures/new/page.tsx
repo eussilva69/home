@@ -235,6 +235,7 @@ export default function NewFurniturePage() {
             </FormProvider>
           </main>
       </div>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

@@ -46,7 +46,7 @@ export default function Footer() {
                 <ul className="space-y-2 text-sm">
                   <li><Link href="/como-comprar" className="hover:text-primary">COMO COMPRAR</Link></li>
                   <li><Link href="#" className="hover:text-primary">COMO PENDURAR</Link></li>
-                  <li><Link href="#" className="hover:text-primary">GUIA DO PRODUTO</Link></li>
+                  <li><Link href="/guia-do-produto" className="hover:text-primary">GUIA DO PRODUTO</Link></li>
                   <li><Link href="/exchanges" className="hover:text-primary">DEVOLUÇÕES</Link></li>
                   <li><Link href="#" className="hover:text-primary">DÚVIDAS FREQUENTES</Link></li>
                 </ul>

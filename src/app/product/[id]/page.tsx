@@ -67,14 +67,13 @@ const FrameMockup = ({ artworkUrl, frameColor, withGlass, imageApplication = 're
             return (
                 <div
                     key={i}
-                    className="relative w-64 aspect-[4/5]"
+                    className="relative w-80"
                     style={{ 
                         backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
-                        padding: '0.5rem',
                     }}
                 >
-                    <div className="relative bg-white w-full h-full overflow-hidden">
+                    <div className="relative bg-white w-full aspect-[4/5] overflow-hidden">
                         <Image src={artworkUrl} alt={`Arte do quadro ${i + 1}`} layout="fill" style={imageStyle} />
                         {withGlass && <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>}
                     </div>

@@ -19,6 +19,7 @@ import type { Product } from '@/lib/schemas';
 import { productUpdateSchema, type ProductUpdatePayload } from '@/lib/schemas';
 import NextImage from 'next/image';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
 
 const ImageUploadField = ({
   label,
@@ -90,6 +91,8 @@ export default function EditProductPage() {
           name: productData.name,
           price: productData.price,
           artwork_image: productData.artwork_image,
+          image_alt: productData.image_alt,
+          imagesByColor: productData.imagesByColor || { black: '', white: '', hazel_oak: '', ebony_oak: '' },
           image_application: productData.image_application || 'repeat',
           gallery_images: productData.gallery_images || [],
         });
@@ -109,7 +112,7 @@ export default function EditProductPage() {
     }
   }, [user, authLoading, router, fetchProduct]);
   
-  const handleImageUpload = async (file: File, fieldName: keyof ProductUpdatePayload | `gallery_images.${number}`) => {
+  const handleImageUpload = async (file: File, fieldName: keyof ProductUpdatePayload | `gallery_images.${number}` | `imagesByColor.${string}`) => {
     const fieldId = fieldName.toString();
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
@@ -132,7 +135,7 @@ export default function EditProductPage() {
                 newGallery[index] = imageUrl;
                 form.setValue('gallery_images', newGallery, { shouldValidate: true });
             } else {
-                form.setValue(fieldName as keyof ProductUpdatePayload, imageUrl, { shouldValidate: true });
+                form.setValue(fieldName as any, imageUrl, { shouldValidate: true });
             }
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
         } else {
@@ -226,50 +229,77 @@ export default function EditProductPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Imagens da Arte</CardTitle>
+                        <CardTitle>Imagens da Arte e Ambiente</CardTitle>
                         <CardDescription>
-                            {imageApplication === 'individual' 
-                                ? 'Envie uma imagem para cada quadro do conjunto.'
-                                : 'Envie a imagem principal do quadro. Ela será usada nos mockups.'
-                            }
+                            Envie a imagem da arte pura e uma imagem do quadro aplicado em um ambiente.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {imageApplication === 'individual' && frameCount > 1 ? (
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {[...Array(frameCount)].map((_, index) => (
-                                   <FormField key={index} control={form.control} name={`gallery_images.${index}` as any} render={() => (
-                                      <FormItem>
-                                         <ImageUploadField
-                                            label={`Imagem Quadro ${index + 1}`}
-                                            currentImageUrl={form.watch(`gallery_images.${index}` as any)}
-                                            onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
-                                            isUploading={isUploading[`gallery_images.${index}`]}
-                                         />
-                                         <FormMessage/>
-                                      </FormItem>
-                                   )} />
-                                ))}
-                            </div>
-                        ) : (
-                             <FormField
-                                control={form.control}
-                                name="artwork_image"
-                                render={() => (
-                                   <FormItem>
-                                     <ImageUploadField
-                                        label="Arte Principal"
-                                        currentImageUrl={form.watch('artwork_image')}
-                                        onImageUpload={(file) => handleImageUpload(file, 'artwork_image')}
-                                        isUploading={isUploading['artwork_image']}
-                                     />
-                                     <FormMessage />
-                                   </FormItem>
-                                )}
+                         <FormField control={form.control} name="artwork_image" render={() => (
+                           <FormItem>
+                             <ImageUploadField
+                                label="Arte Pura (para mockups de moldura)"
+                                currentImageUrl={form.watch('artwork_image')}
+                                onImageUpload={(file) => handleImageUpload(file, 'artwork_image')}
+                                isUploading={isUploading['artwork_image']}
                              />
-                        )}
+                             <FormMessage />
+                           </FormItem>
+                         )} />
+                         <Separator/>
+                         <FormField control={form.control} name="image_alt" render={() => (
+                           <FormItem>
+                              <ImageUploadField
+                                label="Imagem no Ambiente (para hover)"
+                                currentImageUrl={form.watch('image_alt')}
+                                onImageUpload={(file) => handleImageUpload(file, 'image_alt')}
+                                isUploading={isUploading['image_alt']}
+                              />
+                             <FormMessage />
+                           </FormItem>
+                         )} />
                     </CardContent>
                 </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Imagens por Cor de Moldura</CardTitle>
+                        <CardDescription>
+                           Envie a imagem principal para cada cor de moldura.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField control={form.control} name="imagesByColor.black" render={() => (<FormItem><ImageUploadField label="Moldura Preta" currentImageUrl={form.watch('imagesByColor.black')} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.black')} isUploading={isUploading['imagesByColor.black']}/><FormMessage/></FormItem>)} />
+                        <FormField control={form.control} name="imagesByColor.white" render={() => (<FormItem><ImageUploadField label="Moldura Branca" currentImageUrl={form.watch('imagesByColor.white')} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.white')} isUploading={isUploading['imagesByColor.white']}/><FormMessage/></FormItem>)} />
+                        <FormField control={form.control} name="imagesByColor.hazel_oak" render={() => (<FormItem><ImageUploadField label="Moldura Carvalho Avelã" currentImageUrl={form.watch('imagesByColor.hazel_oak')} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.hazel_oak')} isUploading={isUploading['imagesByColor.hazel_oak']}/><FormMessage/></FormItem>)} />
+                        <FormField control={form.control} name="imagesByColor.ebony_oak" render={() => (<FormItem><ImageUploadField label="Moldura Carvalho Ébano" currentImageUrl={form.watch('imagesByColor.ebony_oak')} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.ebony_oak')} isUploading={isUploading['imagesByColor.ebony_oak']}/><FormMessage/></FormItem>)} />
+                    </CardContent>
+                </Card>
+
+
+                {imageApplication === 'individual' && frameCount > 1 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Imagens Individuais</CardTitle>
+                            <CardDescription>Envie uma imagem de arte para cada quadro do conjunto.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {[...Array(frameCount)].map((_, index) => (
+                               <FormField key={index} control={form.control} name={`gallery_images.${index}` as any} render={() => (
+                                  <FormItem>
+                                     <ImageUploadField
+                                        label={`Imagem Quadro ${index + 1}`}
+                                        currentImageUrl={form.watch(`gallery_images.${index}` as any)}
+                                        onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
+                                        isUploading={isUploading[`gallery_images.${index}`]}
+                                     />
+                                     <FormMessage/>
+                                  </FormItem>
+                               )} />
+                            ))}
+                        </CardContent>
+                    </Card>
+                )}
                 
                 <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>
@@ -287,3 +317,4 @@ export default function EditProductPage() {
     </div>
   );
 }
+

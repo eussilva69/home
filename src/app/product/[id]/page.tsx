@@ -8,7 +8,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -110,18 +110,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     setSelectedFrame(value);
   }
 
-  const humanHeightPx = 120;
-  const humanImage = "https://res.cloudinary.com/dl38o4mnk/image/upload/v1755621040/pngegg_jq7lzi.png";
-
-  const getFrameDimensions = (sizeString: string) => {
-    const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);
-    const scaleFactor = humanHeightPx / 170; // px per cm
-    return {
-      width: w_cm * scaleFactor,
-      height: h_cm * scaleFactor
-    };
-  };
-
   if (loading || !product) {
       return (
           <div className="flex flex-col min-h-screen">
@@ -203,38 +191,17 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   <Label className="text-base md:text-lg font-medium">Tamanho: <span className="font-bold">{selectedSize}</span></Label>
               </div>
               <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
-                  <Info className="h-4 w-4"/> Escolha um tamanho para ver a escala real.
+                  <Info className="h-4 w-4"/> Preços variam conforme tamanho e acabamento.
               </p>
               <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {availableSizes.map(({ tamanho }) => {
-                  const { width, height } = getFrameDimensions(tamanho);
-                  
-                  return (
-                    <div key={tamanho}>
-                      <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
-                      <Label
-                        htmlFor={`size-${tamanho}`}
-                        className={cn(
-                          "flex flex-col items-center justify-between cursor-pointer rounded-lg border-2 p-2 text-center transition-all h-40",
-                          selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background'
-                        )}
-                      >
-                        <div className="w-full flex-grow flex items-end justify-center gap-2" style={{ transform: 'scale(0.8)' }}>
-                          <Image src={humanImage} alt="Silhueta humana" width={30} height={humanHeightPx} style={{height: `${humanHeightPx}px`}}/>
-                          <div className='flex items-center justify-center' style={{height: `${humanHeightPx}px`}}>
-                             <div className="bg-primary/50" style={{ width: `${width}px`, height: `${height}px`}} />
-                          </div>
-                        </div>
-                        <div className='w-full text-center py-1'>
-                          <span className="font-semibold text-sm">{tamanho}</span>
-                           <span className="block text-xs text-muted-foreground">
-                            {product.arrangement}
-                          </span>
-                        </div>
-                      </Label>
-                    </div>
-                  );
-                })}
+                {availableSizes.map(({ tamanho }) => (
+                  <div key={tamanho}>
+                    <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
+                    <Label htmlFor={`size-${tamanho}`} className={cn("flex h-16 items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center text-sm font-semibold transition-all", selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background')}>
+                       {tamanho} ({product.arrangement})
+                    </Label>
+                  </div>
+                ))}
               </RadioGroup>
             </div>
             

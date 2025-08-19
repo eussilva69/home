@@ -155,15 +155,14 @@ export const ProductSchema = z.object({
   id: z.string(),
   name: z.string(),
   price: z.number(),
-  artwork_image: z.string().default(''),
+  artwork_image: z.string().optional(),
+  image_alt: z.string().optional(),
+  imagesByColor: z.record(z.string()).optional(),
   category: z.string(),
   arrangement: z.string(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional().default('repeat'),
   gallery_images: z.array(z.string()).optional(),
-  // Campos obsoletos mantidos opcionalmente para compatibilidade com dados antigos
-  image: z.string().optional(),
-  image_alt: z.string().optional(),
-  imagesByColor: z.record(z.string()).optional(),
+  image: z.string().optional(), // Mantido para compatibilidade
   hint: z.string().optional(),
   hint_alt: z.string().optional(),
 });
@@ -172,7 +171,14 @@ export type Product = z.infer<typeof ProductSchema>;
 export const productUpdateSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres.").optional(),
   price: z.number().min(0, "O preço não pode ser negativo.").optional(),
-  artwork_image: z.string().url("URL da arte é obrigatória.").optional(),
+  artwork_image: z.string().url("URL da arte inválida.").optional(),
+  image_alt: z.string().url("URL da imagem de ambiente inválida.").optional(),
+  imagesByColor: z.object({
+      black: z.string().url("URL inválida").optional(),
+      white: z.string().url("URL inválida").optional(),
+      hazel_oak: z.string().url("URL inválida").optional(),
+      ebony_oak: z.string().url("URL inválida").optional(),
+  }).optional(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional(),
   gallery_images: z.array(z.string().url()).optional(),
 });
@@ -199,6 +205,13 @@ export const newProductSchema = z.object({
   category: z.string().min(1, "A categoria é obrigatória."),
   arrangement: z.string().min(1, "O arranjo é obrigatório."),
   artwork_image: z.string().url("URL da arte é obrigatória.").optional(),
+  image_alt: z.string().url("URL da imagem de ambiente inválida.").optional(),
+  imagesByColor: z.object({
+      black: z.string().url("URL inválida").optional(),
+      white: z.string().url("URL inválida").optional(),
+      hazel_oak: z.string().url("URL inválida").optional(),
+      ebony_oak: z.string().url("URL inválida").optional(),
+  }).optional(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional(),
   gallery_images: z.array(z.string().url()).optional(),
 });

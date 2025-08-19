@@ -231,6 +231,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.iset.io',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'casalinda.cdn.magazord.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

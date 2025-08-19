@@ -18,7 +18,7 @@ const environments = [
   {
     name: 'Escritório',
     href: '/collection/frases-tipografia',
-    image: 'https://res.cloudinary.com/dyhp1sbsj/image/upload/v1722883584/f1xbsxeyz8zuzfzkvhnr.jpg',
+    image: 'https://casalinda.cdn.magazord.com.br/img/2023/07/produto/6518/casa-linda-modern-office-with-23-vertical-frame-with-mirror-in-e9432cbd-4f96-4f3f-8c42-c57271298816.jpg?ims=fit-in/690x690/filters:fill(white)',
     hint: 'modern office'
   }
 ];

@@ -104,7 +104,7 @@ export default function Header() {
   
   const headerClasses = cn(
     "fixed z-50 w-full transition-all duration-300",
-    isHomePage && !isScrolled ? 'bg-transparent' : (isLojaPage ? 'bg-background text-primary shadow-md' : 'bg-[#efe7da] text-primary shadow-md')
+    isScrolled || !isHomePage ? (isLojaPage ? 'bg-background text-primary shadow-md' : 'bg-[#efe7da] text-primary shadow-md') : 'bg-transparent'
   );
   
   const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";

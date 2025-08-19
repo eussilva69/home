@@ -67,7 +67,7 @@ const FrameMockup = ({ artworkUrl, frameColor, withGlass, imageApplication = 're
             return (
                 <div
                     key={i}
-                    className="relative p-2"
+                    className="relative w-48 aspect-[4/5] p-2"
                     style={{ 
                         backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',

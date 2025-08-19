@@ -95,7 +95,7 @@ export default function Header() {
   const headerClasses = cn(
     "w-full top-0 z-50 transition-all duration-300",
     isHomePage ? 'absolute' : 'relative',
-    isScrolled ? "bg-[#efe7da] text-primary shadow-md" : "bg-transparent text-white"
+    isScrolled ? "bg-white text-primary shadow-md" : "bg-transparent text-white"
   );
   
   const iconButtonClasses = cn(
@@ -154,7 +154,7 @@ export default function Header() {
                 <Button variant="ghost" size="icon" className={iconButtonClasses}>
                     <ShoppingCart className="h-5 w-5" />
                     {isClient && totalItems > 0 && (
-                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isScrolled ? "bg-white text-primary" : "bg-primary text-white")}>
+                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isScrolled ? "bg-primary text-white" : "bg-primary text-white")}>
                           {totalItems}
                         </span>
                     )}
@@ -163,7 +163,7 @@ export default function Header() {
           </div>
         </div>
         {isSearchOpen && (
-            <div className={cn("w-full px-4 py-3 shadow-md", isScrolled ? 'bg-[#efe7da]' : 'bg-black/20 backdrop-blur-sm')}>
+            <div className={cn("w-full px-4 py-3 shadow-md", isScrolled ? 'bg-white' : 'bg-black/20 backdrop-blur-sm')}>
                 <form onSubmit={handleSearchSubmit} className="relative container mx-auto">
                     <Input 
                         placeholder="Buscar produtos..."

@@ -24,6 +24,7 @@ const environments = [
   {
     name: 'Escritório',
     href: '/escritorio',
+    video: '/escritorio.mp4',
     image: 'https://casalinda.cdn.magazord.com.br/img/2023/07/produto/6518/casa-linda-modern-office-with-23-vertical-frame-with-mirror-in-e9432cbd-4f96-4f3f-8c42-c57271298816.jpg?ims=fit-in/690x690/filters:fill(white)',
     hint: 'modern office'
   }
@@ -31,22 +32,25 @@ const environments = [
 
 export default function EnvironmentsSection() {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [redirectUrl, setRedirectUrl] = useState('');
 
   const handleVideoEnd = () => {
     setActiveVideo(null);
+    setRedirectUrl('');
   };
 
   const handleVerAgoraClick = (e: React.MouseEvent<HTMLElement>, env: typeof environments[0]) => {
     if (env.video) {
       e.preventDefault();
-      e.stopPropagation(); // Impede o link pai de ser acionado
+      e.stopPropagation();
+      setRedirectUrl(env.href);
       setActiveVideo(env.video);
     }
   };
 
   return (
     <>
-      <VideoIntro activeVideo={activeVideo} onVideoEnd={handleVideoEnd} redirectUrl="/quarto" />
+      <VideoIntro activeVideo={activeVideo} onVideoEnd={handleVideoEnd} redirectUrl={redirectUrl} />
       <section className="py-12 md:py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="flex items-center mb-8">

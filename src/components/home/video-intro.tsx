@@ -18,14 +18,14 @@ export default function VideoIntro({ activeVideo, onVideoEnd, redirectUrl }: Vid
   const isRedirecting = useRef(false);
 
   useEffect(() => {
-    if (activeVideo) {
+    if (activeVideo && redirectUrl) {
       setShowVideo(true);
       isRedirecting.current = false; // Reset redirect flag
     }
-  }, [activeVideo]);
+  }, [activeVideo, redirectUrl]);
 
   const handleVideoEnded = () => {
-    if (isRedirecting.current) return;
+    if (isRedirecting.current || !redirectUrl) return;
     isRedirecting.current = true;
 
     // Start fade out, then navigate
@@ -45,7 +45,7 @@ export default function VideoIntro({ activeVideo, onVideoEnd, redirectUrl }: Vid
 
   const handleTimeUpdate = () => {
     const video = videoRef.current;
-    if (video) {
+    if (video && redirectUrl) {
         // Prefetch 1 second before the end
         if (video.duration - video.currentTime <= 1) {
             router.prefetch(redirectUrl);

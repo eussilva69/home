@@ -26,7 +26,6 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const { user } = useAuth();
@@ -35,21 +34,7 @@ export default function Header() {
   const pathname = usePathname();
   const isClient = useClientOnly();
   
-  const isHomePage = pathname === '/';
   const isLojaPage = pathname === '/loja';
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 50);
-    };
-    
-    handleScroll();
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -103,11 +88,11 @@ export default function Header() {
   const collectionColumns = categoriesInColumns();
   
   const headerClasses = cn(
-    "fixed z-50 w-full transition-all duration-300",
-    isScrolled || !isHomePage ? (isLojaPage ? 'bg-background text-primary shadow-md' : 'bg-[#efe7da] text-primary shadow-md') : 'bg-transparent'
+    "fixed top-0 left-0 z-50 w-full transition-all duration-300 shadow-md",
+    isLojaPage ? 'bg-background text-primary' : 'bg-[#efe7da] text-primary'
   );
   
-  const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";
+  const textColorClass = "text-primary";
 
 
   return (
@@ -159,7 +144,7 @@ export default function Header() {
                 <Button variant="ghost" size="icon" className={textColorClass}>
                     <ShoppingCart className="h-5 w-5" />
                     {isClient && totalItems > 0 && (
-                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isHomePage && !isScrolled ? "bg-white text-black" : "bg-primary text-white")}>
+                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", "bg-primary text-white")}>
                           {totalItems}
                         </span>
                     )}

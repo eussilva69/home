@@ -19,7 +19,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Sansation', 'sans-serif'],
-        headline: ['Covered By Your Grace', 'cursive'],
+        headline: ['Sansation', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

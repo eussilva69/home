@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -48,21 +47,21 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
-const FrameMockup = ({ artworkUrl, frameColor, withGlass, className }: { artworkUrl: string; frameColor: string, withGlass: boolean, className?: string }) => {
+const FrameMockup = ({ artworkUrl, frameColor, withGlass }: { artworkUrl: string; frameColor: string, withGlass: boolean }) => {
     return (
         <div 
-            className={cn("relative p-4 transition-all duration-300 flex items-center justify-center", className)}
+            className="relative inline-block p-4 transition-all duration-300"
             style={{ 
                 backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
                 boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
             }}
         >
-            <div className="relative w-full h-full bg-white">
-                <Image src={artworkUrl} alt="Arte do quadro" layout="fill" objectFit="contain" />
+            <div className="relative bg-white">
+                <Image src={artworkUrl} alt="Arte do quadro" width={500} height={625} className="object-cover" />
+                 {withGlass && (
+                    <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
+                )}
             </div>
-             {withGlass && (
-                <div className="absolute inset-4 bg-black/10 backdrop-blur-[1px]"/>
-            )}
         </div>
     )
 };
@@ -158,10 +157,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
-          <div className="flex flex-col gap-4">
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
-                <FrameMockup artworkUrl={product.artwork_image} frameColor={selectedFrame} withGlass={withGlass} className="w-full h-full"/>
-            </div>
+          <div className="flex flex-col gap-4 items-center justify-center bg-gray-100 rounded-lg p-4">
+            <FrameMockup artworkUrl={product.artwork_image} frameColor={selectedFrame} withGlass={withGlass} />
           </div>
 
           {/* Product Details */}

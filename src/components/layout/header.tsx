@@ -28,7 +28,6 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isHomePageAtTop, setIsHomePageAtTop] = useState(true);
 
   const { user } = useAuth();
   const { cartItems } = useCart();
@@ -43,16 +42,13 @@ export default function Header() {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setIsScrolled(scrollPosition > 50);
-      if (isHomePage) {
-        setIsHomePageAtTop(scrollPosition < 50);
-      }
     };
     
     handleScroll();
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHomePage]);
+  }, []);
 
 
   useEffect(() => {
@@ -107,12 +103,11 @@ export default function Header() {
   const collectionColumns = categoriesInColumns();
   
   const headerClasses = cn(
-    "z-50 w-full transition-all duration-300",
-    isHomePage && isHomePageAtTop ? 'bg-transparent' : (isLojaPage ? 'bg-background text-primary shadow-md' : 'bg-[#efe7da] text-primary shadow-md'),
-    isHomePage ? (isScrolled || !isHomePageAtTop ? 'fixed' : 'absolute') : 'fixed'
+    "fixed z-50 w-full transition-all duration-300",
+    isHomePage && !isScrolled ? 'bg-transparent' : (isLojaPage ? 'bg-background text-primary shadow-md' : 'bg-[#efe7da] text-primary shadow-md')
   );
   
-  const textColorClass = isHomePage && isHomePageAtTop ? "text-white" : "text-primary";
+  const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";
 
 
   return (
@@ -164,7 +159,7 @@ export default function Header() {
                 <Button variant="ghost" size="icon" className={textColorClass}>
                     <ShoppingCart className="h-5 w-5" />
                     {isClient && totalItems > 0 && (
-                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isHomePage && isHomePageAtTop ? "bg-white text-black" : "bg-primary text-white")}>
+                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isHomePage && !isScrolled ? "bg-white text-black" : "bg-primary text-white")}>
                           {totalItems}
                         </span>
                     )}

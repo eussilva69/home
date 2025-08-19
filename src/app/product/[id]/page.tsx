@@ -258,6 +258,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

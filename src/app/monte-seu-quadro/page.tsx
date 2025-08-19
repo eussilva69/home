@@ -282,7 +282,7 @@ export default function MonteSeuQuadroPage() {
     }
 
     return (
-    <div className="flex flex-col min-h-screen bg-secondary/50">
+    <div className="flex flex-col bg-secondary/50">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="text-center mb-8">

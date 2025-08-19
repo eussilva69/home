@@ -163,10 +163,6 @@ export default function LojaPage() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 pt-28">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary">Nossa Loja</h1>
-          <p className="text-base text-muted-foreground mt-2">Explore um universo de arte e encontre a peça perfeita.</p>
-        </div>
 
         <div className="flex flex-col lg:flex-row gap-10">
           {/* Sidebar for Desktop */}

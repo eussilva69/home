@@ -334,7 +334,7 @@ export default function MonteSeuQuadroPage() {
                             <AccordionContent className="space-y-4">
                             <RadioGroup value={arrangement} onValueChange={(v) => handleArrangementChange(v as any)} className="grid grid-cols-3 gap-3">
                                     {Object.keys(pricingData).map((key) => (
-                                        <Label key={key} htmlFor={`arrangement-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <Label key={key} htmlFor={`arrangement-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 font-semibold", arrangement === key ? "border-primary bg-primary/5" : "border-border")}>
                                             <RadioGroupItem value={key} id={`arrangement-${key}`} className="sr-only" />
                                             {key}
                                         </Label>
@@ -344,15 +344,15 @@ export default function MonteSeuQuadroPage() {
                                     <>
                                     <Label className="font-semibold text-sm">Aplicação da Imagem</Label>
                                     <RadioGroup value={imageMode} onValueChange={(v) => setImageMode(v as any)} className="grid grid-cols-3 gap-3">
-                                        <Label htmlFor="mode-global" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <Label htmlFor="mode-global" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 font-semibold", imageMode === 'global' ? "border-primary bg-primary/5" : "border-border")}>
                                             <RadioGroupItem value="global" id="mode-global" className="sr-only" />
                                             <Repeat className="h-5 w-5 mb-1"/>Global
                                         </Label>
-                                        <Label htmlFor="mode-split" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <Label htmlFor="mode-split" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 font-semibold", imageMode === 'split' ? "border-primary bg-primary/5" : "border-border")}>
                                             <RadioGroupItem value="split" id="mode-split" className="sr-only" />
                                             <Columns className="h-5 w-5 mb-1"/>Split
                                         </Label>
-                                        <Label htmlFor="mode-individual" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <Label htmlFor="mode-individual" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 font-semibold", imageMode === 'individual' ? "border-primary bg-primary/5" : "border-border")}>
                                             <RadioGroupItem value="individual" id="mode-individual" className="sr-only" />
                                             <Copy className="h-5 w-5 mb-1"/>Individual
                                         </Label>
@@ -366,7 +366,7 @@ export default function MonteSeuQuadroPage() {
                             <AccordionContent>
                                 <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 gap-3">
                                     {availableSizes.map(({ tamanho }) => (
-                                        <Label key={tamanho} htmlFor={`size-${tamanho}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <Label key={tamanho} htmlFor={`size-${tamanho}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 font-semibold", selectedSize === tamanho ? "border-primary bg-primary/5" : "border-border")}>
                                             <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
                                             {tamanho}
                                         </Label>
@@ -381,7 +381,7 @@ export default function MonteSeuQuadroPage() {
                                 <Label className="font-semibold text-sm mb-2 block">Estilo da Moldura</Label>
                                 <RadioGroup value={selectedFrameStyle} onValueChange={setSelectedFrameStyle} className="grid grid-cols-3 gap-3">
                                     {Object.entries(frameStyles).map(([key, label]) => (
-                                        <Label key={key} htmlFor={`style-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <Label key={key} htmlFor={`style-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 font-semibold", selectedFrameStyle === key ? "border-primary bg-primary/5" : "border-border")}>
                                             <RadioGroupItem value={key} id={`style-${key}`} className="sr-only" />
                                             {label}
                                         </Label>
@@ -392,7 +392,7 @@ export default function MonteSeuQuadroPage() {
                                 <Label className="font-semibold text-sm mb-2 block">Cor da Moldura</Label>
                                 <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
                                     {Object.entries(frames).map(([key, { label, color }]) => (
-                                        <Label key={key} htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all has-[:checked]:border-primary")} title={label}>
+                                        <Label key={key} htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all", selectedFrame === key ? 'border-primary ring-2 ring-primary/50' : 'border-transparent')}>
                                             <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
                                             <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} />
                                         </Label>
@@ -402,11 +402,11 @@ export default function MonteSeuQuadroPage() {
                                 <div>
                                     <Label className="font-semibold text-sm mb-2 block">Acabamento</Label>
                                     <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-3">
-                                        <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 font-semibold", withGlass ? "border-primary bg-primary/5" : "border-border")}>
                                             <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
                                             Com Vidro
                                         </Label>
-                                        <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                        <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 font-semibold", !withGlass ? "border-primary bg-primary/5" : "border-border")}>
                                             <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
                                             Sem Vidro
                                         </Label>

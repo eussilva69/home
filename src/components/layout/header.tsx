@@ -42,9 +42,16 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    if (isHomePage) {
+      window.addEventListener('scroll', handleScroll);
+      // Check initial scroll position
+      handleScroll();
+    } else {
+      setIsScrolled(true);
+    }
+    
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage]);
   
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -98,12 +105,13 @@ export default function Header() {
   const collectionColumns = categoriesInColumns();
   
   const headerClasses = cn(
-    "w-full transition-all duration-300 shadow-md",
-    'bg-[#efe7da] text-primary'
+    "fixed w-full top-0 z-50 transition-all duration-300",
+    isScrolled ? 'bg-[#efe7da] text-primary shadow-md' : (isHomePage ? 'bg-transparent text-white' : 'bg-[#efe7da] text-primary shadow-md')
   );
-  
-  const textColorClass = "text-primary";
 
+  const textColorClass = cn(
+    isScrolled ? "text-primary" : (isHomePage ? "text-white" : "text-primary")
+  );
 
   return (
     <header className={cn(headerClasses)}>
@@ -119,7 +127,7 @@ export default function Header() {
                 <PopoverTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      className={cn("font-medium flex items-center gap-1", textColorClass, "hover:bg-black/10")}
+                      className={cn("font-medium flex items-center gap-1", textColorClass, isScrolled || !isHomePage ? "hover:bg-black/10" : "hover:bg-white/10")}
                     >
                       Coleções <ChevronDown className="h-4 w-4" />
                     </Button>
@@ -148,13 +156,13 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-4">
-             <Button variant="ghost" size="icon" className={textColorClass} onClick={() => setIsSearchOpen(prev => !prev)}><Search className="h-5 w-5" /></Button>
-             <Link href={user ? '/dashboard' : '/login'}><Button variant="ghost" size="icon" className={textColorClass}><User className="h-5 w-5" /></Button></Link>
+             <Button variant="ghost" size="icon" className={cn(textColorClass, isScrolled || !isHomePage ? "hover:bg-black/10" : "hover:bg-white/10")} onClick={() => setIsSearchOpen(prev => !prev)}><Search className="h-5 w-5" /></Button>
+             <Link href={user ? '/dashboard' : '/login'}><Button variant="ghost" size="icon" className={cn(textColorClass, isScrolled || !isHomePage ? "hover:bg-black/10" : "hover:bg-white/10")}><User className="h-5 w-5" /></Button></Link>
              <Link href="/cart" className="relative">
-                <Button variant="ghost" size="icon" className={textColorClass}>
+                <Button variant="ghost" size="icon" className={cn(textColorClass, isScrolled || !isHomePage ? "hover:bg-black/10" : "hover:bg-white/10")}>
                     <ShoppingCart className="h-5 w-5" />
                     {isClient && totalItems > 0 && (
-                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", "bg-primary text-white")}>
+                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isScrolled || !isHomePage ? "bg-primary text-white" : "bg-white text-primary")}>
                           {totalItems}
                         </span>
                     )}
@@ -163,13 +171,13 @@ export default function Header() {
           </div>
         </div>
         {isSearchOpen && (
-            <div className={cn("w-full px-4 py-3 shadow-md", 'bg-[#efe7da]')}>
+            <div className={cn("w-full px-4 py-3 shadow-md", isScrolled || !isHomePage ? 'bg-[#efe7da]' : 'bg-black/20 backdrop-blur-sm')}>
                 <form onSubmit={handleSearchSubmit} className="relative container mx-auto">
                     <Input 
                         placeholder="Buscar produtos..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-white text-primary"
+                        className={cn(isScrolled || !isHomePage ? "bg-white text-primary" : "bg-white/90 text-primary")}
                     />
                     <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-primary">
                         <Search className="h-5 w-5" />

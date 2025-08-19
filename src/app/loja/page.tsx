@@ -162,7 +162,7 @@ export default function LojaPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-28">
+      <main className="flex-grow container mx-auto px-4 py-8">
 
         <div className="flex flex-col lg:flex-row gap-10">
           {/* Sidebar for Desktop */}

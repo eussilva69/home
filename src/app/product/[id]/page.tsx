@@ -143,7 +143,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-28">
+      <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">

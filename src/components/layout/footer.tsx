@@ -73,7 +73,7 @@ export default function Footer() {
           </div>
           
           <div className="border-t border-gray-300 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-            <p className="mb-4 md:mb-0">BOEMI STORE - 42.048.222/0001-24 © 2022 DIREITOS RESERVADOS</p>
+            <p className="mb-4 md:mb-0">Home Designer - 42.048.222/0001-24 © 2022 DIREITOS RESERVADOS</p>
             <div className="flex items-center gap-4 mb-4 md:mb-0">
                 {/* Payment icons would go here */}
             </div>

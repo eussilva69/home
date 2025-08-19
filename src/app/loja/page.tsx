@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { getProducts } from '@/app/actions';
 import { collections } from '@/lib/mock-data';
 import Header from '@/components/layout/header';
@@ -104,24 +103,41 @@ export default function LojaPage() {
 
     return products;
   }, [allProducts, searchTerm, selectedCategory, sortBy]);
+  
+  const hasMoreProducts = useMemo(() => displayedProducts.length < filteredProducts.length, [displayedProducts, filteredProducts]);
+
+  const handleLoadMore = useCallback(() => {
+    if (loadingMore || !hasMoreProducts) return;
+    
+    setLoadingMore(true);
+    const nextPage = currentPage + 1;
+    const nextProducts = filteredProducts.slice(0, nextPage * PRODUCTS_PER_PAGE);
+    
+    setTimeout(() => {
+      setDisplayedProducts(nextProducts);
+      setCurrentPage(nextPage);
+      setLoadingMore(false);
+    }, 500);
+  }, [currentPage, filteredProducts, hasMoreProducts, loadingMore]);
+
 
   useEffect(() => {
     setDisplayedProducts(filteredProducts.slice(0, PRODUCTS_PER_PAGE));
     setCurrentPage(1);
   }, [filteredProducts]);
 
-  const handleLoadMore = () => {
-    setLoadingMore(true);
-    const nextPage = currentPage + 1;
-    const nextProducts = filteredProducts.slice(0, nextPage * PRODUCTS_PER_PAGE);
-    setTimeout(() => {
-      setDisplayedProducts(nextProducts);
-      setCurrentPage(nextPage);
-      setLoadingMore(false);
-    }, 500);
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      // Load more when user is 500px from the bottom of the page
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+        handleLoadMore();
+      }
+    };
 
-  const hasMoreProducts = displayedProducts.length < filteredProducts.length;
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleLoadMore]);
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -188,11 +204,9 @@ export default function LojaPage() {
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
-                {hasMoreProducts && (
+                 {loadingMore && (
                   <div className="text-center mt-12">
-                    <Button onClick={handleLoadMore} disabled={loadingMore} size="lg">
-                      {loadingMore ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Carregar Mais Produtos'}
-                    </Button>
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
                   </div>
                 )}
               </>

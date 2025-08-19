@@ -244,6 +244,7 @@ export default function LojaPage() {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );

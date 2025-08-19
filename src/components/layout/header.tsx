@@ -27,6 +27,7 @@ export default function Header() {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const { user } = useAuth();
   const { cartItems } = useCart();
@@ -34,8 +35,17 @@ export default function Header() {
   const pathname = usePathname();
   const isClient = useClientOnly();
   
-  const isLojaPage = pathname === '/loja';
+  const isHomePage = pathname === '/';
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (searchTerm.trim().length > 1) {
@@ -88,8 +98,8 @@ export default function Header() {
   const collectionColumns = categoriesInColumns();
   
   const headerClasses = cn(
-    "fixed top-0 left-0 z-50 w-full transition-all duration-300 shadow-md",
-    isLojaPage ? 'bg-background text-primary' : 'bg-[#efe7da] text-primary'
+    "w-full transition-all duration-300 shadow-md",
+    'bg-[#efe7da] text-primary'
   );
   
   const textColorClass = "text-primary";
@@ -153,7 +163,7 @@ export default function Header() {
           </div>
         </div>
         {isSearchOpen && (
-            <div className={cn("w-full px-4 py-3 shadow-md", isLojaPage ? 'bg-background' : 'bg-[#efe7da]')}>
+            <div className={cn("w-full px-4 py-3 shadow-md", 'bg-[#efe7da]')}>
                 <form onSubmit={handleSearchSubmit} className="relative container mx-auto">
                     <Input 
                         placeholder="Buscar produtos..."

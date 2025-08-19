@@ -144,7 +144,7 @@ export const testimonials = [
 ];
 
 export const collections = [
-  { slug: 'leao', name: 'Leão', image: 'https://images.tcdn.com.br/img/img_prod/1015607/quadro_decorativo_leao_preto_e_branco_485_1_2d79d3a5a7b23bd0b5a33117462157c9.jpg', hint: 'lion' },
+  { slug: 'leao', name: 'Leão', image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg', hint: 'lion' },
   { slug: 'arvore-da-vida', name: 'Árvore da Vida', image: 'https://img.elo7.com.br/product/main/4C6A0A4/quadro-arvore-da-vida-mdf-6mm-preto-fosco-decorativo.jpg', hint: 'tree life' },
   { slug: 'santa-ceia', name: 'Santa Ceia', image: 'https://www.papeleparede.com.br/image/cache/data/produtos/quadros-decorativos/religiosos/quadro-decorativo-santa-ceia-cod-qdrg010-900x900.jpg', hint: 'last supper' },
   { slug: 'abstratos-e-geometricos', name: 'Abstratos & Geométricos', image: 'https://static.vecteezy.com/ti/vetor-gratis/p1/5129672-capa-de-brochura-de-meio-tom-geometrico-abstrato-vetor.jpg', hint: 'abstract geometric' },
@@ -176,6 +176,7 @@ export const collections = [
     
 
     
+
 
 
 

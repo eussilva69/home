@@ -89,7 +89,7 @@ export default function Footer() {
                 <VisaIcon className="h-6 w-auto" />
                 <PixIcon className="h-5 w-auto" />
                 <MasterCardIcon className="h-6 w-auto" />
-                <Image src="https://boemi.com.br/wp-content/uploads/2022/06/selos_seguranca.png" alt="Selos de Segurança" width={150} height={30} />
+                <Image src="https://boemi.com.br/wp-content/uploads/2022/06/selos_seguranca.png" alt="Selos de Segurança" width={150} height={30} className="grayscale brightness-0" />
             </div>
           </div>
 

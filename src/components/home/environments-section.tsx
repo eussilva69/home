@@ -5,19 +5,19 @@ import { Button } from '@/components/ui/button';
 const environments = [
   {
     name: 'Sala',
-    href: '/collection/abstrato', 
+    href: '/sala', 
     image: 'https://39124.cdn.simplo7.net/static/39124/sku/mosaico-conjunto-de-quadros-para-sala-por-do-sol-nas-montanhas--p-1588084392529.jpg',
     hint: 'modern living room'
   },
   {
     name: 'Quarto',
-    href: '/collection/floral',
+    href: '/quarto',
     image: 'https://cdn.iset.io/assets/58966/produtos/59176/ac980946d21b23807c9b4681f978cfeb6848746b4ddb4.png',
     hint: 'cozy bedroom'
   },
   {
     name: 'Escritório',
-    href: '/collection/frases-tipografia',
+    href: '/escritorio',
     image: 'https://casalinda.cdn.magazord.com.br/img/2023/07/produto/6518/casa-linda-modern-office-with-23-vertical-frame-with-mirror-in-e9432cbd-4f96-4f3f-8c42-c57271298816.jpg?ims=fit-in/690x690/filters:fill(white)',
     hint: 'modern office'
   }

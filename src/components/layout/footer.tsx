@@ -44,8 +44,7 @@ export default function Footer() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4 tracking-wider">AJUDA</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><Link href="/dashboard/my-orders" className="hover:text-primary">DETALHES DO PEDIDO</Link></li>
-                  <li><Link href="#" className="hover:text-primary">COMO COMPRAR</Link></li>
+                  <li><Link href="/como-comprar" className="hover:text-primary">COMO COMPRAR</Link></li>
                   <li><Link href="#" className="hover:text-primary">COMO PENDURAR</Link></li>
                   <li><Link href="#" className="hover:text-primary">GUIA DO PRODUTO</Link></li>
                   <li><Link href="/exchanges" className="hover:text-primary">DEVOLUÇÕES</Link></li>

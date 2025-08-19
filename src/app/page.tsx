@@ -26,9 +26,9 @@ export default function Home() {
               priority
            />
            <div className="absolute inset-0 bg-black/10" />
-           <div className="absolute top-1/2 left-1/4 -translate-y-1/2 text-white p-8">
-              <p className="font-light tracking-widest">WINTER SALE</p>
-              <h2 className="text-8xl font-bold">20% off</h2>
+           <div className="absolute top-1/2 left-1/2 md:left-1/4 -translate-x-1/2 -translate-y-1/2 text-white p-8">
+              <p className="font-light tracking-widest text-sm md:text-base">WINTER SALE</p>
+              <h2 className="text-6xl md:text-8xl font-bold">20% off</h2>
            </div>
         </div>
       </div>

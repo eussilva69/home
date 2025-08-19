@@ -19,9 +19,9 @@ export default function Footer() {
     <>
       <footer className="bg-[#EFE7DA] text-gray-700 print:hidden">
         <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Logo and Social */}
-            <div className="md:col-span-1">
+            <div className="md:col-span-1 lg:col-span-1">
               <h2 className="text-3xl font-light text-gray-800 mb-2">Home Designer</h2>
               <p className="text-sm text-muted-foreground mb-4">Arte moderna e vibrante para o seu espaço. Feito à mão com paixão.</p>
               <div className="flex space-x-4">
@@ -30,7 +30,7 @@ export default function Footer() {
             </div>
 
             {/* Links Columns */}
-            <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="md:col-span-1 lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-8">
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4 tracking-wider">SOBRE</h3>
                 <ul className="space-y-2 text-sm">

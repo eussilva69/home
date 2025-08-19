@@ -33,7 +33,7 @@ export default function EnvironmentsSection() {
           </h2>
           <div className="flex-grow border-t border-gray-300 ml-4"></div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {environments.map((env) => (
             <Link href={env.href} key={env.name} className="group block relative aspect-square overflow-hidden rounded-lg shadow-lg">
               <Image

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, ChangeEvent, DragEvent, useCallback, useEffect } from 'react';
@@ -284,7 +283,7 @@ export default function MonteSeuQuadroPage() {
     return (
     <div className="flex flex-col bg-secondary/50">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 pb-20">
+      <main className="flex-grow container mx-auto px-4 py-8 pb-40">
         <div className="text-center mb-8">
             <h1 className="text-3xl md:text-5xl font-bold text-primary">Monte seu Quadro</h1>
             <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Crie uma peça única com a sua imagem e do seu jeito.</p>

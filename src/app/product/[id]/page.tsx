@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -9,7 +8,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -49,53 +48,12 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
-const FrameMockup = ({ artworkUrl, frameColor, withGlass, imageApplication = 'repeat', arrangement = 'Solo', galleryImages = [] }: { artworkUrl: string; frameColor: string; withGlass: boolean; imageApplication?: 'repeat' | 'split' | 'individual'; arrangement?: string; galleryImages?: string[] }) => {
-    const frameCount = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
-
-    const renderFrames = () => {
-        return [...Array(frameCount)].map((_, i) => {
-            let currentArtworkUrl = artworkUrl;
-            if (imageApplication === 'individual' && galleryImages && galleryImages[i]) {
-                currentArtworkUrl = galleryImages[i];
-            }
-            
-            const imageStyle: React.CSSProperties = { objectFit: 'cover' };
-            if (imageApplication === 'split' && frameCount > 1) {
-                const position = frameCount === 2 ? (i === 0 ? '0%' : '100%') : `${(i * 100) / (frameCount - 1)}%`;
-                imageStyle.objectPosition = `${position} 50%`;
-                imageStyle.width = `${frameCount * 100}%`;
-                imageStyle.height = '100%';
-                imageStyle.position = 'absolute';
-                imageStyle.left = `-${i * 100}%`;
-                imageStyle.objectFit = 'cover';
-            }
-
-            return (
-                <div
-                    key={i}
-                    className="relative w-80 p-2"
-                    style={{ 
-                        backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
-                        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
-                    }}
-                >
-                    <div className="relative bg-white w-full aspect-[4/5] overflow-hidden">
-                        <Image src={currentArtworkUrl} alt={`Arte do quadro ${i + 1}`} layout="fill" style={imageStyle} />
-                        {withGlass && <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>}
-                    </div>
-                </div>
-            );
-        });
-    };
-    
-    return <div className="flex gap-2 items-center justify-center">{renderFrames()}</div>;
-};
-
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const { id } = React.use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
 
   const { addToCart } = useCart();
 
@@ -137,7 +95,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         id: `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
         name: product.name,
         price: finalPrice,
-        image: product.artwork_image, // Usa a arte como imagem principal no carrinho
+        image: product.image || "https://placehold.co/100x100.png",
         quantity: 1,
         options: `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
         weight: selectedPriceInfo.weight,
@@ -176,20 +134,42 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       );
   }
 
+  const mainImageUrl = product.imagesByColor?.[selectedFrame] || product.image || 'https://placehold.co/600x800.png';
+  const altImageUrl = product.image_alt || mainImageUrl;
+
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
-          <div className="flex flex-col gap-4 items-center justify-center bg-gray-100 rounded-lg p-4 h-[600px]">
-            <FrameMockup 
-              artworkUrl={product.artwork_image} 
-              frameColor={selectedFrame} 
-              withGlass={withGlass}
-              imageApplication={product.image_application}
-              arrangement={product.arrangement}
-              galleryImages={product.gallery_images}
+          <div 
+            className="relative aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 cursor-pointer"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          >
+             <Image
+                key={mainImageUrl}
+                src={mainImageUrl}
+                alt={product.name}
+                fill
+                className={cn(
+                    'object-cover transition-opacity duration-300',
+                    isHovering ? 'opacity-0' : 'opacity-100'
+                )}
+                sizes="(max-width: 1024px) 90vw, 50vw"
+            />
+            <Image
+                key={altImageUrl}
+                src={altImageUrl}
+                alt={`${product.name} em ambiente`}
+                fill
+                className={cn(
+                    'object-cover transition-opacity duration-300',
+                    isHovering ? 'opacity-100' : 'opacity-0'
+                )}
+                 sizes="(max-width: 1024px) 90vw, 50vw"
             />
           </div>
 
@@ -315,4 +295,3 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-

@@ -36,9 +36,10 @@ export default function EnvironmentsSection() {
     setActiveVideo(null);
   };
 
-  const handleVerAgoraClick = (e: React.MouseEvent<HTMLButtonElement>, env: typeof environments[0]) => {
+  const handleVerAgoraClick = (e: React.MouseEvent<HTMLElement>, env: typeof environments[0]) => {
     if (env.video) {
       e.preventDefault();
+      e.stopPropagation(); // Impede o link pai de ser acionado
       setActiveVideo(env.video);
     }
   };
@@ -68,14 +69,19 @@ export default function EnvironmentsSection() {
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white text-center">
                   <p className="text-lg font-light">QUADROS PARA</p>
                   <h3 className="text-5xl font-extrabold uppercase">{env.name}</h3>
-                   <Button 
-                      variant="outline" 
-                      className="mt-4 bg-transparent text-white border-2 border-white rounded-none w-32 hover:bg-white hover:text-black transition-colors duration-300"
-                      onClick={(e) => handleVerAgoraClick(e, env)}
-                      asChild={!env.video}
-                   >
-                     {env.video ? 'VER AGORA' : <Link href={env.href}>VER AGORA</Link>}
-                   </Button>
+                   {env.video ? (
+                        <Button 
+                          variant="outline" 
+                          className="mt-4 bg-transparent text-white border-2 border-white rounded-none w-32 hover:bg-white hover:text-black transition-colors duration-300"
+                          onClick={(e) => handleVerAgoraClick(e, env)}
+                        >
+                          VER AGORA
+                        </Button>
+                   ) : (
+                        <div className="mt-4 bg-transparent text-white border-2 border-white rounded-none w-32 hover:bg-white hover:text-black transition-colors duration-300 inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium">
+                           VER AGORA
+                        </div>
+                   )}
                 </div>
               </Link>
             ))}

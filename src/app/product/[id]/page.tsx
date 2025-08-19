@@ -8,8 +8,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye, Image as ImageIcon } from 'lucide-react';
-import ProductCard from '@/components/shared/product-card';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -49,10 +48,29 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
+const FrameMockup = ({ artworkUrl, frameColor, withGlass, className }: { artworkUrl: string; frameColor: string, withGlass: boolean, className?: string }) => {
+    return (
+        <div 
+            className={cn("relative p-4 transition-all duration-300 flex items-center justify-center", className)}
+            style={{ 
+                backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
+                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
+            }}
+        >
+            <div className="relative w-full h-full bg-white">
+                <Image src={artworkUrl} alt="Arte do quadro" layout="fill" objectFit="contain" />
+            </div>
+             {withGlass && (
+                <div className="absolute inset-4 bg-black/10 backdrop-blur-[1px]"/>
+            )}
+        </div>
+    )
+};
+
+
 export default function ProductPage({ params }: { params: { id: string } }) {
   const { id } = React.use(params);
   const [product, setProduct] = useState<Product | null>(null);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const { addToCart } = useCart();
@@ -77,7 +95,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
   const [withGlass, setWithGlass] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
-  const [viewMode, setViewMode] = useState<'environment' | 'frame_only'>('frame_only');
   
   useEffect(() => {
       if (product) {
@@ -96,7 +113,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         id: `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
         name: product.name,
         price: finalPrice,
-        image: product.image,
+        image: product.artwork_image, // Usa a arte como imagem principal no carrinho
         quantity: 1,
         options: `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
         weight: selectedPriceInfo.weight,
@@ -122,11 +139,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       height: h_cm * scaleFactor
     };
   };
-  
-  const displayedImage = viewMode === 'environment' 
-    ? product?.image_alt 
-    : product?.imagesByColor?.[selectedFrame] || product?.image;
-
 
   if (loading || !product) {
       return (
@@ -147,25 +159,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-center gap-2 mb-4">
-                <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
-                    <Eye className="mr-2 h-4 w-4" /> No Ambiente
-                </Button>
-                <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
-                    <ImageIcon className="mr-2 h-4 w-4" /> Somente o Quadro
-                </Button>
-            </div>
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
-                 {displayedImage && (
-                    <Image 
-                        src={displayedImage}
-                        alt={viewMode === 'environment' ? product.name + ' no ambiente' : `${product.name} com moldura ${frames[selectedFrame as keyof typeof frames].label}`}
-                        layout="fill"
-                        objectFit={viewMode === 'environment' ? 'cover' : 'contain'}
-                        className="transition-opacity duration-300"
-                        key={displayedImage} // força a recriação da imagem
-                    />
-                 )}
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
+                <FrameMockup artworkUrl={product.artwork_image} frameColor={selectedFrame} withGlass={withGlass} className="w-full h-full"/>
             </div>
           </div>
 
@@ -286,17 +281,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </Accordion>
           </div>
         </div>
-
-        {/* Related Products */}
-        <div className="mt-16 md:mt-24">
-            <h2 className="text-2xl md:text-3xl font-headline text-center mb-8 md:mb-12">Você também pode gostar</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {relatedProducts.map(relatedProduct => (
-                    <ProductCard key={relatedProduct.id} product={relatedProduct} />
-                ))}
-            </div>
-        </div>
-
       </main>
       <Footer />
     </div>

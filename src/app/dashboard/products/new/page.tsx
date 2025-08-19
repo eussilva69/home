@@ -65,7 +65,7 @@ export default function NewProductPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
+  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<NewProductPayload>({
     resolver: zodResolver(newProductSchema),
@@ -74,12 +74,7 @@ export default function NewProductPage() {
         price: 0,
         category: '',
         arrangement: '',
-        image: '',
-        image_alt: '',
         artwork_image: '',
-        imagesByColor: {},
-        hint: '',
-        hint_alt: ''
     }
   });
 
@@ -89,9 +84,8 @@ export default function NewProductPage() {
     }
   }, [user, authLoading, router]);
   
-  const handleImageUpload = async (file: File, fieldName: keyof NewProductPayload | `imagesByColor.${string}`) => {
-    const fieldId = fieldName.toString();
-    setIsUploading(prev => ({...prev, [fieldId]: true}));
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true);
     
     const formData = new FormData();
     formData.append("file", file);
@@ -104,14 +98,7 @@ export default function NewProductPage() {
         const data = await response.json();
         
         if (data.success) {
-            const imageUrl = data.url;
-            if (fieldName.startsWith('imagesByColor.')) {
-                const color = fieldName.split('.')[1];
-                const currentImagesByColor = form.getValues('imagesByColor') || {};
-                form.setValue('imagesByColor', {...currentImagesByColor, [color]: imageUrl }, { shouldValidate: true });
-            } else {
-                form.setValue(fieldName as keyof NewProductPayload, imageUrl, { shouldValidate: true });
-            }
+            form.setValue('artwork_image', data.url, { shouldValidate: true });
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
         } else {
             throw new Error(data.details || "Erro desconhecido ao fazer upload.");
@@ -119,7 +106,7 @@ export default function NewProductPage() {
     } catch (error: any) {
          toast({ variant: 'destructive', title: 'Erro de Upload', description: error.message || "Falha no upload da imagem." });
     } finally {
-        setIsUploading(prev => ({...prev, [fieldId]: false}));
+        setIsUploading(false);
     }
   };
 
@@ -132,13 +119,6 @@ export default function NewProductPage() {
     } else {
       toast({ variant: 'destructive', title: 'Erro', description: result.message });
     }
-  };
-  
-  const frameColors: Record<string, string> = {
-    black: 'Preta',
-    white: 'Branca',
-    hazel_oak: 'Carvalho Avelã',
-    ebony_oak: 'Carvalho Ébano',
   };
 
   if (authLoading || !user) {
@@ -181,48 +161,19 @@ export default function NewProductPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Imagens</CardTitle>
-                        <CardDescription>Defina as imagens para o produto.</CardDescription>
+                        <CardTitle>Imagem da Arte</CardTitle>
+                        <CardDescription>Envie a imagem principal do quadro. Ela será usada nos mockups.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                         <FormField control={form.control} name="image" render={() => (
-                           <FormItem>
-                             <ImageUploadField label="Imagem Principal (Produto Isolado)" currentImageUrl={form.watch('image')} onImageUpload={(file) => handleImageUpload(file, 'image')} isUploading={isUploading['image']} />
-                             <FormMessage />
-                           </FormItem>
-                         )} />
-                         <FormField control={form.control} name="image_alt" render={() => (
-                           <FormItem>
-                              <ImageUploadField label="Imagem de Ambiente (Hover)" currentImageUrl={form.watch('image_alt')} onImageUpload={(file) => handleImageUpload(file, 'image_alt')} isUploading={isUploading['image_alt']}/>
-                             <FormMessage />
-                           </FormItem>
-                         )} />
+                    <CardContent>
                          <FormField control={form.control} name="artwork_image" render={() => (
-                            <FormItem>
-                                <ImageUploadField label="Arte Original (para download)" currentImageUrl={form.watch('artwork_image')} onImageUpload={(file) => handleImageUpload(file, 'artwork_image')} isUploading={isUploading['artwork_image']}/>
-                                <FormMessage />
-                            </FormItem>
+                           <FormItem>
+                             <ImageUploadField label="Arte do Quadro" currentImageUrl={form.watch('artwork_image')} onImageUpload={handleImageUpload} isUploading={isUploading} />
+                             <FormMessage />
+                           </FormItem>
                          )} />
                     </CardContent>
                 </Card>
                 
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Imagens por Cor de Moldura</CardTitle>
-                        <CardDescription>Envie uma imagem para cada variação de cor da moldura.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {Object.entries(frameColors).map(([colorKey, colorName]) => (
-                             <FormField key={colorKey} control={form.control} name={`imagesByColor.${colorKey}` as any} render={() => (
-                                <FormItem>
-                                  <ImageUploadField label={`Moldura ${colorName}`} currentImageUrl={form.watch(`imagesByColor.${colorKey}`)} onImageUpload={(file) => handleImageUpload(file, `imagesByColor.${colorKey}`)} isUploading={isUploading[`imagesByColor.${colorKey}`]}/>
-                                  <FormMessage />
-                                </FormItem>
-                              )} />
-                        ))}
-                    </CardContent>
-                </Card>
-
                 <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>

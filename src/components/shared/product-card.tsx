@@ -2,29 +2,23 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
+import type { Product } from '@/lib/schemas';
 
 type ProductCardProps = {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    image: string;
-    image_alt: string;
-    artwork_image: string;
-    hint: string;
-    hint_alt: string;
-    arrangement: string;
-  };
+  product: Product;
 };
 
 export default function ProductCard({ product }: ProductCardProps) {
+  // A imagem do card será a própria arte. O mockup será mostrado na página do produto.
+  const imageUrl = product.artwork_image || product.image || "https://placehold.co/400x500.png";
+
   return (
     <Link href={`/product/${product.id}`} className="group block">
         <Card className="overflow-hidden border-border transition-shadow hover:shadow-lg">
             <CardContent className="p-0">
                 <div className="relative aspect-[4/5] bg-muted/50 transition-all duration-300 group-hover:bg-muted">
                      <Image
-                        src={product.image}
+                        src={imageUrl}
                         alt={product.name}
                         data-ai-hint={product.hint}
                         fill

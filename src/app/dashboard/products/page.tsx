@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
-import { Loader2, PlusCircle, Search, Trash2, Sofa } from 'lucide-react';
+import { Loader2, PlusCircle, Search, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Product } from '@/lib/schemas';
@@ -158,7 +158,7 @@ export default function ProductsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[80px]">Imagem</TableHead>
+                      <TableHead className="w-[80px]">Arte</TableHead>
                       <TableHead>Nome</TableHead>
                       <TableHead>Categoria</TableHead>
                       <TableHead>Arranjo</TableHead>
@@ -171,7 +171,7 @@ export default function ProductsPage() {
                       <TableRow key={product.id}>
                         <TableCell>
                           <Image
-                            src={product.image}
+                            src={product.artwork_image || product.image || "https://placehold.co/100x100"}
                             alt={product.name}
                             width={48}
                             height={48}

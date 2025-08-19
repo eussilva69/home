@@ -155,26 +155,23 @@ export const ProductSchema = z.object({
   id: z.string(),
   name: z.string(),
   price: z.number(),
-  image: z.string(),
-  image_alt: z.string(),
-  artwork_image: z.string(),
-  hint: z.string(),
-  hint_alt: z.string(),
+  artwork_image: z.string().default(''),
   category: z.string(),
   arrangement: z.string(),
+  // Campos obsoletos mantidos opcionalmente para compatibilidade com dados antigos
+  image: z.string().optional(),
+  image_alt: z.string().optional(),
   imagesByColor: z.record(z.string()).optional(),
   gallery_images: z.array(z.string()).optional(),
+  hint: z.string().optional(),
+  hint_alt: z.string().optional(),
 });
 export type Product = z.infer<typeof ProductSchema>;
 
 export const productUpdateSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
   price: z.number().min(0, "O preço não pode ser negativo."),
-  image: z.string().url("URL da imagem principal inválida.").optional(),
-  image_alt: z.string().url("URL da imagem de ambiente inválida.").optional(),
-  artwork_image: z.string().url("URL da arte original inválida.").optional(),
-  imagesByColor: z.record(z.string().url("URL da imagem de moldura inválida.")).optional(),
-  gallery_images: z.array(z.string().url("URL da galeria inválida")).optional(),
+  artwork_image: z.string().url("URL da arte é obrigatória."),
 });
 export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
 
@@ -198,15 +195,7 @@ export const newProductSchema = z.object({
   price: z.number().min(0, "O preço não pode ser negativo."),
   category: z.string().min(1, "A categoria é obrigatória."),
   arrangement: z.string().min(1, "O arranjo é obrigatório."),
-  image: z.string().url("URL da imagem principal é obrigatória."),
-  image_alt: z.string().url("URL da imagem de ambiente é obrigatória."),
-  artwork_image: z.string().url("URL da arte original é obrigatória."),
-  imagesByColor: z.record(z.string().url()).refine(obj => Object.keys(obj).length > 0, {
-    message: "Pelo menos uma imagem de moldura é obrigatória.",
-  }),
-  hint: z.string().optional().default(''),
-  hint_alt: z.string().optional().default(''),
-  gallery_images: z.array(z.string().url()).optional(),
+  artwork_image: z.string().url("URL da arte é obrigatória."),
 });
 export type NewProductPayload = z.infer<typeof newProductSchema>;
 

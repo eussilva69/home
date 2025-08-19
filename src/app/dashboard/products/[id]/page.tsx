@@ -8,7 +8,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -70,7 +69,7 @@ export default function EditProductPage() {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
+  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<ProductUpdatePayload>({
     resolver: zodResolver(productUpdateSchema),
@@ -86,11 +85,7 @@ export default function EditProductPage() {
         form.reset({
           name: productData.name,
           price: productData.price,
-          image: productData.image,
-          image_alt: productData.image_alt,
           artwork_image: productData.artwork_image,
-          imagesByColor: productData.imagesByColor || {},
-          gallery_images: productData.gallery_images || [],
         });
       } else {
         toast({ variant: 'destructive', title: 'Erro', description: result.message });
@@ -108,9 +103,8 @@ export default function EditProductPage() {
     }
   }, [user, authLoading, router, fetchProduct]);
   
-  const handleImageUpload = async (file: File, fieldName: keyof ProductUpdatePayload | `imagesByColor.${string}` | `gallery_images.${number}`) => {
-    const fieldId = fieldName.toString();
-    setIsUploading(prev => ({...prev, [fieldId]: true}));
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true);
     
     const formData = new FormData();
     formData.append("file", file);
@@ -123,21 +117,7 @@ export default function EditProductPage() {
         const data = await response.json();
         
         if (data.success) {
-            const imageUrl = data.url;
-            if (fieldName.startsWith('imagesByColor.')) {
-                const color = fieldName.split('.')[1];
-                const currentImagesByColor = form.getValues('imagesByColor') || {};
-                form.setValue('imagesByColor', {...currentImagesByColor, [color]: imageUrl });
-            } else if (fieldName.startsWith('gallery_images.')) {
-                const index = parseInt(fieldName.split('.')[1]);
-                const currentGallery = form.getValues('gallery_images') || [];
-                const newGallery = [...currentGallery];
-                newGallery[index] = imageUrl;
-                form.setValue('gallery_images', newGallery, { shouldValidate: true });
-            }
-            else {
-                form.setValue(fieldName as keyof ProductUpdatePayload, imageUrl);
-            }
+            form.setValue('artwork_image', data.url, { shouldValidate: true });
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
         } else {
             throw new Error(data.details || "Erro desconhecido ao fazer upload.");
@@ -145,7 +125,7 @@ export default function EditProductPage() {
     } catch (error: any) {
          toast({ variant: 'destructive', title: 'Erro de Upload', description: error.message || "Falha no upload da imagem." });
     } finally {
-        setIsUploading(prev => ({...prev, [fieldId]: false}));
+        setIsUploading(false);
     }
   };
 
@@ -160,13 +140,6 @@ export default function EditProductPage() {
     }
   };
   
-  const frameColors: Record<string, string> = {
-    black: 'Preta',
-    white: 'Branca',
-    hazel_oak: 'Carvalho Avelã',
-    ebony_oak: 'Carvalho Ébano',
-  };
-
   if (authLoading || loading || !product) {
     return (
         <div className="flex flex-col min-h-screen bg-secondary/50">
@@ -205,70 +178,28 @@ export default function EditProductPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Imagens Principais</CardTitle>
-                        <CardDescription>Defina as imagens principais para o produto e para a visualização no ambiente.</CardDescription>
+                        <CardTitle>Imagem da Arte</CardTitle>
+                        <CardDescription>Envie a imagem principal do quadro. Ela será usada nos mockups.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                         <ImageUploadField
-                            label="Imagem Principal (Produto Isolado)"
-                            currentImageUrl={form.watch('image')}
-                            onImageUpload={(file) => handleImageUpload(file, 'image')}
-                            isUploading={isUploading['image']}
-                        />
-                         <ImageUploadField
-                            label="Imagem de Ambiente (Hover)"
-                            currentImageUrl={form.watch('image_alt')}
-                            onImageUpload={(file) => handleImageUpload(file, 'image_alt')}
-                            isUploading={isUploading['image_alt']}
-                        />
-                         <ImageUploadField
-                            label="Arte Original (para download)"
-                            currentImageUrl={form.watch('artwork_image')}
-                            onImageUpload={(file) => handleImageUpload(file, 'artwork_image')}
-                            isUploading={isUploading['artwork_image']}
-                        />
+                    <CardContent>
+                         <FormField
+                            control={form.control}
+                            name="artwork_image"
+                            render={() => (
+                               <FormItem>
+                                 <ImageUploadField
+                                    label="Arte do Quadro"
+                                    currentImageUrl={form.watch('artwork_image')}
+                                    onImageUpload={handleImageUpload}
+                                    isUploading={isUploading}
+                                 />
+                                 <FormMessage />
+                               </FormItem>
+                            )}
+                         />
                     </CardContent>
                 </Card>
                 
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Imagens por Cor de Moldura</CardTitle>
-                        <CardDescription>Envie uma imagem para cada variação de cor da moldura.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {Object.entries(frameColors).map(([colorKey, colorName]) => (
-                             <ImageUploadField
-                                key={colorKey}
-                                label={`Moldura ${colorName}`}
-                                currentImageUrl={form.watch(`imagesByColor.${colorKey}`)}
-                                onImageUpload={(file) => handleImageUpload(file, `imagesByColor.${colorKey}`)}
-                                isUploading={isUploading[`imagesByColor.${colorKey}`]}
-                            />
-                        ))}
-                    </CardContent>
-                </Card>
-                 
-                {product.category === 'Mobílias' && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Galeria de Imagens de Detalhe</CardTitle>
-                      <CardDescription>Adicione até 4 imagens extras que serão exibidas na página do produto.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      {[0, 1, 2, 3].map(index => (
-                          <ImageUploadField
-                              key={index}
-                              label={`Imagem de Detalhe ${index + 1}`}
-                              currentImageUrl={form.watch(`gallery_images.${index}` as any)}
-                              onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
-                              isUploading={isUploading[`gallery_images.${index}`]}
-                          />
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
-
-
                 <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => router.back()}>Cancelar</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>

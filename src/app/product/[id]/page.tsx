@@ -128,7 +128,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   }
 
   const humanHeightPx = 120;
-  const humanImage = "https://i.ibb.co/qD3tBWm6C/pngwing-com.png";
+  const humanImage = "https://res.cloudinary.com/dl38o4mnk/image/upload/v1755621040/pngegg_jq7lzi.png";
 
   const getFrameDimensions = (sizeString: string) => {
     const [w_cm, h_cm] = sizeString.replace(' cm', '').split('x').map(Number);

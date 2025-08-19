@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Search, ShoppingCart, User, Brush, ChevronDown } from 'lucide-react';
@@ -27,12 +27,31 @@ export default function Header() {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   
   const { user } = useAuth();
   const { cartItems } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
   const isClient = useClientOnly();
   
+  const isHomePage = pathname === '/';
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    if (isHomePage) {
+      window.addEventListener('scroll', handleScroll);
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+      };
+    } else {
+      setIsScrolled(true);
+    }
+  }, [isHomePage]);
+
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (searchTerm.trim().length > 1) {
@@ -84,21 +103,40 @@ export default function Header() {
   };
   const collectionColumns = categoriesInColumns();
 
+  const headerClasses = cn(
+    "w-full top-0 z-50 transition-all duration-300",
+    isHomePage ? 'fixed' : 'relative',
+    isScrolled || !isHomePage
+      ? "bg-[#efe7da] text-primary shadow-md"
+      : "bg-transparent text-white"
+  );
+  
+  const iconButtonClasses = cn(
+    "hover:bg-black/10",
+     isScrolled || !isHomePage ? "text-primary" : "text-white"
+  );
+  
+  const linkClasses = cn(
+    "font-medium",
+    isScrolled || !isHomePage ? "text-primary" : "text-white"
+  );
+
+
   return (
-    <header className="w-full top-0 z-50 transition-all duration-300 bg-[#efe7da] text-primary shadow-md">
+    <header className={headerClasses}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Brush className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-headline font-bold whitespace-nowrap text-primary">Home Designer</h1>
+            <Brush className="h-8 w-8" />
+            <h1 className="text-2xl font-headline font-bold whitespace-nowrap">Home Designer</h1>
           </Link>
           
           <nav className="hidden lg:flex items-center gap-8">
-             <Link href="/loja" className="font-medium text-primary">Loja</Link>
+             <Link href="/loja" className={linkClasses}>Loja</Link>
              <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
                 <PopoverTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      className="font-medium flex items-center gap-1 text-primary hover:bg-black/10"
+                      className={cn(linkClasses, "flex items-center gap-1", iconButtonClasses)}
                     >
                       Coleções <ChevronDown className="h-4 w-4" />
                     </Button>
@@ -122,18 +160,18 @@ export default function Header() {
                     </div>
                 </PopoverContent>
               </Popover>
-             <Link href="/monte-seu-quadro" className="font-medium text-primary">Personalize</Link>
-             <Link href="/orcamento" className="font-medium text-primary">Orcamento</Link>
+             <Link href="/monte-seu-quadro" className={linkClasses}>Personalize</Link>
+             <Link href="/orcamento" className={linkClasses}>Orcamento</Link>
           </nav>
 
           <div className="flex items-center gap-4">
-             <Button variant="ghost" size="icon" className="text-primary hover:bg-black/10" onClick={() => setIsSearchOpen(prev => !prev)}><Search className="h-5 w-5" /></Button>
-             <Link href={user ? '/dashboard' : '/login'}><Button variant="ghost" size="icon" className="text-primary hover:bg-black/10"><User className="h-5 w-5" /></Button></Link>
+             <Button variant="ghost" size="icon" className={iconButtonClasses} onClick={() => setIsSearchOpen(prev => !prev)}><Search className="h-5 w-5" /></Button>
+             <Link href={user ? '/dashboard' : '/login'}><Button variant="ghost" size="icon" className={iconButtonClasses}><User className="h-5 w-5" /></Button></Link>
              <Link href="/cart" className="relative">
-                <Button variant="ghost" size="icon" className="text-primary hover:bg-black/10">
+                <Button variant="ghost" size="icon" className={iconButtonClasses}>
                     <ShoppingCart className="h-5 w-5" />
                     {isClient && totalItems > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold bg-white text-primary">
+                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isScrolled || !isHomePage ? "bg-white text-primary" : "bg-primary text-white")}>
                           {totalItems}
                         </span>
                     )}
@@ -142,7 +180,7 @@ export default function Header() {
           </div>
         </div>
         {isSearchOpen && (
-            <div className="w-full px-4 py-3 shadow-md bg-[#efe7da]">
+            <div className={cn("w-full px-4 py-3 shadow-md", isScrolled || !isHomePage ? 'bg-[#efe7da]' : 'bg-black/20 backdrop-blur-sm')}>
                 <form onSubmit={handleSearchSubmit} className="relative container mx-auto">
                     <Input 
                         placeholder="Buscar produtos..."

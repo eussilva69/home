@@ -74,7 +74,7 @@ export default function Footer() {
           <div className="border-t border-gray-300 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
             <p className="mb-4 md:mb-0">Home Designer © 2022 DIREITOS RESERVADOS</p>
             <div className="flex items-center gap-4 mb-4 md:mb-0">
-                {/* Payment icons would go here */}
+                <Image src="https://i.ibb.co/QfCby5H/pagamentos.png" alt="Formas de pagamento" width={300} height={25} />
             </div>
           </div>
 

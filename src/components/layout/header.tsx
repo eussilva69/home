@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Search, ShoppingCart, User, Brush, ChevronDown } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, LogOut, UserPlus, LogIn } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { collections } from '@/lib/mock-data';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/use-auth';
@@ -18,6 +19,9 @@ import SearchSuggestions from '../search/search-suggestions';
 import type { Product } from '@/lib/schemas';
 import { getProducts } from '@/app/actions';
 import { cn } from '@/lib/utils';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function Header() {
@@ -33,6 +37,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const isClient = useClientOnly();
+  const { toast } = useToast();
   
   const isHomePage = pathname === '/';
   const [isScrolled, setIsScrolled] = useState(!isHomePage);
@@ -89,6 +94,12 @@ export default function Header() {
     if (isMenuOpen) setMenuOpen(false);
     if (isSearchOpen) setIsSearchOpen(false);
   };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    toast({ title: "Você saiu!", description: "Sessão encerrada com sucesso." });
+    router.push('/');
+  }
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -155,9 +166,43 @@ export default function Header() {
              <Link href="/orcamento" className={linkClasses}>Orcamento</Link>
           </nav>
 
-          <div className="flex items-center gap-4">
-             <Button variant="ghost" size="icon" className={iconButtonClasses} onClick={() => setIsSearchOpen(prev => !prev)}><Search className="h-5 w-5" /></Button>
-             <Link href={user ? '/dashboard' : '/login'}><Button variant="ghost" size="icon" className={iconButtonClasses}><User className="h-5 w-5" /></Button></Link>
+          <div className="flex items-center gap-2">
+             <Button variant="ghost" size="icon" className={cn(iconButtonClasses, 'hidden md:inline-flex')} onClick={() => setIsSearchOpen(prev => !prev)}><Search className="h-5 w-5" /></Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                   <Button variant="ghost" size="icon" className={iconButtonClasses}><User className="h-5 w-5" /></Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  {user ? (
+                    <>
+                      <DropdownMenuLabel>
+                        <p className="font-semibold">Minha Conta</p>
+                        <p className="font-normal text-xs text-muted-foreground truncate">{user.email}</p>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                         <Link href="/dashboard"><User className="mr-2"/> Painel</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="mr-2"/> Sair
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuLabel>Acesse sua conta</DropdownMenuLabel>
+                       <DropdownMenuSeparator />
+                       <DropdownMenuItem asChild>
+                         <Link href="/login"><LogIn className="mr-2"/> Entrar</Link>
+                      </DropdownMenuItem>
+                       <DropdownMenuItem asChild>
+                         <Link href="/register"><UserPlus className="mr-2"/> Registrar-se</Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
              <Link href="/cart" className="relative">
                 <Button variant="ghost" size="icon" className={iconButtonClasses}>
                     <ShoppingCart className="h-5 w-5" />
@@ -168,6 +213,18 @@ export default function Header() {
                     )}
                 </Button>
              </Link>
+
+              <div className="lg:hidden">
+                 <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon" className={iconButtonClasses}><Menu className="h-6 w-6"/></Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className={cn("bg-white text-primary", "w-[300px] sm:w-[350px]")}>
+                       {/* Mobile Menu Content */}
+                    </SheetContent>
+                </Sheet>
+              </div>
+
           </div>
         </div>
         {isSearchOpen && (

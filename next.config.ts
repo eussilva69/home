@@ -243,6 +243,12 @@ const nextConfig: NextConfig = {
         hostname: 'marketplace.canva.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'boemi.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

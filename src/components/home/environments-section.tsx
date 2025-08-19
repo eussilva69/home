@@ -12,7 +12,7 @@ const environments = [
   {
     name: 'Quarto',
     href: '/collection/floral',
-    image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg',
+    image: 'https://cdn.iset.io/assets/58966/produtos/59176/ac980946d21b23807c9b4681f978cfeb6848746b4ddb4.png',
     hint: 'cozy bedroom'
   },
   {

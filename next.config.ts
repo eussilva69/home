@@ -225,6 +225,12 @@ const nextConfig: NextConfig = {
         hostname: '39124.cdn.simplo7.net',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.iset.io',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

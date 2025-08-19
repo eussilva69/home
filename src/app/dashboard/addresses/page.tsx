@@ -117,24 +117,19 @@ export default function AddressesPage() {
     );
   }
   
-  const customerLinks = [
-    { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' },
-    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' },
-    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' },
-    { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' },
-  ];
+  const isAdmin = user.email === 'vvatassi@gmail.com';
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary/50">
+    <>
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <div className="flex-grow container mx-auto p-4 md:p-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          <DashboardSidebar links={customerLinks} isAdmin={false} />
-          <main className="flex-1">
-             <h1 className="text-2xl font-semibold mb-6">Meus Endereços</h1>
-              <Card>
+      <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <DashboardSidebar isAdmin={isAdmin} />
+          <div className="md:col-span-3">
+             <Card>
                 <CardHeader className="flex flex-row justify-between items-center">
-                  <CardTitle>Endereços Salvos</CardTitle>
+                  <CardTitle>Endereços</CardTitle>
                   <Button variant="outline" onClick={() => handleOpenForm()}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Adicionar Novo
@@ -164,10 +159,12 @@ export default function AddressesPage() {
                   )}
                 </CardContent>
               </Card>
-          </main>
+          </div>
         </div>
-      </div>
-      <AddressFormDialog 
+      </main>
+      <Footer />
+    </div>
+    <AddressFormDialog 
         isOpen={isFormOpen} 
         onOpenChange={setIsFormOpen}
         onSave={handleSaveAddress}
@@ -187,6 +184,6 @@ export default function AddressesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }

@@ -33,25 +33,19 @@ export default function PersonalDataPage() {
     );
   }
   
-  const customerLinks = [
-    { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' },
-    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' },
-    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' },
-    { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' },
-  ];
-
+  const isAdmin = user.email === 'vvatassi@gmail.com';
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary/50">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <div className="flex-grow container mx-auto p-4 md:p-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          <DashboardSidebar links={customerLinks} isAdmin={false} />
-          <main className="flex-1">
+      <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <DashboardSidebar isAdmin={isAdmin} />
+          <div className="md:col-span-3">
             <CustomerDashboard user={user} />
-          </main>
+          </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   );

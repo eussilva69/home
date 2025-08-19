@@ -103,19 +103,10 @@ export default function ProductsPage() {
     setIsDeleteDialogOpen(false);
     setProductToDelete(null);
   };
-  
-  const adminLinks = [
-    { href: '/dashboard', label: 'Início', icon: 'Home' as const },
-    { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' as const },
-    { href: '/dashboard/products', label: 'Quadros', icon: 'Box' as const },
-    { href: '/dashboard/furnitures', label: 'Mobílias', icon: 'Sofa' as const },
-    { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' as const },
-    { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' as const },
-  ];
 
   if (authLoading || loading) {
     return (
-      <div className="flex flex-col min-h-screen bg-secondary/50">
+      <div className="flex flex-col min-h-screen bg-background">
         <Header />
         <div className="flex-grow flex items-center justify-center">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -127,12 +118,12 @@ export default function ProductsPage() {
 
   return (
     <>
-    <div className="flex flex-col min-h-screen bg-secondary/50">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <div className="flex-grow container mx-auto p-4 md:p-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          <DashboardSidebar links={adminLinks} isAdmin={isAdmin} />
-          <main className="flex-1">
+      <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <DashboardSidebar isAdmin={isAdmin} />
+          <div className="md:col-span-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Quadros</CardTitle>
@@ -212,9 +203,9 @@ export default function ProductsPage() {
                 )}
               </CardContent>
             </Card>
-          </main>
+          </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

@@ -2,20 +2,19 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import AdminDashboard from '@/components/dashboard/admin-dashboard';
 import DashboardSidebar from '@/components/dashboard/dashboard-sidebar';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -35,71 +34,44 @@ export default function DashboardPage() {
     );
   }
 
-  // Simple role check based on email
   const isAdmin = user.email === 'vvatassi@gmail.com';
   
-  const adminLinks = [
-      { href: '/dashboard', label: 'Início', icon: 'Home' as const },
-      { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' as const },
-      { href: '/dashboard/products', label: 'Quadros', icon: 'Box' as const },
-      { href: '/dashboard/furnitures', label: 'Mobílias', icon: 'Sofa' as const },
-      { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' as const },
-      { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' as const },
-    ];
-
-  const customerLinks = [
-    { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' as const },
-    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' as const },
-    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' as const },
-    { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' as const },
-  ];
-
-  const isRootDashboard = pathname === '/dashboard';
-
   const renderContent = () => {
     if (isAdmin) {
-      if (isRootDashboard) {
-        return <AdminDashboard user={user} />;
-      }
-      // Outras páginas do admin podem ser renderizadas aqui com base no pathname
-      return null; 
-    } else {
-      // Se não for admin e estiver na raiz do dashboard
-      if (isRootDashboard) {
-        return (
-          <div>
-            <h1 className="text-2xl font-semibold mb-6">Minha Conta</h1>
-            <Card>
-              <CardHeader>
-                <CardTitle>Bem-vindo(a)!</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Use o menu ao lado para navegar pelas seções da sua conta.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        );
-      }
-       // Renderiza outras páginas do cliente aqui, se necessário
-      return null;
+      return <AdminDashboard user={user} />;
     }
+    
+    const displayName = user.displayName || user.email?.split('@')[0] || 'Cliente';
+
+    return (
+      <div>
+        <p className="text-muted-foreground mb-4">
+          Olá, <span className="font-semibold text-primary">{displayName}</span> (não é <span className="font-semibold text-primary">{displayName}</span>? <button onClick={() => { auth.signOut(); router.push('/login'); }} className="text-primary font-semibold underline">Sair</button>)
+        </p>
+        <p className="text-muted-foreground">
+          A partir do painel de controle de sua conta, você pode ver suas compras recentes, gerenciar seus endereços de entrega e cobrança, e editar sua senha e detalhes da conta.
+        </p>
+      </div>
+    );
   };
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary/50">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <div className="flex-grow container mx-auto p-4 md:p-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          <DashboardSidebar links={isAdmin ? adminLinks : customerLinks} isAdmin={isAdmin} />
-          <main className="flex-1">
+      <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <DashboardSidebar isAdmin={isAdmin} />
+          <div className="md:col-span-3">
             {renderContent()}
-          </main>
+          </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   );
 }
+
+const auth = {
+  signOut: () => Promise.resolve(),
+};

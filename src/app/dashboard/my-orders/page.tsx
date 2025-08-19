@@ -14,8 +14,6 @@ import { firestore } from '@/lib/firebase';
 import { collection, query, where, getDocs, Timestamp, writeBatch, doc } from 'firebase/firestore';
 import type { OrderDetails } from '@/lib/schemas';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
 interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
@@ -137,13 +135,13 @@ export default function MyOrdersPage() {
             case 'A caminho':
                 return 'secondary';
             case 'Cancelado':
+            case 'Devolução Solicitada':
                 return 'destructive';
             case 'Aprovado':
                  return 'warning';
             case 'Em separação':
+            case 'Pendente':
                 return 'outline';
-            case 'Devolução Solicitada':
-                return 'destructive';
             default:
                 return 'secondary';
         }
@@ -162,26 +160,18 @@ export default function MyOrdersPage() {
     );
   }
   
-  const customerLinks = [
-    { href: '/dashboard/personal-data', label: 'Dados pessoais', icon: 'User' as const },
-    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' as const },
-    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' as const },
-    { href: '/dashboard/authentication', label: 'Autenticação', icon: 'Heart' as const },
-  ];
+  const isAdmin = user.email === 'vvatassi@gmail.com';
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary/50">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <div className="flex-grow container mx-auto p-4 md:p-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          <DashboardSidebar links={customerLinks} isAdmin={false} />
-          <main className="flex-1">
+      <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <DashboardSidebar isAdmin={isAdmin} />
+          <div className="md:col-span-3">
             <h1 className="text-2xl font-semibold mb-6">Meus Pedidos</h1>
             <Card>
-                <CardHeader>
-                    <CardTitle>Histórico de Pedidos</CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                     {isLoadingOrders ? (
                         <div className="flex justify-center p-8">
                             <Loader2 className="h-8 w-8 animate-spin" />
@@ -226,9 +216,9 @@ export default function MyOrdersPage() {
                     )}
                 </CardContent>
             </Card>
-          </main>
+          </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   );

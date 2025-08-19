@@ -4,15 +4,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, Package, Box, Users, User, MapPin, Heart, ArrowLeftRight, LogOut, DollarSign, Sofa } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Home, Package, Box, Users, User, MapPin, Heart, LogOut, DollarSign, Sofa, Pencil, Download, Gauge } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { logoutAction } from '@/app/actions';
 
 const iconMap = {
+  Gauge,
   Home,
   Package,
   Box,
@@ -20,9 +19,10 @@ const iconMap = {
   User,
   MapPin,
   Heart,
-  ArrowLeftRight,
   DollarSign,
   Sofa,
+  Pencil,
+  Download,
 };
 
 type LinkType = {
@@ -32,39 +32,50 @@ type LinkType = {
 };
 
 type DashboardSidebarProps = {
-  links: LinkType[];
   isAdmin: boolean;
 };
 
-export default function DashboardSidebar({ links, isAdmin }: DashboardSidebarProps) {
+export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
   const pathname = usePathname();
-  const { user } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
     await signOut(auth);
-    await logoutAction();
     router.push('/');
   }
 
+  const adminLinks: LinkType[] = [
+    { href: '/dashboard', label: 'Painel', icon: 'Gauge' },
+    { href: '/dashboard/orders', label: 'Pedidos', icon: 'Package' },
+    { href: '/dashboard/products', label: 'Quadros', icon: 'Box' },
+    { href: '/dashboard/furnitures', label: 'Mobílias', icon: 'Sofa' },
+    { href: '/dashboard/customers', label: 'Clientes', icon: 'Users' },
+    { href: '/dashboard/financial', label: 'Financeiro', icon: 'DollarSign' },
+  ];
+
+  const customerLinks: LinkType[] = [
+    { href: '/dashboard', label: 'Painel', icon: 'Gauge' },
+    { href: '/dashboard/my-orders', label: 'Pedidos', icon: 'Package' },
+    { href: '/dashboard/addresses', label: 'Endereços', icon: 'MapPin' },
+    { href: '/dashboard/personal-data', label: 'Detalhes da conta', icon: 'User' },
+  ];
+
+  const links = isAdmin ? adminLinks : customerLinks;
+
   return (
-    <aside className="w-full md:w-64 bg-background rounded-lg shadow-md p-4 flex flex-col">
-      {!isAdmin && (
-        <>
-          <h2 className="text-2xl font-bold p-2 mb-4">Olá!</h2>
-        </>
-      )}
-      <nav className="flex flex-col gap-2 flex-grow">
+    <aside className="w-full md:w-full md:col-span-1 border-r-0 md:border-r md:pr-8">
+      <nav className="flex flex-col gap-2">
         {links.map((link) => {
-          const Icon = iconMap[link.icon as keyof typeof iconMap] || Home;
+          const Icon = iconMap[link.icon] || Home;
+          // Exact match for dashboard, partial for others
           const isActive = pathname === link.href;
           return (
             <Link
               key={link.label}
               href={link.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-primary/5',
-                isActive && 'bg-primary/10 text-primary font-semibold'
+                'flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-secondary',
+                isActive && 'bg-secondary text-primary font-semibold'
               )}
             >
               <Icon className="h-5 w-5" />
@@ -72,15 +83,14 @@ export default function DashboardSidebar({ links, isAdmin }: DashboardSidebarPro
             </Link>
           );
         })}
+         <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-secondary w-full text-left"
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="text-base">Sair</span>
+         </button>
       </nav>
-      <Separator className="my-4" />
-      <button
-        onClick={handleLogout}
-        className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-primary/5 w-full text-left"
-      >
-        <LogOut className="h-5 w-5" />
-        <span className="text-base">Sair</span>
-      </button>
     </aside>
   );
 }

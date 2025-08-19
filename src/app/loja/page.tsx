@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import type { Product } from '@/lib/schemas';
+import { cn } from '@/lib/utils';
 
 const PRODUCTS_PER_PAGE = 24;
 

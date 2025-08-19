@@ -144,18 +144,26 @@ export const testimonials = [
 ];
 
 export const collections = [
-  { slug: 'animais', name: 'Animais', image: 'https://cdn6.campograndenews.com.br/uploads/noticias/2023/01/20/691c73dd24a60411b5bc65d4329035a56bba629e.jpeg', hint: 'elephant' },
-  { slug: 'floral', name: 'Floral', image: 'https://img.freepik.com/vetores-gratis/padrao-floral-abstrato-plano-organico_23-2148923571.jpg?semt=ais_hybrid&w=740', hint: 'flower' },
-  { slug: 'abstrato', name: 'Abstrato', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS667S4SsyCpYH6HuZ_ysVwnzFHV4_nHbdkcA&s', hint: 'abstract' },
-  { slug: 'frases-tipografia', name: 'Frases/Tipografia', image: 'https://i.pinimg.com/736x/56/de/96/56de96ac38decccabbbf516fb85b025a.jpg', hint: 'typography' },
-  { slug: 'botanico', name: 'Botânico', image: 'https://i.pinimg.com/236x/93/30/12/933012248c7da55d48e93e14ee8134f9.jpg', hint: 'botanical' },
-  { slug: 'geek', name: 'Geek', image: 'https://i.ibb.co/21gyDj9v/imagem-2025-08-03-192551359.png', hint: 'game controller' },
-  { slug: 'fotografia', name: 'Fotografia', image: 'https://a-static.mlcdn.com.br/800x560/quadro-arte-abstrata-cidade-europeia-ki-art-quadros-decorativos/oliststore/mgl8fkfftqb5zmnn/55c04a7ccb3cede0d14df1da0a3f991e.jpeg', hint: 'camera' },
-  { slug: 'infantil', name: 'Infantil', image: 'https://blog-leiturinha-novo.s3.us-east-1.amazonaws.com/production/uploads/2023/05/babyshark.jpg', hint: 'hedgehog' },
-  { slug: 'fashion', name: 'Fashion', image: 'https://cdn.11.vuzi.com.br/goquadros/product/404401.webp', hint: 'fashion' },
-  { slug: 'minimalista', name: 'Minimalista', image: 'https://st2.depositphotos.com/8815532/44724/v/450/depositphotos_447247498-stock-illustration-one-line-drawing-face-abstract.jpg', hint: 'line art face' },
-  { slug: 'femme', name: 'Femme', image: 'https://medias.artmajeur.com/home/14141927_17c76aac-e019-48f9-af9d-a05a7a6aa5c1.jpg?v=1739181916', hint: 'woman face' },
-  { slug: 'religiao', name: 'Religião', image: 'https://carolinarochas.com.br/wp-content/uploads/2025/03/Pintura-sacra-de-Jesus-Cristo-pintado-a-mao.jpg', hint: 'jesus christ painting' },
+  { slug: 'leao', name: 'Leão', image: 'https://images.tcdn.com.br/img/img_prod/1015607/quadro_decorativo_leao_preto_e_branco_485_1_2d79d3a5a7b23bd0b5a33117462157c9.jpg', hint: 'lion' },
+  { slug: 'arvore-da-vida', name: 'Árvore da Vida', image: 'https://img.elo7.com.br/product/main/4C6A0A4/quadro-arvore-da-vida-mdf-6mm-preto-fosco-decorativo.jpg', hint: 'tree life' },
+  { slug: 'santa-ceia', name: 'Santa Ceia', image: 'https://www.papeleparede.com.br/image/cache/data/produtos/quadros-decorativos/religiosos/quadro-decorativo-santa-ceia-cod-qdrg010-900x900.jpg', hint: 'last supper' },
+  { slug: 'abstratos-e-geometricos', name: 'Abstratos & Geométricos', image: 'https://static.vecteezy.com/ti/vetor-gratis/p1/5129672-capa-de-brochura-de-meio-tom-geometrico-abstrato-vetor.jpg', hint: 'abstract geometric' },
+  { slug: 'praia', name: 'Praia', image: 'https://i.pinimg.com/736x/87/42/e5/8742e519c7201c13d7c34b1509a250d4.jpg', hint: 'beach' },
+  { slug: 'por-do-sol', name: 'Pôr do Sol', image: 'https://media.cdnandroid.com/5c/50/9a/e3/e2/imagen-sunset-wallpapers-4gal.jpg', hint: 'sunset' },
+  { slug: 'carros', name: 'Carros', image: 'https://http2.mlstatic.com/D_NQ_NP_961596-MLB51430489953_092022-O.webp', hint: 'car' },
+  { slug: 'flores', name: 'Flores', image: 'https://img.freepik.com/vetores-gratis/padrao-floral-abstrato-plano-organico_23-2148923571.jpg?semt=ais_hybrid&w=740', hint: 'flowers' },
+  { slug: 'pintura-e-aquarela', name: 'Pintura & Aquarela', image: 'https://i.pinimg.com/736x/21/2e/0f/212e0f854615e45a0a38f3223f05b0c7.jpg', hint: 'watercolor painting' },
+  { slug: 'frases-motivacionais', name: 'Frases Motivacionais', image: 'https://i.pinimg.com/736x/56/de/96/56de96ac38decccabbbf516fb85b025a.jpg', hint: 'motivational quotes' },
+  { slug: 'leao-de-juda', name: 'Leão de Judá', image: 'https://midias.jornalcruzeiro.com.br/wp-content/uploads/2021/09/leao-de-juda.jpg', hint: 'lion judah' },
+  { slug: 'cavalos', name: 'Cavalos', image: 'https://cdnm.westwing.com.br/img/products/quadro-cavalos-preto-e-branco-i-referencia-ax2548-p-0-323281-1-800x800.jpg', hint: 'horses' },
+  { slug: 'borboletas', name: 'Borboletas', image: 'https://i0.wp.com/www.portaldossabores.com.br/wp-content/uploads/2022/10/Borboleta-Colorida-PNG.png?fit=640%2C427&ssl=1', hint: 'butterflies' },
+  { slug: 'mulheres', name: 'Mulheres', image: 'https://iili.io/Jqg04Gf.png', hint: 'women' },
+  { slug: 'minimalista', name: 'Minimalista', image: 'https://st2.depositphotos.com/8815532/44724/v/450/depositphotos_447247498-stock-illustration-one-line-drawing-face-abstract.jpg', hint: 'minimalist' },
+  { slug: 'arte-urbana', name: 'Arte Urbana', image: 'https://acdn.mitiendanube.com/stores/001/838/087/products/hpx2-06-031-6e11e0f065360a0a5216345826649392-1024-1024.jpg', hint: 'urban art' },
+  { slug: 'paisagens', name: 'Paisagens', image: 'https://img.panoramasistemas.com.br/img.php?img=aHR0cHM6Ly93d3cucGFub3JhbWFzaXN0ZW1hcy5jb20uYnIvaW1nL25vdGljaWFzLzIwMTkvMDcvMTkvMTUwNjA1XzM1MTU2NTgxNTc0NjYzNF8yNzk2OTIzODRfbi5qcGc=&w=720&h=480', hint: 'landscapes' },
+  { slug: 'familia-de-leoes', name: 'Família de Leões', image: 'https://images.icon-icons.com/icons2/2388/PNG/512/lion_animal_icon_144304.png', hint: 'lion family' },
+  { slug: 'dolar-e-bitcoin', name: 'Dólar & Bitcoin', image: 'https://i.ibb.co/3yCj1gq/imagem-2025-08-04-180800366.png', hint: 'dolar bitcoin' },
+  { slug: 'religioso', name: 'Religioso', image: 'https://carolinarochas.com.br/wp-content/uploads/2025/03/Pintura-sacra-de-Jesus-Cristo-pintado-a-mao.jpg', hint: 'religious' }
 ];
 
     
@@ -168,6 +176,7 @@ export const collections = [
     
 
     
+
 
 
 

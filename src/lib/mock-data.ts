@@ -146,7 +146,7 @@ export const testimonials = [
 export const collections = [
   { slug: 'leao', name: 'Leão', image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg', hint: 'lion' },
   { slug: 'arvore-da-vida', name: 'Árvore da Vida', image: 'https://t3.ftcdn.net/jpg/07/55/90/44/360_F_755904469_U24KQ4sP2hMXu8leBnI84lhZxePsCE3F.jpg', hint: 'tree life' },
-  { slug: 'santa-ceia', name: 'Santa Ceia', image: 'https://e1.pxfuel.com/desktop-wallpaper/311/201/desktop-wallpaper-the-last-supper.jpg', hint: 'last supper' },
+  { slug: 'santa-ceia', name: 'Santa Ceia', image: 'https://media.istockphoto.com/id/489481363/pt/vetorial/veneza-a-última-ceia-de-cristo-por-santacroce.jpg?s=612x612&w=0&k=20&c=C1GSj9ke5eecGfUZsNhWmRx-7BnkTbDDCN-NBplpsUI=', hint: 'last supper' },
   { slug: 'abstratos-e-geometricos', name: 'Abstratos & Geométricos', image: 'https://i.pinimg.com/736x/4f/13/cd/4f13cda7e1e13ccead88339e789ca3a3.jpg', hint: 'abstract geometric' },
   { slug: 'praia', name: 'Praia', image: 'https://wallpapers.com/images/hd/1920x1080-hd-beach-e4w5syi4hm156qt3.jpg', hint: 'beach' },
   { slug: 'por-do-sol', name: 'Pôr do Sol', image: 'https://img.freepik.com/fotos-gratis/renderizacao-3d-de-uma-arvore-contra-um-ceu-por-do-sol_1048-4191.jpg?semt=ais_hybrid&w=740&q=80', hint: 'sunset' },

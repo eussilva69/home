@@ -249,6 +249,12 @@ const nextConfig: NextConfig = {
         hostname: 'boemi.com.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.istockphoto.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

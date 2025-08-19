@@ -8,6 +8,7 @@ import RandomProducts from "@/components/home/random-products";
 import Link from "next/link";
 import Image from "next/image";
 import MinimalistSection from "@/components/home/minimalist-section";
+import FeatureBar from "@/components/home/feature-bar";
 
 export default function Home() {
   return (
@@ -40,6 +41,7 @@ export default function Home() {
         <RandomProducts />
         <BestSellers />
       </main>
+      <FeatureBar />
       <Footer />
     </div>
   );

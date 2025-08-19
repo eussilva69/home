@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -72,7 +73,7 @@ const FrameMockup = ({ artworkUrl, frameColor, withGlass, imageApplication = 're
             return (
                 <div
                     key={i}
-                    className="relative w-80"
+                    className="relative w-80 p-2"
                     style={{ 
                         backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
@@ -314,3 +315,4 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+

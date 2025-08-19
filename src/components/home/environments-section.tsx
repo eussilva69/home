@@ -6,13 +6,13 @@ const environments = [
   {
     name: 'Sala',
     href: '/collection/abstrato', 
-    image: 'https://res.cloudinary.com/dyhp1sbsj/image/upload/v1722883584/ftzbsb02yzyzccqgm9iv.jpg',
+    image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg',
     hint: 'modern living room'
   },
   {
     name: 'Quarto',
     href: '/collection/floral',
-    image: 'https://res.cloudinary.com/dyhp1sbsj/image/upload/v1722883585/tbn3gqf6qxtr1hpdnppu.jpg',
+    image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg',
     hint: 'cozy bedroom'
   },
   {

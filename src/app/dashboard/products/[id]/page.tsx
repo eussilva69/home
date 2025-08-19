@@ -70,13 +70,14 @@ export default function EditProductPage() {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
 
   const form = useForm<ProductUpdatePayload>({
     resolver: zodResolver(productUpdateSchema),
   });
   
   const arrangement = product?.arrangement;
+  const imageApplication = form.watch('image_application');
 
   const fetchProduct = useCallback(async () => {
     if (productId) {
@@ -90,6 +91,7 @@ export default function EditProductPage() {
           price: productData.price,
           artwork_image: productData.artwork_image,
           image_application: productData.image_application || 'repeat',
+          gallery_images: productData.gallery_images || [],
         });
       } else {
         toast({ variant: 'destructive', title: 'Erro', description: result.message });
@@ -107,8 +109,9 @@ export default function EditProductPage() {
     }
   }, [user, authLoading, router, fetchProduct]);
   
-  const handleImageUpload = async (file: File) => {
-    setIsUploading(true);
+  const handleImageUpload = async (file: File, fieldName: keyof ProductUpdatePayload | `gallery_images.${number}`) => {
+    const fieldId = fieldName.toString();
+    setIsUploading(prev => ({...prev, [fieldId]: true}));
     
     const formData = new FormData();
     formData.append("file", file);
@@ -121,7 +124,16 @@ export default function EditProductPage() {
         const data = await response.json();
         
         if (data.success) {
-            form.setValue('artwork_image', data.url, { shouldValidate: true });
+            const imageUrl = data.url;
+            if (typeof fieldName === 'string' && fieldName.startsWith('gallery_images.')) {
+                const index = parseInt(fieldName.split('.')[1]);
+                const currentGallery = form.getValues('gallery_images') || [];
+                const newGallery = [...currentGallery];
+                newGallery[index] = imageUrl;
+                form.setValue('gallery_images', newGallery, { shouldValidate: true });
+            } else {
+                form.setValue(fieldName as keyof ProductUpdatePayload, imageUrl, { shouldValidate: true });
+            }
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
         } else {
             throw new Error(data.details || "Erro desconhecido ao fazer upload.");
@@ -129,7 +141,7 @@ export default function EditProductPage() {
     } catch (error: any) {
          toast({ variant: 'destructive', title: 'Erro de Upload', description: error.message || "Falha no upload da imagem." });
     } finally {
-        setIsUploading(false);
+         setIsUploading(prev => ({...prev, [fieldId]: false}));
     }
   };
 
@@ -155,6 +167,8 @@ export default function EditProductPage() {
        </div>
     );
   }
+  
+  const frameCount = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
@@ -191,11 +205,15 @@ export default function EditProductPage() {
                                     >
                                         <FormItem className="flex items-center space-x-2">
                                             <FormControl><RadioGroupItem value="repeat" id="repeat" /></FormControl>
-                                            <FormLabel htmlFor="repeat" className="font-normal">Repetir (mesma imagem em todos)</FormLabel>
+                                            <FormLabel htmlFor="repeat" className="font-normal">Repetir</FormLabel>
                                         </FormItem>
                                         <FormItem className="flex items-center space-x-2">
                                             <FormControl><RadioGroupItem value="split" id="split" /></FormControl>
-                                            <FormLabel htmlFor="split" className="font-normal">Dividir (imagem panorâmica)</FormLabel>
+                                            <FormLabel htmlFor="split" className="font-normal">Dividir</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2">
+                                            <FormControl><RadioGroupItem value="individual" id="individual" /></FormControl>
+                                            <FormLabel htmlFor="individual" className="font-normal">Individual</FormLabel>
                                         </FormItem>
                                     </RadioGroup>
                                     <FormMessage />
@@ -208,25 +226,48 @@ export default function EditProductPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Imagem da Arte</CardTitle>
-                        <CardDescription>Envie a imagem principal do quadro. Ela será usada nos mockups.</CardDescription>
+                        <CardTitle>Imagens da Arte</CardTitle>
+                        <CardDescription>
+                            {imageApplication === 'individual' 
+                                ? 'Envie uma imagem para cada quadro do conjunto.'
+                                : 'Envie a imagem principal do quadro. Ela será usada nos mockups.'
+                            }
+                        </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                         <FormField
-                            control={form.control}
-                            name="artwork_image"
-                            render={() => (
-                               <FormItem>
-                                 <ImageUploadField
-                                    label="Arte do Quadro"
-                                    currentImageUrl={form.watch('artwork_image')}
-                                    onImageUpload={handleImageUpload}
-                                    isUploading={isUploading}
-                                 />
-                                 <FormMessage />
-                               </FormItem>
-                            )}
-                         />
+                    <CardContent className="space-y-6">
+                        {imageApplication === 'individual' && frameCount > 1 ? (
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {[...Array(frameCount)].map((_, index) => (
+                                   <FormField key={index} control={form.control} name={`gallery_images.${index}` as any} render={() => (
+                                      <FormItem>
+                                         <ImageUploadField
+                                            label={`Imagem Quadro ${index + 1}`}
+                                            currentImageUrl={form.watch(`gallery_images.${index}` as any)}
+                                            onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
+                                            isUploading={isUploading[`gallery_images.${index}`]}
+                                         />
+                                         <FormMessage/>
+                                      </FormItem>
+                                   )} />
+                                ))}
+                            </div>
+                        ) : (
+                             <FormField
+                                control={form.control}
+                                name="artwork_image"
+                                render={() => (
+                                   <FormItem>
+                                     <ImageUploadField
+                                        label="Arte Principal"
+                                        currentImageUrl={form.watch('artwork_image')}
+                                        onImageUpload={(file) => handleImageUpload(file, 'artwork_image')}
+                                        isUploading={isUploading['artwork_image']}
+                                     />
+                                     <FormMessage />
+                                   </FormItem>
+                                )}
+                             />
+                        )}
                     </CardContent>
                 </Card>
                 

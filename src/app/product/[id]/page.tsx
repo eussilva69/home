@@ -48,11 +48,16 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
-const FrameMockup = ({ artworkUrl, frameColor, withGlass, imageApplication = 'repeat', arrangement = 'Solo' }: { artworkUrl: string; frameColor: string, withGlass: boolean, imageApplication?: 'repeat' | 'split', arrangement?: string }) => {
+const FrameMockup = ({ artworkUrl, frameColor, withGlass, imageApplication = 'repeat', arrangement = 'Solo', galleryImages = [] }: { artworkUrl: string; frameColor: string; withGlass: boolean; imageApplication?: 'repeat' | 'split' | 'individual'; arrangement?: string; galleryImages?: string[] }) => {
     const frameCount = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
 
     const renderFrames = () => {
         return [...Array(frameCount)].map((_, i) => {
+            let currentArtworkUrl = artworkUrl;
+            if (imageApplication === 'individual' && galleryImages && galleryImages[i]) {
+                currentArtworkUrl = galleryImages[i];
+            }
+            
             const imageStyle: React.CSSProperties = { objectFit: 'cover' };
             if (imageApplication === 'split' && frameCount > 1) {
                 const position = frameCount === 2 ? (i === 0 ? '0%' : '100%') : `${(i * 100) / (frameCount - 1)}%`;
@@ -74,7 +79,7 @@ const FrameMockup = ({ artworkUrl, frameColor, withGlass, imageApplication = 're
                     }}
                 >
                     <div className="relative bg-white w-full aspect-[4/5] overflow-hidden">
-                        <Image src={artworkUrl} alt={`Arte do quadro ${i + 1}`} layout="fill" style={imageStyle} />
+                        <Image src={currentArtworkUrl} alt={`Arte do quadro ${i + 1}`} layout="fill" style={imageStyle} />
                         {withGlass && <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>}
                     </div>
                 </div>
@@ -183,6 +188,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               withGlass={withGlass}
               imageApplication={product.image_application}
               arrangement={product.arrangement}
+              galleryImages={product.gallery_images}
             />
           </div>
 

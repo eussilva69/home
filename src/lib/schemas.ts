@@ -158,22 +158,23 @@ export const ProductSchema = z.object({
   artwork_image: z.string().default(''),
   category: z.string(),
   arrangement: z.string(),
-  image_application: z.enum(['repeat', 'split']).optional().default('repeat'),
+  image_application: z.enum(['repeat', 'split', 'individual']).optional().default('repeat'),
+  gallery_images: z.array(z.string()).optional(),
   // Campos obsoletos mantidos opcionalmente para compatibilidade com dados antigos
   image: z.string().optional(),
   image_alt: z.string().optional(),
   imagesByColor: z.record(z.string()).optional(),
-  gallery_images: z.array(z.string()).optional(),
   hint: z.string().optional(),
   hint_alt: z.string().optional(),
 });
 export type Product = z.infer<typeof ProductSchema>;
 
 export const productUpdateSchema = z.object({
-  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  price: z.number().min(0, "O preço não pode ser negativo."),
-  artwork_image: z.string().url("URL da arte é obrigatória."),
-  image_application: z.enum(['repeat', 'split']).optional(),
+  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres.").optional(),
+  price: z.number().min(0, "O preço não pode ser negativo.").optional(),
+  artwork_image: z.string().url("URL da arte é obrigatória.").optional(),
+  image_application: z.enum(['repeat', 'split', 'individual']).optional(),
+  gallery_images: z.array(z.string().url()).optional(),
 });
 export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
 
@@ -197,8 +198,9 @@ export const newProductSchema = z.object({
   price: z.number().min(0, "O preço não pode ser negativo."),
   category: z.string().min(1, "A categoria é obrigatória."),
   arrangement: z.string().min(1, "O arranjo é obrigatório."),
-  artwork_image: z.string().url("URL da arte é obrigatória."),
-  image_application: z.enum(['repeat', 'split']).optional(),
+  artwork_image: z.string().url("URL da arte é obrigatória.").optional(),
+  image_application: z.enum(['repeat', 'split', 'individual']).optional(),
+  gallery_images: z.array(z.string().url()).optional(),
 });
 export type NewProductPayload = z.infer<typeof newProductSchema>;
 

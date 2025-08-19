@@ -26,7 +26,7 @@ const environments = [
     name: 'Animais',
     href: '/animais',
     video: '/animais.mp4',
-    image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg',
+    image: 'https://cdn.dooca.store/152646/products/01-502_640x640+fill_ffffff.jpg?v=1723473487&webp=0',
     hint: 'wild animals'
   }
 ];

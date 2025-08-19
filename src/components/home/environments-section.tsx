@@ -10,7 +10,8 @@ import VideoIntro from './video-intro';
 const environments = [
   {
     name: 'Sala',
-    href: '/sala', 
+    href: '/sala',
+    video: '/sala.mp4',
     image: 'https://39124.cdn.simplo7.net/static/39124/sku/mosaico-conjunto-de-quadros-para-sala-por-do-sol-nas-montanhas--p-1588084392529.jpg',
     hint: 'modern living room'
   },

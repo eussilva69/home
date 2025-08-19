@@ -153,7 +153,7 @@ export default function Header() {
                     </div>
                 </PopoverContent>
               </Popover>
-             <Link href="/monte-seu-quadro" className={cn("font-medium", textColorClass)}>Composições</Link>
+             <Link href="/monte-seu-quadro" className={cn("font-medium", textColorClass)}>Personalize</Link>
              <Link href="/orcamento" className={cn("font-medium", textColorClass)}>Orcamento</Link>
           </nav>
 

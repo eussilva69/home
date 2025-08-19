@@ -61,7 +61,7 @@ export default function ValePresentePage() {
                         </div>
                         <div className="text-center">
                            <Image 
-                             src="https://placehold.co/500x500.png"
+                             src="https://marketplace.canva.com/EAFwIluR1GU/1/0/1600w/canva-vale-presente-para-presentear-ilustrado-branco-stY0Cq8PSHY.jpg"
                              data-ai-hint="gift card design"
                              alt="Exemplo de um Vale Presente"
                              width={500}

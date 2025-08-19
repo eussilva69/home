@@ -237,6 +237,12 @@ const nextConfig: NextConfig = {
         hostname: 'casalinda.cdn.magazord.com.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'marketplace.canva.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

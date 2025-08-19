@@ -77,10 +77,6 @@ export default function Footer() {
             <div className="flex items-center gap-4 mb-4 md:mb-0">
                 {/* Payment icons would go here */}
             </div>
-            <div className="flex items-center gap-4">
-                 <a href="/dashboard" className="hover:text-primary">Minha Conta</a>
-                 <a href="/checkout" className="hover:text-primary">Finalizar compra</a>
-            </div>
           </div>
 
         </div>

@@ -201,6 +201,18 @@ const nextConfig: NextConfig = {
         hostname: 'e1.pxfuel.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wallpapers.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.wallpapersafari.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

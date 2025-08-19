@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, LogOut, UserPlus, LogIn } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { collections } from '@/lib/mock-data';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/use-auth';
@@ -27,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isCollectionsOpen, setCollectionsOpen] = useState(false);
+  const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -169,39 +169,34 @@ export default function Header() {
           <div className="flex items-center gap-2">
              <Button variant="ghost" size="icon" className={cn(iconButtonClasses, 'hidden md:inline-flex')} onClick={() => setIsSearchOpen(prev => !prev)}><Search className="h-5 w-5" /></Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+             <Popover open={isUserMenuOpen} onOpenChange={setUserMenuOpen}>
+                <PopoverTrigger asChild onMouseEnter={() => setUserMenuOpen(true)} onMouseLeave={() => setUserMenuOpen(false)}>
                    <Button variant="ghost" size="icon" className={iconButtonClasses}><User className="h-5 w-5" /></Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                  {user ? (
-                    <>
-                      <DropdownMenuLabel>
-                        <p className="font-semibold">Minha Conta</p>
-                        <p className="font-normal text-xs text-muted-foreground truncate">{user.email}</p>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                         <Link href="/dashboard"><User className="mr-2"/> Painel</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout}>
-                        <LogOut className="mr-2"/> Sair
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <>
-                      <DropdownMenuLabel>Acesse sua conta</DropdownMenuLabel>
-                       <DropdownMenuSeparator />
-                       <DropdownMenuItem asChild>
-                         <Link href="/login"><LogIn className="mr-2"/> Entrar</Link>
-                      </DropdownMenuItem>
-                       <DropdownMenuItem asChild>
-                         <Link href="/register"><UserPlus className="mr-2"/> Registrar-se</Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-2" align="end" onMouseEnter={() => setUserMenuOpen(true)} onMouseLeave={() => setUserMenuOpen(false)}>
+                    <div className="flex flex-col gap-1">
+                     {user ? (
+                        <>
+                           <div className="p-2">
+                                <p className="font-semibold text-sm">Minha Conta</p>
+                                <p className="font-normal text-xs text-muted-foreground truncate">{user.email}</p>
+                           </div>
+                           <div className="h-px bg-muted w-[calc(100%-1rem)] mx-auto"/>
+                           <Link href="/dashboard" className="flex items-center p-2 text-sm rounded-sm hover:bg-accent" onClick={() => setUserMenuOpen(false)}><User className="mr-2 h-4 w-4"/> Painel</Link>
+                           <button onClick={handleLogout} className="flex items-center p-2 text-sm rounded-sm hover:bg-accent w-full text-left"><LogOut className="mr-2 h-4 w-4"/> Sair</button>
+                        </>
+                      ) : (
+                        <>
+                           <div className="p-2 font-semibold text-sm">Entre ou Registre-se</div>
+                           <div className="h-px bg-muted w-[calc(100%-1rem)] mx-auto"/>
+                           <Link href="/login" className="flex items-center p-2 text-sm rounded-sm hover:bg-accent" onClick={() => setUserMenuOpen(false)}><LogIn className="mr-2 h-4 w-4"/> Entrar</Link>
+                           <Link href="/register" className="flex items-center p-2 text-sm rounded-sm hover:bg-accent" onClick={() => setUserMenuOpen(false)}><UserPlus className="mr-2 h-4 w-4"/> Registrar-se</Link>
+                        </>
+                      )}
+                    </div>
+                </PopoverContent>
+              </Popover>
+
 
              <Link href="/cart" className="relative">
                 <Button variant="ghost" size="icon" className={iconButtonClasses}>

@@ -28,6 +28,7 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isHomePageAtTop, setIsHomePageAtTop] = useState(true);
 
   const { user } = useAuth();
   const { cartItems } = useCart();
@@ -36,17 +37,22 @@ export default function Header() {
   const isClient = useClientOnly();
   
   const isHomePage = pathname === '/';
+  const isLojaPage = pathname === '/loja';
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const scrollPosition = window.scrollY;
+      setIsScrolled(scrollPosition > 50);
+      if (isHomePage) {
+        setIsHomePageAtTop(scrollPosition < 50);
+      }
     };
     
     handleScroll();
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage]);
 
 
   useEffect(() => {
@@ -102,17 +108,15 @@ export default function Header() {
   
   const headerClasses = cn(
     "z-50 w-full transition-all duration-300",
-    isHomePage && !isScrolled ? 'bg-transparent' : 'bg-[#efe7da] text-primary shadow-md',
-    isHomePage ? (isScrolled ? 'fixed' : 'absolute') : 'fixed'
+    isHomePage && isHomePageAtTop ? 'bg-transparent' : (isLojaPage ? 'bg-background text-primary shadow-md' : 'bg-[#efe7da] text-primary shadow-md'),
+    isHomePage ? (isScrolled || !isHomePageAtTop ? 'fixed' : 'absolute') : 'fixed'
   );
   
-  const textColorClass = isHomePage && !isScrolled ? "text-white" : "text-primary";
-  
-  const paddingTopClass = isHomePage ? (isScrolled ? 'pt-0' : 'pt-4') : 'pt-0';
+  const textColorClass = isHomePage && isHomePageAtTop ? "text-white" : "text-primary";
 
 
   return (
-    <header className={cn(headerClasses, paddingTopClass)}>
+    <header className={cn(headerClasses)}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <Brush className={cn("h-8 w-8", textColorClass)} />
@@ -149,8 +153,6 @@ export default function Header() {
                     </div>
                 </PopoverContent>
               </Popover>
-             <Link href="/collection/floral" className={cn("font-medium", textColorClass)}>Mais Vendidos</Link>
-             <Link href="/collection/botanico" className={cn("font-medium", textColorClass)}>Novidades</Link>
              <Link href="/monte-seu-quadro" className={cn("font-medium", textColorClass)}>Composições</Link>
              <Link href="/orcamento" className={cn("font-medium", textColorClass)}>Orcamento</Link>
           </nav>
@@ -162,7 +164,7 @@ export default function Header() {
                 <Button variant="ghost" size="icon" className={textColorClass}>
                     <ShoppingCart className="h-5 w-5" />
                     {isClient && totalItems > 0 && (
-                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isHomePage && !isScrolled ? "bg-white text-black" : "bg-primary text-white")}>
+                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isHomePage && isHomePageAtTop ? "bg-white text-black" : "bg-primary text-white")}>
                           {totalItems}
                         </span>
                     )}
@@ -171,7 +173,7 @@ export default function Header() {
           </div>
         </div>
         {isSearchOpen && (
-            <div className="w-full bg-[#efe7da] px-4 py-3 shadow-md">
+            <div className={cn("w-full px-4 py-3 shadow-md", isLojaPage ? 'bg-background' : 'bg-[#efe7da]')}>
                 <form onSubmit={handleSearchSubmit} className="relative container mx-auto">
                     <Input 
                         placeholder="Buscar produtos..."

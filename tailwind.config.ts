@@ -18,8 +18,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Open Sans', 'sans-serif'],
-        headline: ['Open Sans', 'sans-serif'],
+        body: ['Sansation', 'sans-serif'],
+        headline: ['Covered By Your Grace', 'cursive'],
         code: ['monospace'],
       },
       colors: {

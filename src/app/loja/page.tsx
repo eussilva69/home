@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -18,35 +19,43 @@ const PRODUCTS_PER_PAGE = 24;
 const SidebarContent = ({
   selectedCategory,
   onSelectCategory,
+  categoryCounts,
 }: {
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
+  categoryCounts: { [key: string]: number };
 }) => (
   <aside className="w-full lg:w-64 lg:pr-8 space-y-4">
-    <h2 className="text-xl font-semibold text-primary">Categorias</h2>
+    <h2 className="text-xl font-semibold text-primary mb-4">Categorias</h2>
     <ul className="space-y-2">
       <li>
         <button
           onClick={() => onSelectCategory('all')}
-          className={`w-full text-left p-2 rounded-md transition-colors ${
-            selectedCategory === 'all' ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-primary/5'
-          }`}
+          className={cn(
+            'w-full text-left p-1 rounded-md transition-colors text-muted-foreground hover:text-primary',
+            selectedCategory === 'all' ? 'text-primary font-semibold' : ''
+          )}
         >
           Todas
         </button>
       </li>
-      {collections.map((cat) => (
-        <li key={cat.slug}>
-          <button
-            onClick={() => onSelectCategory(cat.name)}
-            className={`w-full text-left p-2 rounded-md transition-colors ${
-              selectedCategory === cat.name ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-primary/5'
-            }`}
-          >
-            {cat.name}
-          </button>
-        </li>
-      ))}
+      {collections.map((cat) => {
+        const count = categoryCounts[cat.name] || 0;
+        if (count === 0) return null; // Não mostra categorias vazias
+        return (
+          <li key={cat.slug}>
+            <button
+              onClick={() => onSelectCategory(cat.name)}
+              className={cn(
+                'w-full text-left p-1 rounded-md transition-colors text-muted-foreground hover:text-primary',
+                selectedCategory === cat.name ? 'text-primary font-semibold' : ''
+              )}
+            >
+              {cat.name} ({count})
+            </button>
+          </li>
+        );
+      })}
     </ul>
   </aside>
 );
@@ -71,6 +80,16 @@ export default function LojaPage() {
     };
     fetchAllProducts();
   }, []);
+
+  const categoryCounts = useMemo(() => {
+    const counts: { [key: string]: number } = {};
+    for (const product of allProducts) {
+        if (product.category) {
+            counts[product.category] = (counts[product.category] || 0) + 1;
+        }
+    }
+    return counts;
+  }, [allProducts]);
 
   const filteredProducts = useMemo(() => {
     let products = [...allProducts];
@@ -151,7 +170,11 @@ export default function LojaPage() {
         <div className="flex flex-col lg:flex-row gap-10">
           {/* Sidebar for Desktop */}
           <div className="hidden lg:block">
-            <SidebarContent selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+            <SidebarContent 
+              selectedCategory={selectedCategory} 
+              onSelectCategory={setSelectedCategory} 
+              categoryCounts={categoryCounts}
+            />
           </div>
 
           {/* Main Content */}
@@ -175,7 +198,11 @@ export default function LojaPage() {
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="p-6">
-                    <SidebarContent selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+                    <SidebarContent 
+                      selectedCategory={selectedCategory} 
+                      onSelectCategory={setSelectedCategory}
+                      categoryCounts={categoryCounts}
+                    />
                   </SheetContent>
                 </Sheet>
                 <Select value={sortBy} onValueChange={setSortBy}>

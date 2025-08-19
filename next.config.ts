@@ -195,6 +195,12 @@ const nextConfig: NextConfig = {
         hostname: 'res.cloudinary.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'e1.pxfuel.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

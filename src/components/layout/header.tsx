@@ -42,15 +42,11 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
 
-    if (isHomePage) {
-      window.addEventListener('scroll', handleScroll);
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-      };
-    } else {
-      setIsScrolled(true);
-    }
-  }, [isHomePage]);
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -105,10 +101,10 @@ export default function Header() {
 
   const headerClasses = cn(
     "w-full top-0 z-50 transition-all duration-300",
-    isHomePage ? 'fixed' : 'relative',
-    isScrolled || !isHomePage
+    isHomePage ? 'absolute' : 'relative',
+    isScrolled
       ? "bg-[#efe7da] text-primary shadow-md"
-      : "bg-transparent text-white"
+      : isHomePage ? "bg-transparent text-white" : "bg-[#efe7da] text-primary"
   );
   
   const iconButtonClasses = cn(
@@ -180,7 +176,7 @@ export default function Header() {
           </div>
         </div>
         {isSearchOpen && (
-            <div className={cn("w-full px-4 py-3 shadow-md", isScrolled || !isHomePage ? 'bg-[#efe7da]' : 'bg-black/20 backdrop-blur-sm')}>
+            <div className={cn("w-full px-4 py-3 shadow-md", isScrolled ? 'bg-[#efe7da]' : 'bg-black/20 backdrop-blur-sm')}>
                 <form onSubmit={handleSearchSubmit} className="relative container mx-auto">
                     <Input 
                         placeholder="Buscar produtos..."

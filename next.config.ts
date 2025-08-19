@@ -219,6 +219,12 @@ const nextConfig: NextConfig = {
         hostname: 't3.ftcdn.net',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '39124.cdn.simplo7.net',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

@@ -6,7 +6,7 @@ const environments = [
   {
     name: 'Sala',
     href: '/collection/abstrato', 
-    image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg',
+    image: 'https://39124.cdn.simplo7.net/static/39124/sku/mosaico-conjunto-de-quadros-para-sala-por-do-sol-nas-montanhas--p-1588084392529.jpg',
     hint: 'modern living room'
   },
   {

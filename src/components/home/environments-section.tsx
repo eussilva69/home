@@ -35,7 +35,7 @@ export default function EnvironmentsSection() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {environments.map((env) => (
-            <Link href={env.href} key={env.name} className="group block relative aspect-video overflow-hidden rounded-lg shadow-lg">
+            <Link href={env.href} key={env.name} className="group block relative aspect-square overflow-hidden rounded-lg shadow-lg">
               <Image
                 src={env.image}
                 alt={`Quadros para ${env.name}`}

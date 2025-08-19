@@ -83,9 +83,9 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="border-t border-gray-300 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-            <p className="mb-4 md:mb-0">Home Designer © 2022 DIREITOS RESERVADOS</p>
-            <div className="flex items-center gap-4 mb-4 md:mb-0 text-gray-800">
+          <div className="border-t border-gray-300 mt-10 pt-6 flex flex-col md:flex-row justify-center items-center text-xs text-gray-500 gap-6">
+            <p className="text-center md:text-left">Home Designer © 2022 DIREITOS RESERVADOS</p>
+            <div className="flex items-center gap-4 text-gray-800">
                 <VisaIcon className="h-6 w-auto" />
                 <PixIcon className="h-5 w-auto" />
                 <MasterCardIcon className="h-6 w-auto" />

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, ChangeEvent, DragEvent, useCallback, useEffect } from 'react';
@@ -12,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useCart } from '@/hooks/use-cart';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import Footer from '@/components/layout/footer';
 
 const pricingData = {
   "Solo": [
@@ -281,147 +283,151 @@ export default function MonteSeuQuadroPage() {
     }
 
     return (
-    <div className="flex flex-col bg-secondary/50">
+    <div className="flex flex-col min-h-screen bg-secondary/50">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 pb-40">
-        <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-5xl font-bold text-primary">Monte seu Quadro</h1>
-            <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Crie uma peça única com a sua imagem e do seu jeito.</p>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
-          {/* Visualização */}
-          <div className="lg:col-span-3 flex flex-col gap-4">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                  <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
-                      <Eye className="mr-2 h-4 w-4" /> No Ambiente
-                  </Button>
-                  <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
-                      <ImageIcon className="mr-2 h-4 w-4" /> Somente o Quadro
-                  </Button>
-              </div>
+      <main>
+        <div className="container mx-auto px-4 py-8">
+            <div className="text-center mb-8">
+                <h1 className="text-3xl md:text-5xl font-bold text-primary">Monte seu Quadro</h1>
+                <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Crie uma peça única com a sua imagem e do seu jeito.</p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+            {/* Visualização */}
+            <div className="lg:col-span-3 flex flex-col gap-4">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                    <Button size="sm" variant={viewMode === 'environment' ? 'default' : 'outline'} onClick={() => setViewMode('environment')}>
+                        <Eye className="mr-2 h-4 w-4" /> No Ambiente
+                    </Button>
+                    <Button size="sm" variant={viewMode === 'frame_only' ? 'default' : 'outline'} onClick={() => setViewMode('frame_only')}>
+                        <ImageIcon className="mr-2 h-4 w-4" /> Somente o Quadro
+                    </Button>
+                </div>
 
-             <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
-                 {viewMode === 'environment' ? (
-                     <>
-                        <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90"/>
-                        <div className="relative">
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
+                    {viewMode === 'environment' ? (
+                        <>
+                            <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90"/>
+                            <div className="relative">
+                                {renderFrames()}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="p-4">
                             {renderFrames()}
                         </div>
-                     </>
-                 ) : (
-                     <div className="p-4">
-                         {renderFrames()}
-                     </div>
-                 )}
+                    )}
+                </div>
+
             </div>
 
-          </div>
-
-          {/* Opções */}
-          <div className="lg:col-span-2 space-y-6">
-              <Card className="shadow-lg">
-                <CardContent className="p-6">
-                  <p className="text-3xl font-bold text-primary mb-6">
-                      {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione as opções'}
-                  </p>
-                  
-                  <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
-                     <AccordionItem value="item-1">
-                        <AccordionTrigger className="text-base font-semibold">Arranjo & Imagem</AccordionTrigger>
-                        <AccordionContent className="space-y-4">
-                           <RadioGroup value={arrangement} onValueChange={(v) => handleArrangementChange(v as any)} className="grid grid-cols-3 gap-3">
-                                {Object.keys(pricingData).map((key) => (
-                                    <Label key={key} htmlFor={`arrangement-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
-                                        <RadioGroupItem value={key} id={`arrangement-${key}`} className="sr-only" />
-                                        {key}
-                                    </Label>
-                                ))}
-                            </RadioGroup>
-                             {arrangement !== 'Solo' && (
-                                <>
-                                 <Label className="font-semibold text-sm">Aplicação da Imagem</Label>
-                                 <RadioGroup value={imageMode} onValueChange={(v) => setImageMode(v as any)} className="grid grid-cols-3 gap-3">
-                                    <Label htmlFor="mode-global" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
-                                        <RadioGroupItem value="global" id="mode-global" className="sr-only" />
-                                        <Repeat className="h-5 w-5 mb-1"/>Global
-                                    </Label>
-                                    <Label htmlFor="mode-split" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
-                                        <RadioGroupItem value="split" id="mode-split" className="sr-only" />
-                                        <Columns className="h-5 w-5 mb-1"/>Split
-                                    </Label>
-                                    <Label htmlFor="mode-individual" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
-                                        <RadioGroupItem value="individual" id="mode-individual" className="sr-only" />
-                                        <Copy className="h-5 w-5 mb-1"/>Individual
-                                    </Label>
+            {/* Opções */}
+            <div className="lg:col-span-2 space-y-6">
+                <Card className="shadow-lg">
+                    <CardContent className="p-6">
+                    <p className="text-3xl font-bold text-primary mb-6">
+                        {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione as opções'}
+                    </p>
+                    
+                    <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
+                        <AccordionItem value="item-1">
+                            <AccordionTrigger className="text-base font-semibold">Arranjo & Imagem</AccordionTrigger>
+                            <AccordionContent className="space-y-4">
+                            <RadioGroup value={arrangement} onValueChange={(v) => handleArrangementChange(v as any)} className="grid grid-cols-3 gap-3">
+                                    {Object.keys(pricingData).map((key) => (
+                                        <Label key={key} htmlFor={`arrangement-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                            <RadioGroupItem value={key} id={`arrangement-${key}`} className="sr-only" />
+                                            {key}
+                                        </Label>
+                                    ))}
                                 </RadioGroup>
-                                </>
-                            )}
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="item-2">
-                        <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Ruler/> Tamanho</AccordionTrigger>
-                        <AccordionContent>
-                            <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 gap-3">
-                                {availableSizes.map(({ tamanho }) => (
-                                    <Label key={tamanho} htmlFor={`size-${tamanho}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
-                                        <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
-                                        {tamanho}
-                                    </Label>
-                                ))}
-                            </RadioGroup>
-                        </AccordionContent>
-                    </AccordionItem>
-                     <AccordionItem value="item-3">
-                        <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Frame/> Moldura e Acabamento</AccordionTrigger>
-                        <AccordionContent className="space-y-4">
-                            <div>
-                               <Label className="font-semibold text-sm mb-2 block">Estilo da Moldura</Label>
-                               <RadioGroup value={selectedFrameStyle} onValueChange={setSelectedFrameStyle} className="grid grid-cols-3 gap-3">
-                                  {Object.entries(frameStyles).map(([key, label]) => (
-                                      <Label key={key} htmlFor={`style-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
-                                        <RadioGroupItem value={key} id={`style-${key}`} className="sr-only" />
-                                        {label}
-                                      </Label>
-                                  ))}
-                              </RadioGroup>
-                            </div>
-                            <div>
-                               <Label className="font-semibold text-sm mb-2 block">Cor da Moldura</Label>
-                               <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
-                                  {Object.entries(frames).map(([key, { label, color }]) => (
-                                      <Label key={key} htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all has-[:checked]:border-primary")} title={label}>
-                                          <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
-                                          <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} />
-                                      </Label>
-                                  ))}
-                              </RadioGroup>
-                            </div>
-                            <div>
-                                <Label className="font-semibold text-sm mb-2 block">Acabamento</Label>
-                                <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-3">
-                                     <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
-                                         <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
-                                         Com Vidro
-                                     </Label>
-                                     <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
-                                         <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
-                                         Sem Vidro
-                                     </Label>
+                                {arrangement !== 'Solo' && (
+                                    <>
+                                    <Label className="font-semibold text-sm">Aplicação da Imagem</Label>
+                                    <RadioGroup value={imageMode} onValueChange={(v) => setImageMode(v as any)} className="grid grid-cols-3 gap-3">
+                                        <Label htmlFor="mode-global" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                            <RadioGroupItem value="global" id="mode-global" className="sr-only" />
+                                            <Repeat className="h-5 w-5 mb-1"/>Global
+                                        </Label>
+                                        <Label htmlFor="mode-split" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                            <RadioGroupItem value="split" id="mode-split" className="sr-only" />
+                                            <Columns className="h-5 w-5 mb-1"/>Split
+                                        </Label>
+                                        <Label htmlFor="mode-individual" className={cn("flex flex-col items-center justify-center cursor-pointer rounded-md border-2 p-2 text-center text-sm transition-all h-20 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                            <RadioGroupItem value="individual" id="mode-individual" className="sr-only" />
+                                            <Copy className="h-5 w-5 mb-1"/>Individual
+                                        </Label>
+                                    </RadioGroup>
+                                    </>
+                                )}
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-2">
+                            <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Ruler/> Tamanho</AccordionTrigger>
+                            <AccordionContent>
+                                <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 gap-3">
+                                    {availableSizes.map(({ tamanho }) => (
+                                        <Label key={tamanho} htmlFor={`size-${tamanho}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                            <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
+                                            {tamanho}
+                                        </Label>
+                                    ))}
                                 </RadioGroup>
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-3">
+                            <AccordionTrigger className="text-base font-semibold flex items-center gap-2"><Frame/> Moldura e Acabamento</AccordionTrigger>
+                            <AccordionContent className="space-y-4">
+                                <div>
+                                <Label className="font-semibold text-sm mb-2 block">Estilo da Moldura</Label>
+                                <RadioGroup value={selectedFrameStyle} onValueChange={setSelectedFrameStyle} className="grid grid-cols-3 gap-3">
+                                    {Object.entries(frameStyles).map(([key, label]) => (
+                                        <Label key={key} htmlFor={`style-${key}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                            <RadioGroupItem value={key} id={`style-${key}`} className="sr-only" />
+                                            {label}
+                                        </Label>
+                                    ))}
+                                </RadioGroup>
+                                </div>
+                                <div>
+                                <Label className="font-semibold text-sm mb-2 block">Cor da Moldura</Label>
+                                <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
+                                    {Object.entries(frames).map(([key, { label, color }]) => (
+                                        <Label key={key} htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all has-[:checked]:border-primary")} title={label}>
+                                            <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
+                                            <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} />
+                                        </Label>
+                                    ))}
+                                </RadioGroup>
+                                </div>
+                                <div>
+                                    <Label className="font-semibold text-sm mb-2 block">Acabamento</Label>
+                                    <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-3">
+                                        <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                            <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
+                                            Com Vidro
+                                        </Label>
+                                        <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 has-[:checked]:border-primary has-[:checked]:bg-primary/5 font-semibold")}>
+                                            <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
+                                            Sem Vidro
+                                        </Label>
+                                    </RadioGroup>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
 
-                  <Button size="lg" className="w-full mt-8 text-base h-12" onClick={handleAddToCart} disabled={uploading.some(u => u)}>
-                     {uploading.some(u => u) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2" />}
-                     Adicionar ao Carrinho
-                  </Button>
-                </CardContent>
-              </Card>
-          </div>
+                    <Button size="lg" className="w-full mt-8 text-base h-12" onClick={handleAddToCart} disabled={uploading.some(u => u)}>
+                        {uploading.some(u => u) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2" />}
+                        Adicionar ao Carrinho
+                    </Button>
+                    </CardContent>
+                </Card>
+            </div>
+            </div>
         </div>
+        <div className="h-[10cm]"></div>
       </main>
+      <Footer />
     </div>
     );
 }

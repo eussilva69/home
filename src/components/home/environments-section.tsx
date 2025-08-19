@@ -23,11 +23,11 @@ const environments = [
     hint: 'cozy bedroom'
   },
   {
-    name: 'Escritório',
-    href: '/escritorio',
-    video: '/escritorio.mp4',
-    image: 'https://casalinda.cdn.magazord.com.br/img/2023/07/produto/6518/casa-linda-modern-office-with-23-vertical-frame-with-mirror-in-e9432cbd-4f96-4f3f-8c42-c57271298816.jpg?ims=fit-in/690x690/filters:fill(white)',
-    hint: 'modern office'
+    name: 'Animais',
+    href: '/animais',
+    video: '/animais.mp4',
+    image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg',
+    hint: 'wild animals'
   }
 ];
 
@@ -72,7 +72,7 @@ export default function EnvironmentsSection() {
                   className="brightness-50 group-hover:brightness-60 transition-all duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white text-center">
-                  <p className="text-lg font-light">QUADROS PARA</p>
+                  <p className="text-lg font-light">QUADROS DE</p>
                   <h3 className="text-5xl font-extrabold uppercase">{env.name}</h3>
                    {env.video ? (
                         <Button 

@@ -213,6 +213,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.wallpapersafari.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 't3.ftcdn.net',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

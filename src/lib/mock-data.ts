@@ -145,13 +145,13 @@ export const testimonials = [
 
 export const collections = [
   { slug: 'leao', name: 'Leão', image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg', hint: 'lion' },
-  { slug: 'arvore-da-vida', name: 'Árvore da Vida', image: 'https://img.elo7.com.br/product/main/4C6A0A4/quadro-arvore-da-vida-mdf-6mm-preto-fosco-decorativo.jpg', hint: 'tree life' },
+  { slug: 'arvore-da-vida', name: 'Árvore da Vida', image: 'https://t3.ftcdn.net/jpg/07/55/90/44/360_F_755904469_U24KQ4sP2hMXu8leBnI84lhZxePsCE3F.jpg', hint: 'tree life' },
   { slug: 'santa-ceia', name: 'Santa Ceia', image: 'https://e1.pxfuel.com/desktop-wallpaper/311/201/desktop-wallpaper-the-last-supper.jpg', hint: 'last supper' },
-  { slug: 'abstratos-e-geometricos', name: 'Abstratos & Geométricos', image: 'https://static.vecteezy.com/ti/vetor-gratis/p1/5129672-capa-de-brochura-de-meio-tom-geometrico-abstrato-vetor.jpg', hint: 'abstract geometric' },
+  { slug: 'abstratos-e-geometricos', name: 'Abstratos & Geométricos', image: 'https://i.pinimg.com/736x/4f/13/cd/4f13cda7e1e13ccead88339e789ca3a3.jpg', hint: 'abstract geometric' },
   { slug: 'praia', name: 'Praia', image: 'https://wallpapers.com/images/hd/1920x1080-hd-beach-e4w5syi4hm156qt3.jpg', hint: 'beach' },
   { slug: 'por-do-sol', name: 'Pôr do Sol', image: 'https://img.freepik.com/fotos-gratis/renderizacao-3d-de-uma-arvore-contra-um-ceu-por-do-sol_1048-4191.jpg?semt=ais_hybrid&w=740&q=80', hint: 'sunset' },
   { slug: 'carros', name: 'Carros', image: 'https://cdn.wallpapersafari.com/81/42/2fIAvh.jpg', hint: 'car' },
-  { slug: 'flores', name: 'Flores', image: 'https://img.freepik.com/vetores-gratis/padrao-floral-abstrato-plano-organico_23-2148923571.jpg?semt=ais_hybrid&w=740', hint: 'flowers' },
+  { slug: 'flores', name: 'Flores', image: 'https://i.pinimg.com/736x/ac/73/7f/ac737f5e65fe48384c7856b5abc83ade.jpg', hint: 'flowers' },
   { slug: 'pintura-e-aquarela', name: 'Pintura & Aquarela', image: 'https://i.pinimg.com/736x/21/2e/0f/212e0f854615e45a0a38f3223f05b0c7.jpg', hint: 'watercolor painting' },
   { slug: 'frases-motivacionais', name: 'Frases Motivacionais', image: 'https://i.pinimg.com/736x/56/de/96/56de96ac38decccabbbf516fb85b025a.jpg', hint: 'motivational quotes' },
   { slug: 'leao-de-juda', name: 'Leão de Judá', image: 'https://midias.jornalcruzeiro.com.br/wp-content/uploads/2021/09/leao-de-juda.jpg', hint: 'lion judah' },

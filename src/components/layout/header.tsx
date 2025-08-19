@@ -39,21 +39,16 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-        if(isHomePage) {
-            setIsScrolled(window.scrollY > 10);
-        }
+      setIsScrolled(window.scrollY > 10);
     };
+
     if (isHomePage) {
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll();
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      handleScroll(); // Check initial scroll position
+      return () => window.removeEventListener('scroll', handleScroll);
     } else {
-        setIsScrolled(true);
+      setIsScrolled(true); // Always scrolled on other pages
     }
-    return () => {
-        if(isHomePage) {
-            window.removeEventListener('scroll', handleScroll);
-        }
-    };
   }, [isHomePage]);
 
 
@@ -100,9 +95,7 @@ export default function Header() {
   const headerClasses = cn(
     "w-full top-0 z-50 transition-all duration-300",
     isHomePage ? 'absolute' : 'relative',
-    isScrolled
-      ? "bg-[#efe7da] text-primary shadow-md"
-      : "bg-transparent text-white"
+    isScrolled ? "bg-[#efe7da] text-primary shadow-md" : "bg-transparent text-white"
   );
   
   const iconButtonClasses = cn(
@@ -135,8 +128,8 @@ export default function Header() {
                       Coleções <ChevronDown className="h-4 w-4" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-56 p-2 bg-white text-primary border-border shadow-lg" align="start">
-                    <div className="flex flex-col gap-1">
+                <PopoverContent className="w-[400px] p-4 bg-white text-primary border-border shadow-lg" align="start">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                         {collections.map((collection) => (
                         <Link
                             key={collection.name}

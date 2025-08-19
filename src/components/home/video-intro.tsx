@@ -11,27 +11,36 @@ type VideoIntroProps = {
   redirectUrl: string;
 };
 
-// IMPORTANT: This component assumes you have a video file at /public/quarto.mp4
-// You need to add this file to your project manually.
-
 export default function VideoIntro({ activeVideo, onVideoEnd, redirectUrl }: VideoIntroProps) {
   const [showVideo, setShowVideo] = useState(false);
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isRedirecting = useRef(false);
 
   useEffect(() => {
     if (activeVideo) {
       setShowVideo(true);
+      isRedirecting.current = false; // Reset redirect flag
     }
   }, [activeVideo]);
 
   const handleVideoEnded = () => {
+    if (isRedirecting.current) return;
+    isRedirecting.current = true;
+
     // Start fade out, then navigate
     setShowVideo(false);
+    
+    // The exit animation on motion.div will take 1.5s.
+    // We navigate after a short delay within that timeframe.
     setTimeout(() => {
         router.push(redirectUrl);
-        onVideoEnd(); // Reset state in parent
-    }, 1500); // Corresponds to fade-out duration
+        // The onVideoEnd() will be called after the page transition is complete or after a timeout
+        // to ensure the black screen persists long enough.
+        setTimeout(() => {
+             onVideoEnd(); // Reset state in parent
+        }, 500);
+    }, 500); 
   };
 
   const handleTimeUpdate = () => {

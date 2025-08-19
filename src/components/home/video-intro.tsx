@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -17,6 +17,7 @@ type VideoIntroProps = {
 export default function VideoIntro({ activeVideo, onVideoEnd, redirectUrl }: VideoIntroProps) {
   const [showVideo, setShowVideo] = useState(false);
   const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (activeVideo) {
@@ -33,6 +34,19 @@ export default function VideoIntro({ activeVideo, onVideoEnd, redirectUrl }: Vid
     }, 1500); // Corresponds to fade-out duration
   };
 
+  const handleTimeUpdate = () => {
+    const video = videoRef.current;
+    if (video) {
+        // Prefetch 1 second before the end
+        if (video.duration - video.currentTime <= 1) {
+            router.prefetch(redirectUrl);
+            // Remove the event listener once prefetching is done to avoid re-triggering
+            video.removeEventListener('timeupdate', handleTimeUpdate);
+        }
+    }
+  };
+
+
   return (
     <AnimatePresence>
       {showVideo && (
@@ -44,11 +58,13 @@ export default function VideoIntro({ activeVideo, onVideoEnd, redirectUrl }: Vid
           transition={{ duration: 0.5 }}
         >
           <video
+            ref={videoRef}
             src={activeVideo!}
             autoPlay
             muted
             playsInline
             onEnded={handleVideoEnded}
+            onTimeUpdate={handleTimeUpdate}
             className="w-full h-full object-cover"
           />
         </motion.div>

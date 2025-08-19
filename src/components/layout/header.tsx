@@ -128,13 +128,21 @@ export default function Header() {
                       Coleções <ChevronDown className="h-4 w-4" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-4 bg-white text-primary border-border shadow-lg" align="start">
+                <PopoverContent 
+                  className="w-[400px] p-4 text-primary border-border shadow-lg"
+                  style={{
+                    backgroundColor: isScrolled ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: isScrolled ? 'none' : 'blur(12px)',
+                    WebkitBackdropFilter: isScrolled ? 'none' : 'blur(12px)'
+                  }}
+                  align="start"
+                >
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                         {collections.map((collection) => (
                         <Link
                             key={collection.name}
                             href={`/collection/${collection.slug}`}
-                            className="block p-2 rounded-md text-sm hover:bg-accent"
+                            className="block p-2 rounded-md text-sm hover:bg-black/5"
                             onClick={() => setCollectionsOpen(false)}
                         >
                             {collection.name}

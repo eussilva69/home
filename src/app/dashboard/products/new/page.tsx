@@ -19,6 +19,7 @@ import { newProductSchema, type NewProductPayload } from '@/lib/schemas';
 import NextImage from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { collections } from '@/lib/mock-data';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const ImageUploadField = ({
   label,
@@ -75,8 +76,11 @@ export default function NewProductPage() {
         category: '',
         arrangement: '',
         artwork_image: '',
+        image_application: 'repeat',
     }
   });
+
+  const arrangement = form.watch('arrangement');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -156,6 +160,32 @@ export default function NewProductPage() {
                     <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Preço Base (R$)</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Categoria</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione uma categoria" /></SelectTrigger></FormControl><SelectContent>{collections.map(c => <SelectItem key={c.slug} value={c.name}>{c.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="arrangement" render={({ field }) => (<FormItem><FormLabel>Arranjo</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione um arranjo" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Solo">Solo</SelectItem><SelectItem value="Dupla">Dupla</SelectItem><SelectItem value="Trio">Trio</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                     {(arrangement === 'Dupla' || arrangement === 'Trio') && (
+                        <FormField
+                            control={form.control}
+                            name="image_application"
+                            render={({ field }) => (
+                                <FormItem className="md:col-span-2">
+                                    <FormLabel>Aplicação da Imagem</FormLabel>
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex gap-4 pt-2"
+                                    >
+                                        <FormItem className="flex items-center space-x-2">
+                                            <FormControl><RadioGroupItem value="repeat" id="repeat" /></FormControl>
+                                            <FormLabel htmlFor="repeat" className="font-normal">Repetir (mesma imagem em todos)</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2">
+                                            <FormControl><RadioGroupItem value="split" id="split" /></FormControl>
+                                            <FormLabel htmlFor="split" className="font-normal">Dividir (imagem panorâmica)</FormLabel>
+                                        </FormItem>
+                                    </RadioGroup>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    )}
                   </CardContent>
                 </Card>
 

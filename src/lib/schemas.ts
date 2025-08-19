@@ -158,6 +158,7 @@ export const ProductSchema = z.object({
   artwork_image: z.string().default(''),
   category: z.string(),
   arrangement: z.string(),
+  image_application: z.enum(['repeat', 'split']).optional().default('repeat'),
   // Campos obsoletos mantidos opcionalmente para compatibilidade com dados antigos
   image: z.string().optional(),
   image_alt: z.string().optional(),
@@ -172,6 +173,7 @@ export const productUpdateSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
   price: z.number().min(0, "O preço não pode ser negativo."),
   artwork_image: z.string().url("URL da arte é obrigatória."),
+  image_application: z.enum(['repeat', 'split']).optional(),
 });
 export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
 
@@ -196,6 +198,7 @@ export const newProductSchema = z.object({
   category: z.string().min(1, "A categoria é obrigatória."),
   arrangement: z.string().min(1, "O arranjo é obrigatório."),
   artwork_image: z.string().url("URL da arte é obrigatória."),
+  image_application: z.enum(['repeat', 'split']).optional(),
 });
 export type NewProductPayload = z.infer<typeof newProductSchema>;
 

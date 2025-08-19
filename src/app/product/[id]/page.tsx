@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -47,23 +48,41 @@ const frames = {
     ebony_oak: { label: 'Carvalho Ébano', color: '#55453E' },
 };
 
-const FrameMockup = ({ artworkUrl, frameColor, withGlass }: { artworkUrl: string; frameColor: string, withGlass: boolean }) => {
-    return (
-        <div 
-            className="relative inline-block p-4 transition-all duration-300"
-            style={{ 
-                backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
-            }}
-        >
-            <div className="relative bg-white">
-                <Image src={artworkUrl} alt="Arte do quadro" width={500} height={625} className="object-cover" />
-                 {withGlass && (
-                    <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>
-                )}
-            </div>
-        </div>
-    )
+const FrameMockup = ({ artworkUrl, frameColor, withGlass, imageApplication = 'repeat', arrangement = 'Solo' }: { artworkUrl: string; frameColor: string, withGlass: boolean, imageApplication?: 'repeat' | 'split', arrangement?: string }) => {
+    const frameCount = arrangement === 'Trio' ? 3 : arrangement === 'Dupla' ? 2 : 1;
+
+    const renderFrames = () => {
+        return [...Array(frameCount)].map((_, i) => {
+            const imageStyle: React.CSSProperties = { objectFit: 'cover' };
+            if (imageApplication === 'split' && frameCount > 1) {
+                const position = frameCount === 2 ? (i === 0 ? '0%' : '100%') : `${(i * 100) / (frameCount - 1)}%`;
+                imageStyle.objectPosition = `${position} 50%`;
+                imageStyle.width = `${frameCount * 100}%`;
+                imageStyle.height = '100%';
+                imageStyle.position = 'absolute';
+                imageStyle.left = `-${i * 100}%`;
+                imageStyle.objectFit = 'cover';
+            }
+
+            return (
+                <div
+                    key={i}
+                    className="relative p-2"
+                    style={{ 
+                        backgroundColor: frames[frameColor as keyof typeof frames]?.color || '#000',
+                        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.25)',
+                    }}
+                >
+                    <div className="relative bg-white w-full h-full overflow-hidden">
+                        <Image src={artworkUrl} alt={`Arte do quadro ${i + 1}`} layout="fill" style={imageStyle} />
+                        {withGlass && <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"/>}
+                    </div>
+                </div>
+            );
+        });
+    };
+    
+    return <div className="flex gap-2 items-center justify-center">{renderFrames()}</div>;
 };
 
 
@@ -157,8 +176,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
-          <div className="flex flex-col gap-4 items-center justify-center bg-gray-100 rounded-lg p-4">
-            <FrameMockup artworkUrl={product.artwork_image} frameColor={selectedFrame} withGlass={withGlass} />
+          <div className="flex flex-col gap-4 items-center justify-center bg-gray-100 rounded-lg p-4 h-[600px]">
+            <FrameMockup 
+              artworkUrl={product.artwork_image} 
+              frameColor={selectedFrame} 
+              withGlass={withGlass}
+              imageApplication={product.image_application}
+              arrangement={product.arrangement}
+            />
           </div>
 
           {/* Product Details */}

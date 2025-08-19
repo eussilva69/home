@@ -18,6 +18,7 @@ import { getProductById, updateProduct } from '@/app/actions';
 import type { Product } from '@/lib/schemas';
 import { productUpdateSchema, type ProductUpdatePayload } from '@/lib/schemas';
 import NextImage from 'next/image';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const ImageUploadField = ({
   label,
@@ -74,6 +75,8 @@ export default function EditProductPage() {
   const form = useForm<ProductUpdatePayload>({
     resolver: zodResolver(productUpdateSchema),
   });
+  
+  const arrangement = product?.arrangement;
 
   const fetchProduct = useCallback(async () => {
     if (productId) {
@@ -86,6 +89,7 @@ export default function EditProductPage() {
           name: productData.name,
           price: productData.price,
           artwork_image: productData.artwork_image,
+          image_application: productData.image_application || 'repeat',
         });
       } else {
         toast({ variant: 'destructive', title: 'Erro', description: result.message });
@@ -173,6 +177,32 @@ export default function EditProductPage() {
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nome do Produto</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Preço Base (R$)</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+                     {(arrangement === 'Dupla' || arrangement === 'Trio') && (
+                        <FormField
+                            control={form.control}
+                            name="image_application"
+                            render={({ field }) => (
+                                <FormItem className="md:col-span-2">
+                                    <FormLabel>Aplicação da Imagem</FormLabel>
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex gap-4 pt-2"
+                                    >
+                                        <FormItem className="flex items-center space-x-2">
+                                            <FormControl><RadioGroupItem value="repeat" id="repeat" /></FormControl>
+                                            <FormLabel htmlFor="repeat" className="font-normal">Repetir (mesma imagem em todos)</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2">
+                                            <FormControl><RadioGroupItem value="split" id="split" /></FormControl>
+                                            <FormLabel htmlFor="split" className="font-normal">Dividir (imagem panorâmica)</FormLabel>
+                                        </FormItem>
+                                    </RadioGroup>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    )}
                   </CardContent>
                 </Card>
 

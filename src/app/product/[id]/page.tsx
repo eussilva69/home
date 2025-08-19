@@ -138,7 +138,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             onMouseLeave={() => setIsHovering(false)}
           >
              <Image
-                key={mainImageUrl}
+                key={`main-image-${product.id}`}
                 src={mainImageUrl}
                 alt={product.name}
                 fill
@@ -149,7 +149,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 sizes="(max-width: 1024px) 90vw, 50vw"
             />
             <Image
-                key={altImageUrl}
+                key={`alt-image-${product.id}`}
                 src={altImageUrl}
                 alt={`${product.name} em ambiente`}
                 fill

@@ -27,7 +27,6 @@ export default function Header() {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   
   const { user } = useAuth();
   const { cartItems } = useCart();
@@ -36,17 +35,27 @@ export default function Header() {
   const isClient = useClientOnly();
   
   const isHomePage = pathname === '/';
+  const [isScrolled, setIsScrolled] = useState(!isHomePage);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+        if(isHomePage) {
+            setIsScrolled(window.scrollY > 10);
+        }
     };
-
-    window.addEventListener('scroll', handleScroll);
+    if (isHomePage) {
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll();
+    } else {
+        setIsScrolled(true);
+    }
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+        if(isHomePage) {
+            window.removeEventListener('scroll', handleScroll);
+        }
     };
-  }, []);
+  }, [isHomePage]);
+
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -87,34 +96,23 @@ export default function Header() {
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  
-  const categoriesInColumns = () => {
-    const total = collections.length;
-    const itemsPerColumn = Math.ceil(total / 3);
-    const columns = [];
-    for (let i = 0; i < 3; i++) {
-        columns.push(collections.slice(i * itemsPerColumn, (i + 1) * itemsPerColumn));
-    }
-    return columns;
-  };
-  const collectionColumns = categoriesInColumns();
 
   const headerClasses = cn(
     "w-full top-0 z-50 transition-all duration-300",
     isHomePage ? 'absolute' : 'relative',
     isScrolled
       ? "bg-[#efe7da] text-primary shadow-md"
-      : isHomePage ? "bg-transparent text-white" : "bg-[#efe7da] text-primary"
+      : "bg-transparent text-white"
   );
   
   const iconButtonClasses = cn(
     "hover:bg-black/10",
-     isScrolled || !isHomePage ? "text-primary" : "text-white"
+     isScrolled ? "text-primary" : "text-white"
   );
   
   const linkClasses = cn(
     "font-medium",
-    isScrolled || !isHomePage ? "text-primary" : "text-white"
+    isScrolled ? "text-primary" : "text-white"
   );
 
 
@@ -137,22 +135,18 @@ export default function Header() {
                       Coleções <ChevronDown className="h-4 w-4" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[48rem] p-6 bg-white text-primary border-border shadow-lg" align="start">
-                    <div className="grid grid-cols-3 gap-x-8 gap-y-2">
-                      {collectionColumns.map((column, colIndex) => (
-                        <div key={colIndex} className="flex flex-col gap-2">
-                          {column.map((collection) => (
-                            <Link
-                              key={collection.name}
-                              href={`/collection/${collection.slug}`}
-                              className="block p-2 rounded-md text-sm hover:bg-accent"
-                              onClick={() => setCollectionsOpen(false)}
-                            >
-                              {collection.name}
-                            </Link>
-                          ))}
-                        </div>
-                      ))}
+                <PopoverContent className="w-56 p-2 bg-white text-primary border-border shadow-lg" align="start">
+                    <div className="flex flex-col gap-1">
+                        {collections.map((collection) => (
+                        <Link
+                            key={collection.name}
+                            href={`/collection/${collection.slug}`}
+                            className="block p-2 rounded-md text-sm hover:bg-accent"
+                            onClick={() => setCollectionsOpen(false)}
+                        >
+                            {collection.name}
+                        </Link>
+                        ))}
                     </div>
                 </PopoverContent>
               </Popover>
@@ -167,7 +161,7 @@ export default function Header() {
                 <Button variant="ghost" size="icon" className={iconButtonClasses}>
                     <ShoppingCart className="h-5 w-5" />
                     {isClient && totalItems > 0 && (
-                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isScrolled || !isHomePage ? "bg-white text-primary" : "bg-primary text-white")}>
+                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isScrolled ? "bg-white text-primary" : "bg-primary text-white")}>
                           {totalItems}
                         </span>
                     )}

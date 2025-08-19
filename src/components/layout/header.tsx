@@ -41,17 +41,11 @@ export default function Header() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-
-    if (isHomePage) {
-      window.addEventListener('scroll', handleScroll);
-      // Check initial scroll position
-      handleScroll();
-    } else {
-      setIsScrolled(true);
-    }
     
+    handleScroll();
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHomePage]);
+  }, []);
   
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -106,11 +100,11 @@ export default function Header() {
   
   const headerClasses = cn(
     "fixed w-full top-0 z-50 transition-all duration-300",
-    isScrolled ? 'bg-[#efe7da] text-primary shadow-md' : (isHomePage ? 'bg-transparent text-white' : 'bg-[#efe7da] text-primary shadow-md')
+    isScrolled || !isHomePage ? 'bg-[#efe7da] text-primary shadow-md' : 'bg-transparent text-white'
   );
 
   const textColorClass = cn(
-    isScrolled ? "text-primary" : (isHomePage ? "text-white" : "text-primary")
+    isScrolled || !isHomePage ? "text-primary" : "text-white"
   );
 
   return (
@@ -162,7 +156,7 @@ export default function Header() {
                 <Button variant="ghost" size="icon" className={cn(textColorClass, isScrolled || !isHomePage ? "hover:bg-black/10" : "hover:bg-white/10")}>
                     <ShoppingCart className="h-5 w-5" />
                     {isClient && totalItems > 0 && (
-                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isScrolled || !isHomePage ? "bg-primary text-white" : "bg-white text-primary")}>
+                        <span className={cn("absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold", isScrolled || !isHomePage ? "bg-white text-primary" : "bg-primary text-white")}>
                           {totalItems}
                         </span>
                     )}

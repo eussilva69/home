@@ -156,7 +156,7 @@ export default function FurnituresPage() {
                       <TableRow key={product.id}>
                         <TableCell>
                           <Image
-                            src={product.image}
+                            src={product.image || 'https://placehold.co/100x100.png'}
                             alt={product.name}
                             width={48}
                             height={48}
@@ -168,7 +168,7 @@ export default function FurnituresPage() {
                         <TableCell className="text-right">R$ {product.price.toFixed(2).replace('.', ',')}</TableCell>
                         <TableCell className="text-center">
                           <div className="flex gap-2 justify-center">
-                            <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/products/${product.id}`)}>
+                            <Button variant="outline" size="sm" onClick={() => router.push(`/product/${product.id}`)}>
                                 Editar
                             </Button>
                             <Button variant="destructive" size="icon" onClick={() => handleConfirmDelete(product)}>

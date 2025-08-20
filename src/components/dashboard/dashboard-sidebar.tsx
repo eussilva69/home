@@ -67,8 +67,8 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
       <nav className="flex flex-col gap-2">
         {links.map((link) => {
           const Icon = iconMap[link.icon] || Home;
-          // Exact match for dashboard, partial for others
-          const isActive = pathname === link.href;
+          const isActive = pathname.startsWith(link.href) && (link.href !== '/dashboard' || pathname === '/dashboard');
+          
           return (
             <Link
               key={link.label}

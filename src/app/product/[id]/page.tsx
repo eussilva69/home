@@ -54,6 +54,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
+  const [activeImage, setActiveImage] = useState('');
 
   const { addToCart } = useCart();
 
@@ -62,7 +63,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       setLoading(true);
       const result = await getProductById(id);
       if (result.success && result.data) {
-        setProduct(result.data as Product);
+        const productData = result.data as Product;
+        setProduct(productData);
+        setActiveImage(productData.image || 'https://placehold.co/600x800.png');
       } else {
         notFound();
       }
@@ -71,44 +74,61 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     fetchProductData();
   }, [id]);
 
+  const isFurniture = product?.category === 'Mobílias';
   const arrangementKey = product?.arrangement as keyof typeof pricingData || 'Solo';
   const availableSizes = pricingData[arrangementKey] || pricingData['Solo'];
   
-  const [selectedSize, setSelectedSize] = useState(availableSizes[0].tamanho);
+  const [selectedSize, setSelectedSize] = useState(availableSizes[0]?.tamanho);
   const [withGlass, setWithGlass] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
   
   useEffect(() => {
       if (product) {
-        const newAvailableSizes = pricingData[product.arrangement as keyof typeof pricingData] || pricingData['Solo'];
-        setSelectedSize(newAvailableSizes[0].tamanho);
+        if (isFurniture) {
+            setActiveImage(product.image || '');
+        } else {
+            const newAvailableSizes = pricingData[product.arrangement as keyof typeof pricingData] || pricingData['Solo'];
+            setSelectedSize(newAvailableSizes[0].tamanho);
+            const initialImage = product.imagesByColor?.[selectedFrame] || product.image || 'https://placehold.co/600x800.png';
+            setActiveImage(initialImage);
+        }
       }
-  }, [product]);
+  }, [product, selectedFrame, isFurniture]);
 
   const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
-  const finalPrice = withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro;
+  const finalPrice = isFurniture ? product?.price : (withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro);
 
   const handleAddToCart = () => {
-    if (!product || !selectedPriceInfo || !finalPrice) return;
+    if (!product || !finalPrice) return;
     
     const itemToAdd = {
-        id: `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
+        id: isFurniture ? product.id : `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
         name: product.name,
         price: finalPrice,
         image: product.image || "https://placehold.co/100x100.png",
         quantity: 1,
-        options: `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
-        weight: selectedPriceInfo.weight,
-        width: selectedPriceInfo.width,
-        height: selectedPriceInfo.height,
-        length: selectedPriceInfo.length,
+        options: isFurniture ? product.arrangement : `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
+        weight: isFurniture ? 10 : selectedPriceInfo?.weight || 1, // Default weight for furniture
+        width: isFurniture ? 50 : selectedPriceInfo?.width || 30,
+        height: isFurniture ? 50 : selectedPriceInfo?.height || 42,
+        length: isFurniture ? 50 : selectedPriceInfo?.length || 3,
     };
     addToCart(itemToAdd);
   };
 
   const handleFrameChange = (value: string) => {
     setSelectedFrame(value);
+    if (product && product.imagesByColor) {
+        setActiveImage(product.imagesByColor[value] || product.image || '');
+    }
   }
+
+  const galleryImages = [
+      product?.image,
+      product?.image_alt,
+      ...(product?.gallery_images || [])
+  ].filter((img): img is string => !!img && img.trim() !== '');
+
 
   if (loading || !product) {
       return (
@@ -122,7 +142,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       );
   }
 
-  const mainImageUrl = product.imagesByColor?.[selectedFrame] || product.image || 'https://placehold.co/600x800.png';
+  const mainImageUrl = activeImage;
   const altImageUrl = product.image_alt || mainImageUrl;
 
 
@@ -132,33 +152,46 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
-          <div 
-            className="relative aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 cursor-pointer"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-          >
-             <Image
-                key={`main-image-${product.id}`}
-                src={mainImageUrl}
-                alt={product.name}
-                fill
-                className={cn(
-                    'object-cover transition-opacity duration-300',
-                    isHovering ? 'opacity-0' : 'opacity-100'
+          <div className="space-y-4">
+              <div 
+                className="relative aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 cursor-pointer"
+                onMouseEnter={() => !isFurniture && setIsHovering(true)}
+                onMouseLeave={() => !isFurniture && setIsHovering(false)}
+              >
+                 <Image
+                    key="main-image"
+                    src={isFurniture ? activeImage : mainImageUrl}
+                    alt={product.name}
+                    fill
+                    className={cn(
+                        'object-cover transition-opacity duration-300',
+                       !isFurniture && isHovering ? 'opacity-0' : 'opacity-100'
+                    )}
+                    sizes="(max-width: 1024px) 90vw, 50vw"
+                />
+                {!isFurniture && (
+                    <Image
+                        key="alt-image"
+                        src={altImageUrl}
+                        alt={`${product.name} em ambiente`}
+                        fill
+                        className={cn(
+                            'object-cover transition-opacity duration-300',
+                            isHovering ? 'opacity-100' : 'opacity-0'
+                        )}
+                        sizes="(max-width: 1024px) 90vw, 50vw"
+                    />
                 )}
-                sizes="(max-width: 1024px) 90vw, 50vw"
-            />
-            <Image
-                key={`alt-image-${product.id}`}
-                src={altImageUrl}
-                alt={`${product.name} em ambiente`}
-                fill
-                className={cn(
-                    'object-cover transition-opacity duration-300',
-                    isHovering ? 'opacity-100' : 'opacity-0'
-                )}
-                 sizes="(max-width: 1024px) 90vw, 50vw"
-            />
+              </div>
+              {isFurniture && galleryImages.length > 1 && (
+                  <div className="flex gap-2 justify-center">
+                      {galleryImages.map((img, index) => (
+                           <button key={index} onClick={() => setActiveImage(img)} className={cn("relative w-16 h-16 rounded-md overflow-hidden border-2", activeImage === img ? 'border-primary' : 'border-transparent')}>
+                               <Image src={img} alt={`Detalhe ${index+1}`} layout="fill" objectFit="cover" />
+                           </button>
+                      ))}
+                  </div>
+              )}
           </div>
 
           {/* Product Details */}
@@ -168,57 +201,61 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione uma opção'}
             </p>
             
-            {/* Frame Color Selector */}
-            <div className="mb-6 md:mb-8">
-              <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Palette/> Cor da Moldura</Label>
-              <RadioGroup value={selectedFrame} onValueChange={handleFrameChange} className="flex items-center gap-3">
-                  {Object.entries(frames).map(([key, { label, color }]) => (
-                      <div key={key}>
-                          <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
-                          <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all", selectedFrame === key ? 'border-primary' : 'border-transparent')}>
-                              <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} title={label}/>
-                          </Label>
-                      </div>
-                  ))}
-              </RadioGroup>
-            </div>
+            {!isFurniture && (
+              <>
+                {/* Frame Color Selector */}
+                <div className="mb-6 md:mb-8">
+                  <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Palette/> Cor da Moldura</Label>
+                  <RadioGroup value={selectedFrame} onValueChange={handleFrameChange} className="flex items-center gap-3">
+                      {Object.entries(frames).map(([key, { label, color }]) => (
+                          <div key={key}>
+                              <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
+                              <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all", selectedFrame === key ? 'border-primary' : 'border-transparent')}>
+                                  <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} title={label}/>
+                              </Label>
+                          </div>
+                      ))}
+                  </RadioGroup>
+                </div>
 
 
-             {/* Size Selector */}
-            <div className="mb-6 md:mb-8">
-              <div className="flex items-center mb-3">
-                  <Ruler className="h-5 w-5 mr-2" />
-                  <Label className="text-base md:text-lg font-medium">Tamanho: <span className="font-bold">{selectedSize}</span></Label>
-              </div>
-              <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
-                  <Info className="h-4 w-4"/> Preços variam conforme tamanho e acabamento.
-              </p>
-              <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {availableSizes.map(({ tamanho }) => (
-                  <div key={tamanho}>
-                    <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
-                    <Label htmlFor={`size-${tamanho}`} className={cn("flex h-16 items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center text-sm font-semibold transition-all", selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background')}>
-                       {tamanho} ({product.arrangement})
-                    </Label>
+                {/* Size Selector */}
+                <div className="mb-6 md:mb-8">
+                  <div className="flex items-center mb-3">
+                      <Ruler className="h-5 w-5 mr-2" />
+                      <Label className="text-base md:text-lg font-medium">Tamanho: <span className="font-bold">{selectedSize}</span></Label>
                   </div>
-                ))}
-              </RadioGroup>
-            </div>
-            
-            {/* Glass Selector */}
-            <div className="mb-6 md:mb-8">
-                <Label className="text-base md:text-lg font-medium mb-3 block">Acabamento: <span className="font-bold">{withGlass ? 'Com Vidro' : 'Sem Vidro'}</span></Label>
-                <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-4">
-                     <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
-                     <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", withGlass ? 'border-primary bg-primary/5' : 'border-border')}>
-                         Com Vidro
-                     </Label>
-                     <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
-                     <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", !withGlass ? 'border-primary bg-primary/5' : 'border-border')}>
-                         Sem Vidro
-                     </Label>
-                </RadioGroup>
-            </div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
+                      <Info className="h-4 w-4"/> Preços variam conforme tamanho e acabamento.
+                  </p>
+                  <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {availableSizes.map(({ tamanho }) => (
+                      <div key={tamanho}>
+                        <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
+                        <Label htmlFor={`size-${tamanho}`} className={cn("flex h-16 items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center text-sm font-semibold transition-all", selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background')}>
+                          {tamanho} ({product.arrangement})
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+                
+                {/* Glass Selector */}
+                <div className="mb-6 md:mb-8">
+                    <Label className="text-base md:text-lg font-medium mb-3 block">Acabamento: <span className="font-bold">{withGlass ? 'Com Vidro' : 'Sem Vidro'}</span></Label>
+                    <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-4">
+                        <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
+                        <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", withGlass ? 'border-primary bg-primary/5' : 'border-border')}>
+                            Com Vidro
+                        </Label>
+                        <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
+                        <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", !withGlass ? 'border-primary bg-primary/5' : 'border-border')}>
+                            Sem Vidro
+                        </Label>
+                    </RadioGroup>
+                </div>
+              </>
+            )}
 
 
             {/* Action Buttons */}
@@ -237,7 +274,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <AccordionTrigger>Descrição do Produto</AccordionTrigger>
                 <AccordionContent>
                   <p className="text-muted-foreground text-sm">
-                    Eleve sua decoração com esta peça de arte vibrante. Impressa em materiais de alta qualidade com tintas resistentes ao desbotamento, esta obra é projetada para durar. Perfeita para salas de estar, quartos ou escritórios que precisam de um toque de cor e personalidade.
+                    {isFurniture 
+                        ? 'Mobiliário de alta qualidade, feito com materiais selecionados para garantir durabilidade e um design incrível para o seu ambiente.'
+                        : 'Eleve sua decoração com esta peça de arte vibrante. Impressa em materiais de alta qualidade com tintas resistentes ao desbotamento, esta obra é projetada para durar. Perfeita para salas de estar, quartos ou escritórios que precisam de um toque de cor e personalidade.'
+                    }
                   </p>
                 </AccordionContent>
               </AccordionItem>

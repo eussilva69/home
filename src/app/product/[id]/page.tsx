@@ -50,13 +50,25 @@ const frames = {
 
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const { id } = React.use(params);
+  const { id } = params;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
   const [activeImage, setActiveImage] = useState('');
-
   const { addToCart } = useCart();
+
+  const isFurniture = product?.category === 'Mobílias';
+  
+  // State for furniture
+  const [selectedFurnitureSize, setSelectedFurnitureSize] = useState<string | null>(null);
+  
+  // State for frames
+  const arrangementKey = product?.arrangement as keyof typeof pricingData || 'Solo';
+  const availableSizes = pricingData[arrangementKey] || pricingData['Solo'];
+  const [selectedSize, setSelectedSize] = useState(availableSizes[0]?.tamanho);
+  const [withGlass, setWithGlass] = useState(false);
+  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -66,6 +78,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         const productData = result.data as Product;
         setProduct(productData);
         setActiveImage(productData.image || 'https://placehold.co/600x800.png');
+        if (productData.category === 'Mobílias' && productData.sizes && productData.sizes.length > 0) {
+            setSelectedFurnitureSize(productData.sizes[0].size);
+        } else {
+             const newAvailableSizes = pricingData[productData.arrangement as keyof typeof pricingData] || pricingData['Solo'];
+             setSelectedSize(newAvailableSizes[0].tamanho);
+        }
       } else {
         notFound();
       }
@@ -73,42 +91,42 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
     fetchProductData();
   }, [id]);
-
-  const isFurniture = product?.category === 'Mobílias';
-  const arrangementKey = product?.arrangement as keyof typeof pricingData || 'Solo';
-  const availableSizes = pricingData[arrangementKey] || pricingData['Solo'];
   
-  const [selectedSize, setSelectedSize] = useState(availableSizes[0]?.tamanho);
-  const [withGlass, setWithGlass] = useState(false);
-  const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
   
   useEffect(() => {
-      if (product) {
-        if (isFurniture) {
-            setActiveImage(product.image || '');
-        } else {
-            const newAvailableSizes = pricingData[product.arrangement as keyof typeof pricingData] || pricingData['Solo'];
-            setSelectedSize(newAvailableSizes[0].tamanho);
-            const initialImage = product.imagesByColor?.[selectedFrame] || product.image || 'https://placehold.co/600x800.png';
-            setActiveImage(initialImage);
-        }
+      if (product && !isFurniture) {
+          const initialImage = product.imagesByColor?.[selectedFrame] || product.image || 'https://placehold.co/600x800.png';
+          setActiveImage(initialImage);
       }
   }, [product, selectedFrame, isFurniture]);
 
-  const selectedPriceInfo = availableSizes.find(s => s.tamanho === selectedSize);
-  const finalPrice = isFurniture ? product?.price : (withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro);
+  const selectedPriceInfo = isFurniture 
+    ? product?.sizes?.find(s => s.size === selectedFurnitureSize)
+    : availableSizes.find(s => s.tamanho === selectedSize);
+
+  const finalPrice = isFurniture 
+    ? selectedPriceInfo?.price 
+    : (withGlass ? selectedPriceInfo?.valor_com_vidro : selectedPriceInfo?.valor_sem_vidro);
+
 
   const handleAddToCart = () => {
     if (!product || !finalPrice) return;
     
+    let itemOptions = '';
+    if (isFurniture) {
+        itemOptions = selectedFurnitureSize || '';
+    } else {
+        itemOptions = `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`;
+    }
+
     const itemToAdd = {
-        id: isFurniture ? product.id : `${product.id}-${selectedSize}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`,
+        id: `${product.id}-${itemOptions}`,
         name: product.name,
         price: finalPrice,
         image: product.image || "https://placehold.co/100x100.png",
         quantity: 1,
-        options: isFurniture ? product.arrangement : `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`,
-        weight: isFurniture ? 10 : selectedPriceInfo?.weight || 1, // Default weight for furniture
+        options: itemOptions,
+        weight: isFurniture ? 10 : selectedPriceInfo?.weight || 1, // Placeholder
         width: isFurniture ? 50 : selectedPriceInfo?.width || 30,
         height: isFurniture ? 50 : selectedPriceInfo?.height || 42,
         length: isFurniture ? 50 : selectedPriceInfo?.length || 3,
@@ -201,7 +219,21 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione uma opção'}
             </p>
             
-            {!isFurniture && (
+            {isFurniture ? (
+                <div className="mb-6 md:mb-8">
+                    <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Ruler/> Tamanho</Label>
+                     <RadioGroup value={selectedFurnitureSize || ''} onValueChange={setSelectedFurnitureSize} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {product.sizes?.map(({ size }) => (
+                            <div key={size}>
+                                <RadioGroupItem value={size} id={`size-${size}`} className="sr-only" />
+                                <Label htmlFor={`size-${size}`} className={cn("flex h-16 items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center text-sm font-semibold transition-all", selectedFurnitureSize === size ? 'border-primary bg-primary/5' : 'border-border bg-background')}>
+                                {size}
+                                </Label>
+                            </div>
+                        ))}
+                    </RadioGroup>
+                </div>
+            ) : (
               <>
                 {/* Frame Color Selector */}
                 <div className="mb-6 md:mb-8">

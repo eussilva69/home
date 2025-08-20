@@ -151,10 +151,16 @@ export const AddressSchema = z.object({
 });
 export type Address = z.infer<typeof AddressSchema>;
 
+export const ProductSizeSchema = z.object({
+    size: z.string().min(1, "O tamanho é obrigatório."),
+    price: z.number().min(0.01, "O preço deve ser maior que zero."),
+});
+
 export const ProductSchema = z.object({
   id: z.string(),
   name: z.string(),
-  price: z.number(),
+  price: z.number(), // Mantido para quadros, mas não usado para mobílias
+  sizes: z.array(ProductSizeSchema).optional(), // Usado para mobílias
   artwork_image: z.string().optional(),
   image_alt: z.string().optional(),
   imagesByColor: z.record(z.string()).optional(),
@@ -181,6 +187,7 @@ export const productUpdateSchema = z.object({
   }).optional(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional(),
   gallery_images: z.array(z.string().url()).optional(),
+  sizes: z.array(ProductSizeSchema).optional(),
 });
 export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
 
@@ -220,12 +227,11 @@ export type NewProductPayload = z.infer<typeof newProductSchema>;
 
 export const newFurnitureSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  price: z.number().min(0, "O preço não pode ser negativo."),
   arrangement: z.string().min(1, "A sub-categoria (tipo) é obrigatória."),
   image: z.string().url("A imagem principal é obrigatória."),
   image_alt: z.string().url("A imagem de ambiente é obrigatória."),
   gallery_images: z.array(z.string().url()).optional(),
+  sizes: z.array(ProductSizeSchema).min(1, "Adicione pelo menos um tamanho."),
+  price: z.number().optional(), // Price será derivado do primeiro tamanho
 });
 export type NewFurniturePayload = z.infer<typeof newFurnitureSchema>;
-
-    

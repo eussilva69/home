@@ -26,7 +26,7 @@ const furnitureCategories = [
     { name: 'Mesas', image: 'https://placehold.co/150x150.png', hint: 'table' },
     { name: 'Móveis com Metal', image: 'https://i.pinimg.com/236x/08/9b/8d/089b8dab52d1920a0b00efe761159f0e.jpg', hint: 'metal furniture' },
     { name: 'Espaço Kids', image: 'https://placehold.co/150x150.png', hint: 'kids space' },
-    { name: 'Aparadores', image: 'https://placehold.co/150x150.png', hint: 'sideboard' },
+    { name: 'Aparadores', image: 'https://images.tcdn.com.br/img/img_prod/1248747/aparador_bless_off_white_hb_moveis_113_1_3580115be2f127da57ecd71f3b4fbbfe.jpeg', hint: 'sideboard' },
     { name: 'Cabeceiras', image: 'https://lutzhomedecor.cdn.magazord.com.br/img/2023/12/produto/740/2.jpg?ims=600x600', hint: 'headboard' }
 ];
 

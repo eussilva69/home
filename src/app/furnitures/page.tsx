@@ -27,7 +27,7 @@ const furnitureCategories = [
     { name: 'Móveis com Metal', image: 'https://placehold.co/150x150.png', hint: 'metal furniture' },
     { name: 'Espaço Kids', image: 'https://placehold.co/150x150.png', hint: 'kids space' },
     { name: 'Aparadores', image: 'https://placehold.co/150x150.png', hint: 'sideboard' },
-    { name: 'Cabeceiras', image: 'https://placehold.co/150x150.png', hint: 'headboard' }
+    { name: 'Cabeceiras', image: 'https://lutzhomedecor.cdn.magazord.com.br/img/2023/12/produto/740/2.jpg?ims=600x600', hint: 'headboard' }
 ];
 
 const subCategoryOptions = furnitureCategories.map(c => c.name);

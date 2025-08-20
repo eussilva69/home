@@ -261,6 +261,18 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.dooca.store',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bellacasaeletromoveis.com.br',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lutzhomedecor.cdn.magazord.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

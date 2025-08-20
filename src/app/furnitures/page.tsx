@@ -21,10 +21,10 @@ import { cn } from '@/lib/utils';
 const PRODUCTS_PER_PAGE = 20;
 
 const furnitureCategories = [
-    { name: 'Nichos', image: 'https://placehold.co/150x150.png', hint: 'niche shelf' },
+    { name: 'Nichos', image: 'https://cdn.awsli.com.br/600x450/704/704022/produto/2495701475f4fcbb9fa.jpg', hint: 'niche shelf' },
     { name: 'Prateleiras', image: 'https://placehold.co/150x150.png', hint: 'shelf' },
     { name: 'Mesas', image: 'https://placehold.co/150x150.png', hint: 'table' },
-    { name: 'Móveis com Metal', image: 'https://placehold.co/150x150.png', hint: 'metal furniture' },
+    { name: 'Móveis com Metal', image: 'https://i.pinimg.com/236x/08/9b/8d/089b8dab52d1920a0b00efe761159f0e.jpg', hint: 'metal furniture' },
     { name: 'Espaço Kids', image: 'https://placehold.co/150x150.png', hint: 'kids space' },
     { name: 'Aparadores', image: 'https://placehold.co/150x150.png', hint: 'sideboard' },
     { name: 'Cabeceiras', image: 'https://lutzhomedecor.cdn.magazord.com.br/img/2023/12/produto/740/2.jpg?ims=600x600', hint: 'headboard' }

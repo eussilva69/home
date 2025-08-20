@@ -273,6 +273,12 @@ const nextConfig: NextConfig = {
         hostname: 'lutzhomedecor.cdn.magazord.com.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.awsli.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

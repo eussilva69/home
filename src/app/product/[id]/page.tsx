@@ -168,6 +168,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                        !isFurniture && isHovering ? 'opacity-0' : 'opacity-100'
                     )}
                     sizes="(max-width: 1024px) 90vw, 50vw"
+                    onDragStart={(e) => e.preventDefault()}
                 />
                 {!isFurniture && (
                     <Image
@@ -180,6 +181,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             isHovering ? 'opacity-100' : 'opacity-0'
                         )}
                         sizes="(max-width: 1024px) 90vw, 50vw"
+                        onDragStart={(e) => e.preventDefault()}
                     />
                 )}
               </div>
@@ -187,7 +189,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   <div className="flex gap-2 justify-center">
                       {galleryImages.map((img, index) => (
                            <button key={index} onClick={() => setActiveImage(img)} className={cn("relative w-16 h-16 rounded-md overflow-hidden border-2", activeImage === img ? 'border-primary' : 'border-transparent')}>
-                               <Image src={img} alt={`Detalhe ${index+1}`} layout="fill" objectFit="cover" />
+                               <Image src={img} alt={`Detalhe ${index+1}`} layout="fill" objectFit="cover" onDragStart={(e) => e.preventDefault()} />
                            </button>
                       ))}
                   </div>

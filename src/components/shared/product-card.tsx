@@ -1,4 +1,6 @@
 
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +20,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const defaultImageUrl = product.image_alt || mainImageUrl; // Usa a principal se a de ambiente não existir
 
   return (
-    <Link href={`/product/${product.id}`} className="group block">
+    <Link href={`/product/${product.id}`} className="group block" onDragStart={(e) => e.preventDefault()}>
         <Card className="overflow-hidden border-border transition-shadow hover:shadow-lg">
             <CardContent className="p-0">
                 <div className="relative aspect-[4/5] bg-muted/50 transition-all duration-300">
@@ -32,6 +34,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                             'object-cover transition-opacity duration-300',
                             'opacity-100 group-hover:opacity-0'
                         )}
+                        onDragStart={(e) => e.preventDefault()}
                      />
                       <Image
                         src={mainImageUrl}
@@ -43,6 +46,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                            'object-contain p-4 transition-opacity duration-300',
                            'opacity-0 group-hover:opacity-100'
                         )}
+                        onDragStart={(e) => e.preventDefault()}
                      />
                 </div>
                 <div className="p-4 text-center border-t">

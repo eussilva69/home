@@ -1,4 +1,6 @@
 
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { collections } from '@/lib/mock-data';
@@ -24,6 +26,7 @@ export default function FeaturedCollections() {
                         data-ai-hint={collection.hint}
                         fill
                         className="object-cover"
+                        onDragStart={(e) => e.preventDefault()}
                     />
                 </div>
                 <h3 className="font-semibold text-center text-sm md:text-base group-hover:text-primary">{collection.name}</h3>

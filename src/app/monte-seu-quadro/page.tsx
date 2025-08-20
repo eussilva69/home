@@ -245,7 +245,7 @@ export default function MonteSeuQuadroPage() {
                             <div className="relative w-full h-full overflow-hidden">
                                 {imageSrc ? (
                                     <>
-                                        <Image src={imageSrc} alt={`Pré-visualização ${i+1}`} layout="fill" objectFit={imageMode === 'split' ? 'none' : 'cover'} style={imageStyle}/>
+                                        <Image src={imageSrc} alt={`Pré-visualização ${i+1}`} layout="fill" objectFit={imageMode === 'split' ? 'none' : 'cover'} style={imageStyle} onDragStart={(e) => e.preventDefault()}/>
                                         <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => handleRemoveImage(e, i)}>
                                             <X className="h-4 w-4"/>
                                         </Button>
@@ -306,7 +306,7 @@ export default function MonteSeuQuadroPage() {
                 <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
                     {viewMode === 'environment' ? (
                         <>
-                            <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90"/>
+                            <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90" onDragStart={(e) => e.preventDefault()}/>
                             <div className="relative">
                                 {renderFrames()}
                             </div>
@@ -394,7 +394,7 @@ export default function MonteSeuQuadroPage() {
                                     {Object.entries(frames).map(([key, { label, color }]) => (
                                         <Label key={key} htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all", selectedFrame === key ? 'border-primary ring-2 ring-primary/50' : 'border-transparent')}>
                                             <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
-                                            <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} />
+                                            <div className="w-10 h-10 rounded-full border" style={{ backgroundColor: color }} title={label}/>
                                         </Label>
                                     ))}
                                 </RadioGroup>

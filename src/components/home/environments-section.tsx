@@ -70,6 +70,7 @@ export default function EnvironmentsSection() {
                   fill
                   style={{ objectFit: 'cover' }}
                   className="brightness-50 group-hover:brightness-60 transition-all duration-300 group-hover:scale-105"
+                  onDragStart={(e) => e.preventDefault()}
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white text-center">
                   <p className="text-lg font-light">QUADROS DE</p>

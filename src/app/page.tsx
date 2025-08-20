@@ -1,4 +1,6 @@
 
+'use client';
+
 import Header from "@/components/layout/header";
 import FeaturedCollections from "@/components/home/featured-collections";
 import Footer from "@/components/layout/footer";
@@ -25,6 +27,7 @@ export default function Home() {
               fill
               className="object-cover"
               priority
+              onDragStart={(e) => e.preventDefault()}
            />
            <div className="absolute inset-0 bg-black/10" />
            <div className="absolute top-1/2 left-1/2 md:left-1/4 -translate-x-1/2 -translate-y-1/2 text-white p-8">

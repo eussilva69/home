@@ -22,7 +22,7 @@ const PRODUCTS_PER_PAGE = 20;
 
 const furnitureCategories = [
     { name: 'Nichos', image: 'https://cdn.awsli.com.br/600x450/704/704022/produto/2495701475f4fcbb9fa.jpg', hint: 'niche shelf' },
-    { name: 'Prateleiras', image: 'https://placehold.co/150x150.png', hint: 'shelf' },
+    { name: 'Prateleiras', image: 'https://http2.mlstatic.com/D_NQ_NP_797177-MLB68923900924_042023-O.webp', hint: 'shelf' },
     { name: 'Mesas', image: 'https://placehold.co/150x150.png', hint: 'table' },
     { name: 'Móveis com Metal', image: 'https://i.pinimg.com/236x/08/9b/8d/089b8dab52d1920a0b00efe761159f0e.jpg', hint: 'metal furniture' },
     { name: 'Espaço Kids', image: 'https://dicasmaonamassa.com.br/wp-content/uploads/2021/10/dia-das-criancas-espaco-de-brincar-9.png', hint: 'kids space' },

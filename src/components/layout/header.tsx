@@ -128,7 +128,7 @@ export default function Header() {
     <header className={headerClasses}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src={currentLogo} alt="Home Designer Logo" width={150} height={33} key={currentLogo}/>
+            <Image src={currentLogo} alt="Home Designer Logo" width={120} height={36} key={currentLogo}/>
           </Link>
           
           <nav className="hidden lg:flex items-center gap-8">

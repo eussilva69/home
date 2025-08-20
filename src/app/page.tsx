@@ -1,6 +1,3 @@
-
-'use client';
-
 import Header from "@/components/layout/header";
 import FeaturedCollections from "@/components/home/featured-collections";
 import Footer from "@/components/layout/footer";

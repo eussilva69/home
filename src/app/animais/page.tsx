@@ -176,7 +176,7 @@ export default function AnimaisPage() {
           <div className="hidden lg:block">
             <SidebarContent 
               selectedSubCategory={selectedSubCategory} 
-              onSelectCategory={setSelectedSubCategory} 
+              onSelectSubCategory={setSelectedSubCategory} 
               categoryCounts={categoryCounts}
             />
           </div>
@@ -204,7 +204,7 @@ export default function AnimaisPage() {
                   <SheetContent side="left" className="p-6">
                     <SidebarContent 
                       selectedSubCategory={selectedSubCategory} 
-                      onSelectCategory={setSelectedSubCategory}
+                      onSelectSubCategory={setSelectedSubCategory}
                       categoryCounts={categoryCounts}
                     />
                   </SheetContent>
@@ -251,8 +251,8 @@ export default function AnimaisPage() {
           </div>
         </div>
       </main>
+      <div className="h-[10cm]" />
       <Footer />
     </div>
   );
 }
-

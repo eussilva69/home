@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, UploadCloud, Image as ImageIcon } from 'lucide-react';
+import { Loader2, ArrowLeft, UploadCloud, Image as ImageIcon, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addProduct } from '@/app/actions';
 import { newFurnitureSchema, type NewFurniturePayload } from '@/lib/schemas';
@@ -70,12 +70,17 @@ export default function NewFurniturePage() {
     resolver: zodResolver(newFurnitureSchema),
     defaultValues: {
         name: '',
-        price: 0,
         arrangement: '',
         image: '',
         image_alt: '',
         gallery_images: [],
+        sizes: [{ size: '', price: 0 }],
     }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "sizes",
   });
 
   useEffect(() => {
@@ -84,7 +89,7 @@ export default function NewFurniturePage() {
     }
   }, [user, authLoading, router]);
   
-  const handleImageUpload = async (file: File, fieldName: `gallery_images.${number}` | keyof Omit<NewFurniturePayload, 'gallery_images'>) => {
+  const handleImageUpload = async (file: File, fieldName: `gallery_images.${number}` | keyof Omit<NewFurniturePayload, 'gallery_images' | 'sizes'>) => {
     const fieldId = fieldName.toString();
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
@@ -122,8 +127,10 @@ export default function NewFurniturePage() {
 
 
   const onSubmit = async (data: NewFurniturePayload) => {
+    const price = data.sizes && data.sizes.length > 0 ? data.sizes[0].price : 0;
     const fullPayload = {
       ...data,
+      price: price,
       category: 'Mobílias', // Categoria fixa
       // Campos não aplicáveis para mobílias
       artwork_image: '', 
@@ -132,7 +139,7 @@ export default function NewFurniturePage() {
       hint_alt: ''
     };
 
-    const result = await addProduct(fullPayload as any); // Usamos 'any' aqui para compatibilizar com a action genérica
+    const result = await addProduct(fullPayload as any); 
     if (result.success) {
       toast({ title: 'Sucesso!', description: result.message });
       router.push('/dashboard/furnitures');
@@ -171,14 +178,52 @@ export default function NewFurniturePage() {
             <FormProvider {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Informações Gerais</CardTitle>
-                  </CardHeader>
+                  <CardHeader><CardTitle>Informações Gerais</CardTitle></CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nome da Mobília</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Preço (R$)</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="arrangement" render={({ field }) => (<FormItem><FormLabel>Sub-categoria (Tipo)</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione um tipo" /></SelectTrigger></FormControl><SelectContent>{subCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
                   </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Tamanhos e Preços</CardTitle>
+                        <CardDescription>Adicione um ou mais tamanhos e seus respectivos preços.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {fields.map((field, index) => (
+                          <div key={field.id} className="flex items-end gap-4 p-4 border rounded-lg">
+                             <FormField
+                                control={form.control}
+                                name={`sizes.${index}.size`}
+                                render={({ field }) => (
+                                    <FormItem className="flex-grow">
+                                        <FormLabel>Tamanho (ex: 120x60cm)</FormLabel>
+                                        <FormControl><Input {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                              />
+                             <FormField
+                                control={form.control}
+                                name={`sizes.${index}.price`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Preço (R$)</FormLabel>
+                                        <FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                              />
+                              <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={fields.length <= 1}>
+                                  <Trash2 className="h-4 w-4"/>
+                              </Button>
+                          </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => append({ size: '', price: 0 })}>
+                            <PlusCircle className="mr-2 h-4 w-4"/> Adicionar Tamanho
+                        </Button>
+                    </CardContent>
                 </Card>
 
                 <Card>

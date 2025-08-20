@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, LogOut, UserPlus, LogIn, Sofa } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, ChevronDown, LogOut, UserPlus, LogIn, Sofa } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { collections } from '@/lib/mock-data';
 import Image from 'next/image';
@@ -124,8 +124,7 @@ export default function Header() {
     <header className={headerClasses}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Brush className="h-8 w-8" />
-            <h1 className="text-2xl font-headline font-bold whitespace-nowrap">Home Designer</h1>
+            <Image src="/logo branca png .png" alt="Home Designer Logo" width={180} height={40} />
           </Link>
           
           <nav className="hidden lg:flex items-center gap-8">
@@ -260,3 +259,5 @@ export default function Header() {
     </header>
   );
 }
+
+    

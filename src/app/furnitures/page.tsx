@@ -21,7 +21,6 @@ import { cn } from '@/lib/utils';
 const PRODUCTS_PER_PAGE = 20;
 
 const furnitureCategories = [
-    { name: 'Decoração', image: 'https://placehold.co/150x150.png', hint: 'decoration' },
     { name: 'Nichos', image: 'https://placehold.co/150x150.png', hint: 'niche shelf' },
     { name: 'Prateleiras', image: 'https://placehold.co/150x150.png', hint: 'shelf' },
     { name: 'Mesas', image: 'https://placehold.co/150x150.png', hint: 'table' },
@@ -96,16 +95,16 @@ export default function FurnituresPage() {
 
         <div className="py-8">
             <h2 className="text-2xl font-semibold text-center mb-6">Compre por Categoria</h2>
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+            <div className="flex justify-center gap-4 md:gap-8 overflow-x-auto pb-4">
                 {furnitureCategories.map((cat) => (
-                    <button key={cat.name} onClick={() => setSubCategory(cat.name)} className="flex flex-col items-center gap-2 group">
+                    <button key={cat.name} onClick={() => setSubCategory(cat.name)} className="flex flex-col items-center gap-2 group flex-shrink-0">
                         <div className={cn(
                             "relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md transition-all duration-300 group-hover:scale-105",
                             subCategory === cat.name && "ring-2 ring-primary ring-offset-4"
                         )}>
                             <Image src={cat.image} alt={cat.name} data-ai-hint={cat.hint} fill className="object-cover" />
                         </div>
-                        <h3 className="font-semibold text-center text-sm md:text-base group-hover:text-primary">{cat.name}</h3>
+                        <h3 className="font-semibold text-center text-sm md:text-base group-hover:text-primary w-24 md:w-32 break-words">{cat.name}</h3>
                     </button>
                 ))}
             </div>

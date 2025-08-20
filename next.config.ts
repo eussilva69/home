@@ -279,6 +279,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.awsli.com.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'dicasmaonamassa.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

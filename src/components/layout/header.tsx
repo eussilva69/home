@@ -118,13 +118,17 @@ export default function Header() {
     "font-medium",
     isScrolled ? "text-primary" : "text-white"
   );
+  
+  const coloredLogo = "https://res.cloudinary.com/dl38o4mnk/image/upload/v1755729846/logo_ejwkca.png";
+  const whiteLogo = "https://res.cloudinary.com/dl38o4mnk/image/upload/v1755730043/logo_branca_png_qdltt1.png";
+  const currentLogo = isScrolled ? coloredLogo : (isHomePage ? whiteLogo : coloredLogo);
 
 
   return (
     <header className={headerClasses}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="https://res.cloudinary.com/dl38o4mnk/image/upload/v1755729846/logo_ejwkca.png" alt="Home Designer Logo" width={180} height={40} />
+            <Image src={currentLogo} alt="Home Designer Logo" width={180} height={40} key={currentLogo}/>
           </Link>
           
           <nav className="hidden lg:flex items-center gap-8">

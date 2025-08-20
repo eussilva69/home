@@ -1,22 +1,37 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { getProducts } from '@/app/actions';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import ProductCard from '@/components/shared/product-card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Loader2, ListFilter, SlidersHorizontal, Tag } from 'lucide-react';
+import { Loader2, ListFilter, Tag } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
 import type { Product } from '@/lib/schemas';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 
 const PRODUCTS_PER_PAGE = 20;
+
+const furnitureCategories = [
+    { name: 'Decoração', image: 'https://placehold.co/150x150.png', hint: 'decoration' },
+    { name: 'Nichos', image: 'https://placehold.co/150x150.png', hint: 'niche shelf' },
+    { name: 'Prateleiras', image: 'https://placehold.co/150x150.png', hint: 'shelf' },
+    { name: 'Mesas', image: 'https://placehold.co/150x150.png', hint: 'table' },
+    { name: 'Móveis com Metal', image: 'https://placehold.co/150x150.png', hint: 'metal furniture' },
+    { name: 'Espaço Kids', image: 'https://placehold.co/150x150.png', hint: 'kids space' },
+    { name: 'Aparadores', image: 'https://placehold.co/150x150.png', hint: 'sideboard' },
+    { name: 'Cabeceiras', image: 'https://placehold.co/150x150.png', hint: 'headboard' }
+];
+
+const subCategoryOptions = furnitureCategories.map(c => c.name);
 
 export default function FurnituresPage() {
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
@@ -69,10 +84,7 @@ export default function FurnituresPage() {
   };
   
   const hasMoreProducts = displayedProducts.length < filteredProducts.length;
-
-  const subCategoryOptions = ['Mesas', 'Nichos', 'Cabeceiras'];
-
-
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -81,6 +93,24 @@ export default function FurnituresPage() {
             <h1 className="text-3xl md:text-5xl font-bold text-primary">Mobílias</h1>
             <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Explore nossa seleção de móveis para complementar seu espaço.</p>
         </div>
+
+        <div className="py-8">
+            <h2 className="text-2xl font-semibold text-center mb-6">Compre por Categoria</h2>
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+                {furnitureCategories.map((cat) => (
+                    <button key={cat.name} onClick={() => setSubCategory(cat.name)} className="flex flex-col items-center gap-2 group">
+                        <div className={cn(
+                            "relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md transition-all duration-300 group-hover:scale-105",
+                            subCategory === cat.name && "ring-2 ring-primary ring-offset-4"
+                        )}>
+                            <Image src={cat.image} alt={cat.name} data-ai-hint={cat.hint} fill className="object-cover" />
+                        </div>
+                        <h3 className="font-semibold text-center text-sm md:text-base group-hover:text-primary">{cat.name}</h3>
+                    </button>
+                ))}
+            </div>
+        </div>
+
         <Separator className="my-8" />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -90,7 +120,7 @@ export default function FurnituresPage() {
                     <h3 className="text-lg font-semibold flex items-center gap-2"><ListFilter /> Filtros</h3>
                      <div>
                         <Label className="flex items-center gap-2 font-semibold mb-2"><Tag /> Tipo</Label>
-                        <Select onValueChange={setSubCategory} defaultValue="todos">
+                        <Select onValueChange={setSubCategory} value={subCategory}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
@@ -119,7 +149,7 @@ export default function FurnituresPage() {
                            <CardContent className="p-4 space-y-4">
                                 <div>
                                     <Label className="flex items-center gap-2 font-semibold mb-2"><Tag /> Tipo</Label>
-                                    <Select onValueChange={setSubCategory} defaultValue="todos">
+                                    <Select onValueChange={setSubCategory} value={subCategory}>
                                         <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="todos">Todos</SelectItem>
@@ -136,7 +166,7 @@ export default function FurnituresPage() {
                 <div className="text-center py-16">
                     <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
                 </div>
-            ) : displayedProducts.length > 0 ? (
+            ) : filteredProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
                     {displayedProducts.map((product) => (

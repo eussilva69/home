@@ -149,7 +149,7 @@ export default function EditFurniturePage() {
     }
   };
 
-  const subCategories = ['Mesas', 'Nichos', 'Cabeceiras'];
+  const subCategories = ['Decoração', 'Nichos', 'Prateleiras', 'Mesas', 'Móveis com Metal', 'Espaço Kids', 'Aparadores', 'Cabeceiras'];
 
   if (authLoading || loading || !furniture) {
     return (

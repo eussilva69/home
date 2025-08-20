@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, LogOut, UserPlus, LogIn } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, Brush, ChevronDown, LogOut, UserPlus, LogIn, Sofa } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { collections } from '@/lib/mock-data';
 import Image from 'next/image';
@@ -130,6 +130,7 @@ export default function Header() {
           
           <nav className="hidden lg:flex items-center gap-8">
              <Link href="/loja" className={linkClasses}>Loja</Link>
+             <Link href="/furnitures" className={linkClasses}>Mobílias</Link>
              <Popover open={isCollectionsOpen} onOpenChange={setCollectionsOpen}>
                 <PopoverTrigger asChild>
                     <Button 
@@ -216,6 +217,22 @@ export default function Header() {
                     </SheetTrigger>
                     <SheetContent side="right" className={cn("bg-white text-primary", "w-[300px] sm:w-[350px]")}>
                        {/* Mobile Menu Content */}
+                       <nav className="flex flex-col gap-4 p-6 text-lg">
+                           <Link href="/loja" className="py-2" onClick={() => setMenuOpen(false)}>Loja</Link>
+                           <Link href="/furnitures" className="py-2" onClick={() => setMenuOpen(false)}>Mobílias</Link>
+                           <Link href="/monte-seu-quadro" className="py-2" onClick={() => setMenuOpen(false)}>Personalize</Link>
+                           <Link href="/orcamento" className="py-2" onClick={() => setMenuOpen(false)}>Orçamento</Link>
+                           <div className="border-t pt-4 mt-4">
+                            <h3 className="font-semibold mb-2">Coleções</h3>
+                            <div className="flex flex-col gap-2">
+                                {collections.map(collection => (
+                                     <Link href={`/collection/${collection.slug}`} key={collection.slug} className="py-1 text-base text-muted-foreground hover:text-primary" onClick={() => setMenuOpen(false)}>
+                                        {collection.name}
+                                     </Link>
+                                ))}
+                            </div>
+                           </div>
+                       </nav>
                     </SheetContent>
                 </Sheet>
               </div>

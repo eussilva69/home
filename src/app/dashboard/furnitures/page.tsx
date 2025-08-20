@@ -168,7 +168,7 @@ export default function FurnituresPage() {
                         <TableCell className="text-right">R$ {product.price.toFixed(2).replace('.', ',')}</TableCell>
                         <TableCell className="text-center">
                           <div className="flex gap-2 justify-center">
-                            <Button variant="outline" size="sm" onClick={() => router.push(`/product/${product.id}`)}>
+                            <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/products/${product.id}`)}>
                                 Editar
                             </Button>
                             <Button variant="destructive" size="icon" onClick={() => handleConfirmDelete(product)}>
@@ -210,3 +210,5 @@ export default function FurnituresPage() {
     </>
   );
 }
+
+    

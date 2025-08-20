@@ -227,3 +227,5 @@ export const newFurnitureSchema = z.object({
   gallery_images: z.array(z.string().url()).optional(),
 });
 export type NewFurniturePayload = z.infer<typeof newFurnitureSchema>;
+
+    

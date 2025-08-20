@@ -1,15 +1,11 @@
-
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getProducts } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Image from 'next/image';
 import type { Product } from '@/lib/schemas';
-import { Loader2 } from 'lucide-react';
 
 const MinimalistProductCard = ({ product }: { product: Product }) => {
     return (
@@ -35,32 +31,14 @@ const MinimalistProductCard = ({ product }: { product: Product }) => {
     )
 }
 
-export default function MinimalistSection() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
+type MinimalistSectionProps = {
+    products: Product[];
+};
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            setLoading(true);
-            const allProducts = await getProducts();
-            const minimalistProducts = allProducts.filter(p => p.category === 'Minimalista');
-            setProducts(minimalistProducts);
-            setLoading(false);
-        };
-        fetchProducts();
-    }, []);
-
-    if (loading) {
-        return (
-            <section className="py-12 md:py-24 bg-background">
-                <div className="container mx-auto px-4 text-center">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-                </div>
-            </section>
-        );
+export default function MinimalistSection({ products }: MinimalistSectionProps) {
+    if (!products || products.length === 0) {
+        return null;
     }
-    
-    if(products.length === 0) return null;
 
     return (
         <section className="py-12 md:py-24 bg-background">

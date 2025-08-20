@@ -8,8 +8,74 @@ import Link from "next/link";
 import Image from "next/image";
 import MinimalistSection from "@/components/home/minimalist-section";
 import FeatureBar from "@/components/home/feature-bar";
+import { getProducts } from "@/app/actions";
+import { firestore } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import type { Product } from '@/lib/schemas';
 
-export default function Home() {
+// Helper to extract the base ID from a cart item ID
+const getBaseProductId = (cartItemId: string): string => {
+    const match = cartItemId.match(/^[A-Z]{2}-[A-Z0-9]{1,2}/);
+    if (match) {
+        return match[0];
+    }
+    return cartItemId.split('-')[0];
+};
+
+// Helper function to shuffle an array and get the first N items
+function getFirstNRandomItems<T>(array: T[], n: number): T[] {
+  const shuffled = [...array].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, n);
+}
+
+async function getBestSellers() {
+  let bestSellers: Product[] = [];
+  const allProducts = await getProducts();
+  
+  try {
+    const ordersSnapshot = await getDocs(collection(firestore, 'orders'));
+    
+    if (ordersSnapshot.empty) {
+      return getFirstNRandomItems(allProducts, 4);
+    }
+
+    const productCounts = new Map<string, number>();
+    ordersSnapshot.forEach(doc => {
+      const orderItems = doc.data().items || [];
+      orderItems.forEach((item: { id: string, quantity: number }) => {
+        const baseId = getBaseProductId(item.id);
+        productCounts.set(baseId, (productCounts.get(baseId) || 0) + item.quantity);
+      });
+    });
+
+    const sortedProducts = Array.from(productCounts.entries()).sort((a, b) => b[1] - a[1]);
+    const top4Ids = sortedProducts.slice(0, 4).map(entry => entry[0]);
+    
+    if (top4Ids.length > 0) {
+      bestSellers = top4Ids.map(id => allProducts.find(p => p.id === id)).filter((p): p is Product => p !== undefined);
+    }
+    
+    if (bestSellers.length < 4) {
+      const remainingNeeded = 4 - bestSellers.length;
+      const existingIds = new Set(bestSellers.map(p => p.id));
+      const potentialFallbacks = allProducts.filter(p => !existingIds.has(p.id));
+      const randomFallback = getFirstNRandomItems(potentialFallbacks, remainingNeeded);
+      bestSellers.push(...randomFallback);
+    }
+  } catch (error) {
+    console.error("Erro ao buscar os mais vendidos, usando fallback aleatório:", error);
+    return getFirstNRandomItems(allProducts, 4);
+  }
+  
+  return bestSellers;
+}
+
+export default async function Home() {
+  const bestSellersData = await getBestSellers();
+  const allProducts = await getProducts();
+  const randomProductsData = getFirstNRandomItems(allProducts, 4);
+  const minimalistProductsData = allProducts.filter(p => p.category === 'Minimalista');
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -24,7 +90,6 @@ export default function Home() {
               fill
               className="object-cover"
               priority
-              onDragStart={(e) => e.preventDefault()}
            />
            <div className="absolute inset-0 bg-black/10" />
            <div className="absolute top-1/2 left-1/2 md:left-1/4 -translate-x-1/2 -translate-y-1/2 text-white p-8">
@@ -36,10 +101,10 @@ export default function Home() {
       
       <main className="flex-grow">
         <FeaturedCollections />
-        <MinimalistSection />
+        <MinimalistSection products={minimalistProductsData} />
         <EnvironmentsSection />
-        <RandomProducts />
-        <BestSellers />
+        <RandomProducts products={randomProductsData} />
+        <BestSellers products={bestSellersData} />
       </main>
       <FeatureBar />
       <Footer />

@@ -245,7 +245,7 @@ export default function MonteSeuQuadroPage() {
                             <div className="relative w-full h-full overflow-hidden">
                                 {imageSrc ? (
                                     <>
-                                        <Image src={imageSrc} alt={`Pré-visualização ${i+1}`} layout="fill" objectFit={imageMode === 'split' ? 'none' : 'cover'} style={imageStyle} onDragStart={(e) => e.preventDefault()}/>
+                                        <Image src={imageSrc} alt={`Pré-visualização ${i+1}`} layout="fill" objectFit={imageMode === 'split' ? 'none' : 'cover'} style={imageStyle} />
                                         <Button variant="destructive" size="icon" className="absolute -top-3 -right-3 rounded-full h-7 w-7 z-10" onClick={(e) => handleRemoveImage(e, i)}>
                                             <X className="h-4 w-4"/>
                                         </Button>
@@ -306,7 +306,7 @@ export default function MonteSeuQuadroPage() {
                 <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-lg bg-gray-200 flex items-center justify-center">
                     {viewMode === 'environment' ? (
                         <>
-                            <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90" onDragStart={(e) => e.preventDefault()}/>
+                            <Image src={environmentImage} alt="Ambiente de exemplo" layout="fill" objectFit="cover" className="brightness-90" />
                             <div className="relative">
                                 {renderFrames()}
                             </div>
@@ -366,10 +366,12 @@ export default function MonteSeuQuadroPage() {
                             <AccordionContent>
                                 <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="grid grid-cols-2 gap-3">
                                     {availableSizes.map(({ tamanho }) => (
-                                        <Label key={tamanho} htmlFor={`size-${tamanho}`} className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm transition-all h-12 font-semibold", selectedSize === tamanho ? "border-primary bg-primary/5" : "border-border")}>
+                                        <div key={tamanho}>
                                             <RadioGroupItem value={tamanho} id={`size-${tamanho}`} className="sr-only" />
-                                            {tamanho}
-                                        </Label>
+                                            <Label htmlFor={`size-${tamanho}`} className={cn("flex h-16 items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center text-sm font-semibold transition-all", selectedSize === tamanho ? 'border-primary bg-primary/5' : 'border-border bg-background')}>
+                                                {tamanho} ({arrangement})
+                                            </Label>
+                                        </div>
                                     ))}
                                 </RadioGroup>
                             </AccordionContent>
@@ -401,13 +403,13 @@ export default function MonteSeuQuadroPage() {
                                 </div>
                                 <div>
                                     <Label className="font-semibold text-sm mb-2 block">Acabamento</Label>
-                                    <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-3">
-                                        <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 font-semibold", withGlass ? "border-primary bg-primary/5" : "border-border")}>
-                                            <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
+                                    <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-4">
+                                        <RadioGroupItem value="com-vidro" id="g1" className="sr-only" />
+                                        <Label htmlFor="g1" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", withGlass ? 'border-primary bg-primary/5' : 'border-border')}>
                                             Com Vidro
                                         </Label>
-                                        <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-3 text-center text-sm h-12 font-semibold", !withGlass ? "border-primary bg-primary/5" : "border-border")}>
-                                            <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
+                                        <RadioGroupItem value="sem-vidro" id="g2" className="sr-only" />
+                                        <Label htmlFor="g2" className={cn("flex items-center justify-center cursor-pointer rounded-md border-2 p-4 text-center font-semibold transition-all h-16 md:h-20", !withGlass ? 'border-primary bg-primary/5' : 'border-border')}>
                                             Sem Vidro
                                         </Label>
                                     </RadioGroup>

@@ -124,7 +124,7 @@ export default function Header() {
     <header className={headerClasses}>
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo branca png .png" alt="Home Designer Logo" width={180} height={40} />
+            <Image src="https://res.cloudinary.com/dl38o4mnk/image/upload/v1755729846/logo_ejwkca.png" alt="Home Designer Logo" width={180} height={40} />
           </Link>
           
           <nav className="hidden lg:flex items-center gap-8">
@@ -259,5 +259,3 @@ export default function Header() {
     </header>
   );
 }
-
-    

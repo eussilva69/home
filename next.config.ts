@@ -285,6 +285,12 @@ const nextConfig: NextConfig = {
         hostname: 'dicasmaonamassa.com.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.mesamadeira.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

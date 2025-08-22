@@ -123,14 +123,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   const handleAddToCart = () => {
     if (!product || !finalPrice || !selectedPriceInfo) return;
-    if (isFrameless && !customImage) {
-        toast({
-            variant: "destructive",
-            title: "Imagem necessária",
-            description: "Por favor, envie sua imagem para o quadro sem moldura.",
-        });
-        return;
-    }
     
     let itemOptions = '';
     let cartItemId = product.id;
@@ -172,38 +164,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       if (viewMode === 'env2' && product.environment_images?.[1]) return product.environment_images[1];
       
       // Default product view
-      if (customImage) return customImage;
       if (isFrameless) return product.artwork_image || product.image || "https://placehold.co/600x800.png";
       return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/600x800.png";
   };
   
-
-  const handleCustomImageUpload = useCallback(async (file: File) => {
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-        const response = await fetch(`/api/upload-image`, { method: "POST", body: formData });
-        const data = await response.json();
-        if (data.success) {
-            setCustomImage(data.url);
-            toast({ title: "Sucesso!", description: "Sua imagem foi enviada." });
-        } else {
-            throw new Error(data.details || "Erro desconhecido ao fazer upload.");
-        }
-    } catch (error: any) {
-        toast({ variant: "destructive", title: "Erro no Upload", description: error.message || "Não foi possível enviar sua imagem." });
-    } finally {
-        setIsUploading(false);
-    }
-  }, [toast]);
-  
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-        handleCustomImageUpload(e.target.files[0]);
-    }
-  };
 
   const handleFrameChange = (newFrame: string) => {
       setSelectedFrame(newFrame);
@@ -240,10 +204,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     src={getProductImage()}
                     alt={product.name}
                     fill
-                    quality={100}
                     className={cn(
                         'object-cover', 
-                        (viewMode === 'product' && (isFrameless || customImage)) && 'object-contain p-4'
+                        (viewMode === 'product' && (isFrameless || customImage)) && 'object-contain'
                     )}
                     priority
                 />
@@ -325,7 +288,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 </div>
                 
                 {/* Glass Selector */}
-                {!isFrameless ? (
+                {!isFrameless && (
                   <div className="mb-6 md:mb-8">
                       <Label className="text-base md:text-lg font-medium mb-3 block">Acabamento: <span className="font-bold">{withGlass ? 'Com Vidro' : 'Sem Vidro'}</span></Label>
                       <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-4">
@@ -339,24 +302,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                           </Label>
                       </RadioGroup>
                   </div>
-                ) : (
-                    <div className="mb-6 md:mb-8">
-                         <Label className="text-base md:text-lg font-medium mb-3 block">Sua Imagem</Label>
-                         <div className="relative">
-                            <Button type="button" variant="outline" className="w-full" disabled={isUploading}>
-                                {isUploading ? <Loader2 className="animate-spin mr-2"/> : <UploadCloud className="mr-2" />}
-                                {customImage ? 'Alterar Imagem' : 'Enviar Sua Imagem'}
-                            </Button>
-                            <Input
-                                type="file"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                accept="image/*"
-                                onChange={onFileChange}
-                                disabled={isUploading}
-                            />
-                         </div>
-                         {customImage && <p className="text-xs text-muted-foreground mt-2 text-center">Imagem selecionada!</p>}
-                    </div>
                 )}
               </>
             ) : null}
@@ -365,7 +310,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Button size="lg" className="flex-1 text-base" onClick={handleAddToCart} disabled={isUploading}>
-                {isUploading ? <Loader2 className="animate-spin mr-2"/> : <ShoppingCart className="mr-2" />}
+                {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <ShoppingCart className="mr-2" />}
                 Adicionar ao Carrinho
               </Button>
               <Button variant="outline" size="lg" className="px-4">

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Search, ShoppingCart, User, ChevronDown, LogOut, UserPlus, LogIn, Sofa } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { collections } from '@/lib/mock-data';
@@ -119,8 +119,8 @@ export default function Header() {
     isScrolled ? "text-primary" : "text-white"
   );
   
-  const coloredLogo = "https://res.cloudinary.com/dl38o4mnk/image/upload/v1755729846/logo_ejwkca.png";
-  const whiteLogo = "https://res.cloudinary.com/dl38o4mnk/image/upload/v1755730043/logo_branca_png_qdltt1.png";
+  const coloredLogo = "https://res.cloudinary.com/dl38o4mnk/image/upload/v1755733938/ChatGPT_Image_20_de_ago._de_2025_20_51_59_fjrnjx.png";
+  const whiteLogo = "https://res.cloudinary.com/dl38o4mnk/image/upload/v1755733938/ChatGPT_Image_20_de_ago._de_2025_20_51_59_fjrnjx.png";
   const currentLogo = isScrolled ? coloredLogo : (isHomePage ? whiteLogo : coloredLogo);
 
 
@@ -219,6 +219,9 @@ export default function Header() {
                         <Button variant="ghost" size="icon" className={iconButtonClasses}><Menu className="h-6 w-6"/></Button>
                     </SheetTrigger>
                     <SheetContent side="right" className={cn("bg-white text-primary", "w-[300px] sm:w-[350px]")}>
+                      <SheetHeader>
+                          <SheetTitle className="sr-only">Menu</SheetTitle>
+                      </SheetHeader>
                        {/* Mobile Menu Content */}
                        <nav className="flex flex-col gap-4 p-6 text-lg">
                            <Link href="/loja" className="py-2" onClick={() => setMenuOpen(false)}>Loja</Link>

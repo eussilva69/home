@@ -1,14 +1,15 @@
 
+
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useCallback, ChangeEvent } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye, FrameIcon } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye, FrameIcon, UploadCloud } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -16,6 +17,9 @@ import { useCart } from '@/hooks/use-cart';
 import { getProductById } from '@/app/actions';
 import type { Product } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+
 
 const pricingData = {
   "Solo": [
@@ -58,6 +62,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('product');
   const { addToCart } = useCart();
+  const { toast } = useToast();
 
   const isFurniture = product?.category === 'Mobílias';
   
@@ -70,6 +75,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedSize, setSelectedSize] = useState(availableSizes[0]?.tamanho);
   const [withGlass, setWithGlass] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+
+  const [customImage, setCustomImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const isFrameless = selectedFrame === 'none';
 
@@ -94,6 +102,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     fetchProductData();
   }, [id]);
 
+  useEffect(() => {
+    // Disable glass option if frameless is selected
+    if (isFrameless) {
+        setWithGlass(false);
+    }
+  }, [isFrameless]);
+
+
   const selectedPriceInfo = isFurniture 
     ? product?.sizes?.find(s => s.size === selectedFurnitureSize)
     : availableSizes.find(s => s.tamanho === selectedSize);
@@ -107,6 +123,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   const handleAddToCart = () => {
     if (!product || !finalPrice || !selectedPriceInfo) return;
+    if (isFrameless && !customImage) {
+        toast({
+            variant: "destructive",
+            title: "Imagem necessária",
+            description: "Por favor, envie sua imagem para o quadro sem moldura.",
+        });
+        return;
+    }
     
     let itemOptions = '';
     let cartItemId = product.id;
@@ -129,19 +153,21 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         id: cartItemId,
         name: product.name,
         price: finalPrice,
-        image: product.image || "https://placehold.co/100x100.png",
+        image: customImage || product.image || "https://placehold.co/100x100.png",
         quantity: 1,
         options: itemOptions,
         weight: (selectedPriceInfo as any).weight || 1,
         width: (selectedPriceInfo as any).width || 30,
         height: (selectedPriceInfo as any).height || 42,
         length: (selectedPriceInfo as any).length || 3,
+        customImages: customImage ? [customImage] : [],
     };
     addToCart(itemToAdd);
   };
   
   const getProductImage = () => {
       if (!product) return "https://placehold.co/600x800.png";
+      if (customImage) return customImage;
       if (isFrameless) return product.artwork_image || product.image || "https://placehold.co/600x800.png";
       return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/600x800.png";
   };
@@ -152,6 +178,34 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       if (viewMode === 'env2' && product.environment_images.length > 1) return product.environment_images[1];
       return product.environment_images[0]; // fallback
   }
+
+  const handleCustomImageUpload = useCallback(async (file: File) => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch(`/api/upload-image`, { method: "POST", body: formData });
+        const data = await response.json();
+        if (data.success) {
+            setCustomImage(data.url);
+            toast({ title: "Sucesso!", description: "Sua imagem foi enviada." });
+        } else {
+            throw new Error(data.details || "Erro desconhecido ao fazer upload.");
+        }
+    } catch (error: any) {
+        toast({ variant: "destructive", title: "Erro no Upload", description: error.message || "Não foi possível enviar sua imagem." });
+    } finally {
+        setIsUploading(false);
+    }
+  }, [toast]);
+  
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+        handleCustomImageUpload(e.target.files[0]);
+    }
+  };
+
 
   if (loading || !product) {
       return (
@@ -186,15 +240,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             fill
                             className="object-cover"
                         />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                             <Image
-                                key={`${getProductImage()}-env`}
-                                src={getProductImage()}
-                                alt={product.name}
-                                width={300}
-                                height={375}
-                                className="object-contain drop-shadow-2xl"
-                            />
+                        <div className="absolute inset-0 flex items-center justify-center p-8">
+                            <div className="relative w-1/2 h-1/2">
+                                <Image
+                                    key={`${getProductImage()}-env`}
+                                    src={getProductImage()}
+                                    alt={product.name}
+                                    fill
+                                    className="object-contain drop-shadow-2xl"
+                                />
+                            </div>
                         </div>
                      </>
                  ) : (
@@ -203,7 +258,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         src={getProductImage()}
                         alt={product.name}
                         fill
-                        className={cn('object-cover', isFrameless && 'object-contain p-4')}
+                        className={cn('object-cover', (isFrameless || customImage) && 'object-contain p-4')}
                         sizes="(max-width: 1024px) 90vw, 50vw"
                     />
                  )}
@@ -250,7 +305,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                       {Object.entries(frames).map(([key, { label, color }]) => (
                           <div key={key}>
                               <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />
-                              <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all", selectedFrame === key ? 'border-primary' : 'border-transparent')}>
+                              <Label htmlFor={`frame-${key}`} className={cn("block cursor-pointer rounded-full border-2 p-1 transition-all", selectedFrame === key ? 'border-primary ring-2 ring-primary/50' : 'border-transparent')}>
                                  {key === 'none' ? (
                                     <div className="w-10 h-10 rounded-full border border-dashed flex items-center justify-center text-muted-foreground text-xs" title={label}>S/M</div>
                                  ) : (
@@ -285,7 +340,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 </div>
                 
                 {/* Glass Selector */}
-                {!isFrameless && (
+                {!isFrameless ? (
                   <div className="mb-6 md:mb-8">
                       <Label className="text-base md:text-lg font-medium mb-3 block">Acabamento: <span className="font-bold">{withGlass ? 'Com Vidro' : 'Sem Vidro'}</span></Label>
                       <RadioGroup value={withGlass ? "com-vidro" : "sem-vidro"} onValueChange={(value) => setWithGlass(value === "com-vidro")} className="grid grid-cols-2 gap-4">
@@ -299,6 +354,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                           </Label>
                       </RadioGroup>
                   </div>
+                ) : (
+                    <div className="mb-6 md:mb-8">
+                         <Label className="text-base md:text-lg font-medium mb-3 block">Sua Imagem</Label>
+                         <div className="relative">
+                            <Button type="button" variant="outline" className="w-full" disabled={isUploading}>
+                                {isUploading ? <Loader2 className="animate-spin mr-2"/> : <UploadCloud className="mr-2" />}
+                                {customImage ? 'Alterar Imagem' : 'Enviar Sua Imagem'}
+                            </Button>
+                            <Input
+                                type="file"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                accept="image/*"
+                                onChange={onFileChange}
+                                disabled={isUploading}
+                            />
+                         </div>
+                         {customImage && <p className="text-xs text-muted-foreground mt-2 text-center">Imagem selecionada!</p>}
+                    </div>
                 )}
               </>
             ) : null}
@@ -306,8 +379,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Button size="lg" className="flex-1 text-base" onClick={handleAddToCart}>
-                <ShoppingCart className="mr-2" /> Adicionar ao Carrinho
+              <Button size="lg" className="flex-1 text-base" onClick={handleAddToCart} disabled={isUploading}>
+                {isUploading ? <Loader2 className="animate-spin mr-2"/> : <ShoppingCart className="mr-2" />}
+                Adicionar ao Carrinho
               </Button>
               <Button variant="outline" size="lg" className="px-4">
                 <Heart />

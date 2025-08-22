@@ -110,26 +110,30 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
 
   const handleAddToCart = () => {
-    if (!product || !finalPrice) return;
+    if (!product || !finalPrice || !selectedPriceInfo) return;
     
     let itemOptions = '';
+    let cartItemId = product.id;
+
     if (isFurniture) {
         itemOptions = selectedFurnitureSize || '';
+        cartItemId += `-${itemOptions.replace(/\s/g, '')}`;
     } else {
         itemOptions = `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}, ${withGlass ? 'Com Vidro' : 'Sem Vidro'}`;
+        cartItemId += `-${selectedSize.replace(/\s/g, '')}-${selectedFrame}-${withGlass ? 'vidro' : 'sem-vidro'}`;
     }
 
     const itemToAdd = {
-        id: `${product.id}-${itemOptions}`,
+        id: cartItemId,
         name: product.name,
         price: finalPrice,
         image: product.image || "https://placehold.co/100x100.png",
         quantity: 1,
         options: itemOptions,
-        weight: isFurniture ? 10 : selectedPriceInfo?.weight || 1, // Placeholder
-        width: isFurniture ? 50 : selectedPriceInfo?.width || 30,
-        height: isFurniture ? 50 : selectedPriceInfo?.height || 42,
-        length: isFurniture ? 50 : selectedPriceInfo?.length || 3,
+        weight: (selectedPriceInfo as any).weight || 1,
+        width: (selectedPriceInfo as any).width || 30,
+        height: (selectedPriceInfo as any).height || 42,
+        length: (selectedPriceInfo as any).length || 3,
     };
     addToCart(itemToAdd);
   };
@@ -219,7 +223,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione uma opção'}
             </p>
             
-            {isFurniture ? (
+            {isFurniture && product.sizes && product.sizes.length > 0 ? (
                 <div className="mb-6 md:mb-8">
                     <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Ruler/> Tamanho</Label>
                      <RadioGroup value={selectedFurnitureSize || ''} onValueChange={setSelectedFurnitureSize} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -233,7 +237,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         ))}
                     </RadioGroup>
                 </div>
-            ) : (
+            ) : !isFurniture ? (
               <>
                 {/* Frame Color Selector */}
                 <div className="mb-6 md:mb-8">
@@ -287,7 +291,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     </RadioGroup>
                 </div>
               </>
-            )}
+            ) : null}
 
 
             {/* Action Buttons */}

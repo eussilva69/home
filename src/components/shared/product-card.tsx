@@ -47,7 +47,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         data-ai-hint={product.hint}
                         fill
                         className={cn(
-                           'object-contain p-4 transition-opacity duration-300',
+                           'object-contain transition-all duration-300 group-hover:scale-105',
                            'opacity-0 group-hover:opacity-100'
                         )}
                      />

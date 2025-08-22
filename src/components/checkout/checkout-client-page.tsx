@@ -94,49 +94,13 @@ export default function CheckoutClientPage() {
     }
   }, []);
   
-  const handleSuccessfulPayment = useCallback(async (paymentId?: number) => {
+  const handleSuccessfulPayment = useCallback((paymentId?: number) => {
     stopPolling();
-  
-    const formData = form.getValues();
-    const orderDetails = {
-      customer: {
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        docType: formData.docType,
-        docNumber: formData.docNumber,
-      },
-      shipping: {
-        address: `${formData.street}, ${formData.number}`,
-        city: formData.city,
-        state: formData.state,
-        cep: formData.cep,
-        complement: formData.complement || "",
-        details: selectedShipping,
-      },
-      items: cartItems.map(item => ({
-        ...item,
-        options: item.options.replace(/,\s*$/, '') // Remove trailing comma and space
-      })),
-      payment: {
-        method: paymentMethod,
-        total: total,
-        subtotal: subtotal,
-        shippingCost: shippingCost,
-        paymentId: paymentId,
-      },
-    };
-  
-    const result = await saveOrder(orderDetails);
-    if (!result.success) {
-      toast({ variant: 'destructive', title: 'Erro no Pedido', description: result.message });
-    }
-
-    // A notificação de email agora é enviada pelo webhook após a confirmação do pagamento
-  
     setPaymentResult({ success: true, paymentId });
     clearCart();
-  }, [form, selectedShipping, cartItems, paymentMethod, total, subtotal, shippingCost, clearCart, toast, stopPolling]);
+    // A notificação de email agora é enviada pelo webhook
+  }, [clearCart, stopPolling]);
+
 
   const startPollingPaymentStatus = useCallback((paymentId: number) => {
     stopPolling();
@@ -268,30 +232,41 @@ export default function CheckoutClientPage() {
   }
 
 
-  const handleGeneratePix = async () => {
-     setIsProcessing(true);
-     const formData = form.getValues();
-     const result = await processPixPayment({
-         transaction_amount: parseFloat(total.toFixed(2)),
-         description: `Compra na Home Designer - Pedido #${Date.now()}`,
-         payer: {
-             email: formData.email,
-             first_name: formData.firstName,
-             last_name: formData.lastName,
-             identification: {
-                 type: formData.docType,
-                 number: formData.docNumber,
-             }
-         }
-     });
-     setIsProcessing(false);
+ const handleGeneratePix = async () => {
+    setIsProcessing(true);
+    const formData = form.getValues();
 
-     if (result.success && result.qrCode && result.qrCodeBase64 && result.paymentId) {
-        setPixData({ qrCode: result.qrCode, qrCodeBase64: result.qrCodeBase64, paymentId: result.paymentId });
-        startPollingPaymentStatus(result.paymentId);
-     } else {
-         toast({ variant: 'destructive', title: 'Erro no Pix', description: result.message || 'Não foi possível gerar o QR Code do Pix.' });
-     }
+    // 1. Salvar o pedido primeiro
+    const orderDetails = {
+      customer: { email: formData.email, firstName: formData.firstName, lastName: formData.lastName, docType: formData.docType, docNumber: formData.docNumber, },
+      shipping: { address: `${formData.street}, ${formData.number}`, city: formData.city, state: formData.state, cep: formData.cep, complement: formData.complement || "", details: selectedShipping, },
+      items: cartItems.map(item => ({...item, options: item.options.replace(/,\s*$/, '')})),
+      payment: { method: 'pix', total: total, subtotal: subtotal, shippingCost: shippingCost, }
+    };
+    
+    const saveResult = await saveOrder(orderDetails);
+    
+    if (!saveResult.success || !saveResult.orderId) {
+      toast({ variant: 'destructive', title: 'Erro', description: saveResult.message || 'Não foi possível salvar o pedido antes de gerar o Pix.' });
+      setIsProcessing(false);
+      return;
+    }
+
+    // 2. Com o pedido salvo, processar o pagamento Pix
+    const pixResult = await processPixPayment({
+        transaction_amount: parseFloat(total.toFixed(2)),
+        description: `Compra na Home Designer - Pedido #${saveResult.orderId.slice(0, 8)}`,
+        payer: { email: formData.email, first_name: formData.firstName, last_name: formData.lastName, identification: { type: formData.docType, number: formData.docNumber, } }
+    }, saveResult.orderId);
+     
+    setIsProcessing(false);
+
+    if (pixResult.success && pixResult.qrCode && pixResult.qrCodeBase64 && pixResult.paymentId) {
+       setPixData({ qrCode: pixResult.qrCode, qrCodeBase64: pixResult.qrCodeBase64, paymentId: pixResult.paymentId });
+       startPollingPaymentStatus(pixResult.paymentId);
+    } else {
+        toast({ variant: 'destructive', title: 'Erro no Pix', description: pixResult.message || 'Não foi possível gerar o QR Code do Pix.' });
+    }
   }
 
   const onCardPaymentSubmit = async (formData: any) => {
@@ -374,7 +349,7 @@ export default function CheckoutClientPage() {
               <CheckCircle className="h-24 w-24 mx-auto text-green-500 mb-4"/>
               <h1 className="font-headline text-4xl font-bold mb-4">Pagamento Aprovado!</h1>
               <p className="text-muted-foreground mb-2">Obrigado pela sua compra!</p>
-              {paymentResult.paymentId && <p className="text-sm text-muted-foreground mb-8">ID do Pedido: {paymentResult.paymentId}</p>}
+              {paymentResult.paymentId && <p className="text-sm text-muted-foreground mb-8">ID do Pagamento: {paymentResult.paymentId}</p>}
               <Button onClick={() => router.push('/dashboard/my-orders')} size="lg">
                   Ver Meus Pedidos
               </Button>
@@ -399,7 +374,7 @@ export default function CheckoutClientPage() {
                 <Loader2 className="h-5 w-5 animate-spin"/>
                 <span className="font-semibold">Aguardando pagamento...</span>
             </div>
-            <p className="text-sm text-muted-foreground mt-2">(ID do Pedido: {pixData.paymentId})</p>
+            <p className="text-sm text-muted-foreground mt-2">(ID do Pagamento: {pixData.paymentId})</p>
         </div>
      )
   }

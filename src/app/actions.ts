@@ -152,6 +152,9 @@ export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'cre
           },
         });
 
+        // Atualiza o pedido salvo com o ID do documento do Firestore
+        await updateDoc(docRef, { id: docRef.id });
+
         return { success: true, orderId: docRef.id };
     } catch (error: any) {
         console.error("Erro ao salvar pedido no Firestore:", error);
@@ -160,15 +163,20 @@ export async function saveOrder(orderDetails: Omit<OrderDetails, 'status' | 'cre
 }
 
 // Funções de orquestração chamadas pelo frontend
-export async function processPixPayment(input: CreatePixPaymentInput) {
+export async function processPixPayment(input: CreatePixPaymentInput, orderId: string) {
     try {
-        const result = await createPixPayment(input);
-        if (result && result.id && result.point_of_interaction?.transaction_data) {
+        const pixResult = await createPixPayment(input);
+        if (pixResult && pixResult.id && pixResult.point_of_interaction?.transaction_data) {
+            
+            // Vincular o ID do pagamento ao pedido no Firestore
+            const orderRef = doc(firestore, 'orders', orderId);
+            await updateDoc(orderRef, { 'payment.paymentId': pixResult.id });
+
             return {
                 success: true,
-                paymentId: result.id,
-                qrCode: result.point_of_interaction.transaction_data.qr_code,
-                qrCodeBase64: result.point_of_interaction.transaction_data.qr_code_base64
+                paymentId: pixResult.id,
+                qrCode: pixResult.point_of_interaction.transaction_data.qr_code,
+                qrCodeBase64: pixResult.point_of_interaction.transaction_data.qr_code_base64
             };
         }
         throw new Error('Resposta inválida da API de pagamento.');

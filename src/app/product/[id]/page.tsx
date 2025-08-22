@@ -19,6 +19,7 @@ import type { Product } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 
 const pricingData = {
@@ -255,23 +256,28 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     </motion.div>
                 </AnimatePresence>
               </div>
-              <div className="flex gap-3 justify-center flex-wrap">
-                {thumbnailList.map(thumb => {
-                    const isSelected = (thumb.type === 'env' && viewMode === thumb.id) || (thumb.type === 'frame' && viewMode === 'product' && selectedFrame === thumb.frameKey);
-                    return (
-                        <button 
-                            key={thumb.id} 
-                            onClick={() => handleThumbnailClick(thumb.type === 'env' ? thumb.id as ViewMode : 'product', thumb.frameKey || undefined)}
-                            className={cn(
-                            "relative w-20 h-20 rounded-md overflow-hidden border-2 transition-all",
-                            isSelected ? 'border-primary' : 'border-transparent'
-                            )}
-                        >
-                            <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
-                        </button>
-                    )
-                })}
-            </div>
+              <div className="w-full max-w-2xl mx-auto">
+                 <Carousel opts={{ align: "start", dragFree: true }}>
+                  <CarouselContent className="-ml-2">
+                    {thumbnailList.map(thumb => {
+                        const isSelected = (thumb.type === 'env' && viewMode === thumb.id) || (thumb.type === 'frame' && viewMode === 'product' && selectedFrame === thumb.frameKey);
+                        return (
+                          <CarouselItem key={thumb.id} className="basis-1/4 sm:basis-1/5 md:basis-1/6 pl-2">
+                            <button 
+                                onClick={() => handleThumbnailClick(thumb.type === 'env' ? thumb.id as ViewMode : 'product', thumb.frameKey || undefined)}
+                                className={cn(
+                                "relative w-full aspect-square rounded-md overflow-hidden border-2 transition-all",
+                                isSelected ? 'border-primary' : 'border-transparent'
+                                )}
+                            >
+                                <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
+                            </button>
+                          </CarouselItem>
+                        )
+                    })}
+                  </CarouselContent>
+                 </Carousel>
+              </div>
           </div>
 
           {/* Product Details */}

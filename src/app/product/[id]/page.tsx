@@ -168,6 +168,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/600x800.png";
   };
   
+  const getProductThumbnail = () => {
+    if (!product) return "https://placehold.co/100x100.png";
+    if (isFrameless) return product.artwork_image || product.image || "https://placehold.co/100x100.png";
+    return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/100x100.png";
+  }
 
   const handleFrameChange = (newFrame: string) => {
       setSelectedFrame(newFrame);
@@ -188,6 +193,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </div>
       );
   }
+  
+  const thumbnails = [
+      { id: 'product', src: getProductThumbnail() },
+      ...(product.environment_images?.filter(img => img).map((img, index) => ({ id: `env${index + 1}` as ViewMode, src: img })) || [])
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -210,14 +220,18 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     quality={100}
                 />
               </div>
-              <div className="flex gap-2 justify-center">
-                <Button variant={viewMode === 'product' ? 'default' : 'outline'} size="sm" onClick={() => setViewMode('product')}>
-                    <FrameIcon className="mr-2 h-4 w-4"/> Produto
-                </Button>
-                {product.environment_images?.map((img, index) => (
-                    img && <Button key={index} variant={viewMode === `env${index + 1}` as ViewMode ? 'default' : 'outline'} size="sm" onClick={() => setViewMode(`env${index + 1}` as ViewMode)}>
-                        <Eye className="mr-2 h-4 w-4"/> Ambiente {index + 1}
-                    </Button>
+              <div className="flex gap-3 justify-center">
+                {thumbnails.map(thumb => (
+                  <button 
+                    key={thumb.id} 
+                    onClick={() => setViewMode(thumb.id as ViewMode)}
+                    className={cn(
+                      "relative w-20 h-20 rounded-md overflow-hidden border-2 transition-all",
+                      viewMode === thumb.id ? 'border-primary' : 'border-transparent'
+                    )}
+                  >
+                     <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
+                  </button>
                 ))}
             </div>
           </div>
@@ -352,5 +366,3 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-
-    

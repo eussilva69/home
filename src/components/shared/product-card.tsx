@@ -40,6 +40,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                             'object-cover transition-opacity duration-300',
                             'opacity-100 group-hover:opacity-0'
                         )}
+                        quality={100}
                      />
                       <Image
                         src={hoverImageUrl}
@@ -47,9 +48,10 @@ export default function ProductCard({ product }: ProductCardProps) {
                         data-ai-hint={product.hint}
                         fill
                         className={cn(
-                           'object-contain transition-all duration-300 group-hover:scale-105',
+                           'object-cover transition-all duration-300 group-hover:scale-105',
                            'opacity-0 group-hover:opacity-100'
                         )}
+                        quality={100}
                      />
                 </div>
                 <div className="p-4 text-center border-t">

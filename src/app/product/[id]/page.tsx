@@ -151,6 +151,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         name: product.name,
         price: finalPrice,
         image: product.image || "https://placehold.co/100x100.png",
+        environmentImage: product.environment_images?.[0] || product.image,
         quantity: 1,
         options: itemOptions,
         weight: (selectedPriceInfo as any).weight || 1,

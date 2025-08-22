@@ -16,7 +16,6 @@ import { useClientOnly } from '@/hooks/use-client-only';
 import { Input } from '../ui/input';
 import SearchSuggestions from '../search/search-suggestions';
 import type { Product } from '@/lib/schemas';
-import { getProducts } from '@/app/actions';
 import { cn } from '@/lib/utils';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -61,10 +60,20 @@ export default function Header() {
     const fetchSuggestions = async () => {
       if (searchTerm.trim().length > 1) {
         setIsLoading(true);
-        const allProducts = await getProducts();
-        const filtered = allProducts.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-        setSuggestions(filtered);
-        setIsLoading(false);
+        try {
+          const response = await fetch(`/api/search?q=${encodeURIComponent(searchTerm.trim())}`);
+          if (response.ok) {
+            const data = await response.json();
+            setSuggestions(data);
+          } else {
+            setSuggestions([]);
+          }
+        } catch (error) {
+          console.error('Failed to fetch search suggestions:', error);
+          setSuggestions([]);
+        } finally {
+          setIsLoading(false);
+        }
       } else {
         setSuggestions([]);
       }

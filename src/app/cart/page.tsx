@@ -52,7 +52,7 @@ export default function CartPage() {
                     {cartItems.map(item => (
                       <li key={item.id} className="flex flex-col sm:flex-row items-center p-6 gap-4">
                         <div className="w-24 h-32 flex-shrink-0 relative rounded-md overflow-hidden bg-gray-100">
-                           <Image src={item.image} alt={item.name} layout="fill" objectFit="cover" />
+                           <Image src={item.environmentImage || item.image} alt={item.name} layout="fill" objectFit="cover" />
                         </div>
                         <div className="flex-grow text-center sm:text-left">
                           <h3 className="font-semibold text-lg text-gray-800">{item.name}</h3>

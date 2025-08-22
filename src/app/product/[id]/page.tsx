@@ -167,17 +167,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   
   const getProductImage = () => {
       if (!product) return "https://placehold.co/600x800.png";
+
+      if (viewMode === 'env1' && product.environment_images?.[0]) return product.environment_images[0];
+      if (viewMode === 'env2' && product.environment_images?.[1]) return product.environment_images[1];
+      
+      // Default product view
       if (customImage) return customImage;
       if (isFrameless) return product.artwork_image || product.image || "https://placehold.co/600x800.png";
       return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/600x800.png";
   };
   
-  const getEnvironmentImage = () => {
-      if (viewMode === 'product' || !product?.environment_images || product.environment_images.length === 0) return null;
-      if (viewMode === 'env1') return product.environment_images[0];
-      if (viewMode === 'env2' && product.environment_images.length > 1) return product.environment_images[1];
-      return product.environment_images[0]; // fallback
-  }
 
   const handleCustomImageUpload = useCallback(async (file: File) => {
     setIsUploading(true);
@@ -219,8 +218,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       );
   }
 
-  const environmentImageSrc = getEnvironmentImage();
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -231,37 +228,18 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <div 
                 className="relative aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 flex items-center justify-center"
               >
-                 {environmentImageSrc ? (
-                     <>
-                        <Image
-                            key={environmentImageSrc}
-                            src={environmentImageSrc}
-                            alt="Ambiente"
-                            fill
-                            className="object-cover"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center p-8">
-                            <div className="relative w-1/2 h-1/2">
-                                <Image
-                                    key={`${getProductImage()}-env`}
-                                    src={getProductImage()}
-                                    alt={product.name}
-                                    fill
-                                    className="object-contain drop-shadow-2xl"
-                                />
-                            </div>
-                        </div>
-                     </>
-                 ) : (
-                    <Image
-                        key={getProductImage()}
-                        src={getProductImage()}
-                        alt={product.name}
-                        fill
-                        className={cn('object-cover', (isFrameless || customImage) && 'object-contain p-4')}
-                        sizes="(max-width: 1024px) 90vw, 50vw"
-                    />
-                 )}
+                <Image
+                    key={getProductImage()}
+                    src={getProductImage()}
+                    alt={product.name}
+                    fill
+                    className={cn(
+                        'object-cover', 
+                        (viewMode === 'product' && (isFrameless || customImage)) && 'object-contain p-4'
+                    )}
+                    sizes="(max-width: 1024px) 90vw, 50vw"
+                    priority
+                />
               </div>
               <div className="flex gap-2 justify-center">
                 <Button variant={viewMode === 'product' ? 'default' : 'outline'} size="sm" onClick={() => setViewMode('product')}>

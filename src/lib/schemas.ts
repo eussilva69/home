@@ -159,18 +159,19 @@ export const ProductSizeSchema = z.object({
 export const ProductSchema = z.object({
   id: z.string(),
   name: z.string(),
-  price: z.number(), // Mantido para quadros, mas não usado para mobílias
-  sizes: z.array(ProductSizeSchema).optional(), // Usado para mobílias
+  price: z.number(),
+  sizes: z.array(ProductSizeSchema).optional(),
   artwork_image: z.string().optional(),
-  image_alt: z.string().optional(),
+  image: z.string().optional(), // Imagem principal do produto (isolado)
   imagesByColor: z.record(z.string()).optional(),
+  environment_images: z.array(z.string()).optional(), // Múltiplas imagens de ambiente
   category: z.string(),
   arrangement: z.string(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional().default('repeat'),
   gallery_images: z.array(z.string()).optional(),
-  image: z.string().optional(), // Mantido para compatibilidade
   hint: z.string().optional(),
   hint_alt: z.string().optional(),
+  image_alt: z.string().optional(), // Legado, manter por compatibilidade mas usar environment_images
 });
 export type Product = z.infer<typeof ProductSchema>;
 
@@ -178,7 +179,6 @@ export const productUpdateSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres.").optional(),
   price: z.number().min(0, "O preço não pode ser negativo.").optional(),
   artwork_image: z.string().url("URL da arte inválida.").or(z.literal('')).optional(),
-  image_alt: z.string().url("URL da imagem de ambiente inválida.").or(z.literal('')).optional(),
   imagesByColor: z.object({
       black: z.string().url("URL inválida").or(z.literal('')).optional(),
       white: z.string().url("URL inválida").or(z.literal('')).optional(),
@@ -187,6 +187,7 @@ export const productUpdateSchema = z.object({
   }).optional(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional(),
   gallery_images: z.array(z.string().url()).optional(),
+  environment_images: z.array(z.string().url()).optional(),
   sizes: z.array(ProductSizeSchema).optional(),
 });
 export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
@@ -212,7 +213,6 @@ export const newProductSchema = z.object({
   category: z.string().min(1, "A categoria é obrigatória."),
   arrangement: z.string().min(1, "O arranjo é obrigatório."),
   artwork_image: z.string().url("URL da arte é obrigatória.").or(z.literal('')).optional(),
-  image_alt: z.string().url("URL da imagem de ambiente inválida.").or(z.literal('')).optional(),
   imagesByColor: z.object({
       black: z.string().url("URL inválida").or(z.literal('')).optional(),
       white: z.string().url("URL inválida").or(z.literal('')).optional(),
@@ -221,6 +221,7 @@ export const newProductSchema = z.object({
   }).optional(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional(),
   gallery_images: z.array(z.string().url()).optional(),
+  environment_images: z.array(z.string().url()).optional(),
 });
 export type NewProductPayload = z.infer<typeof newProductSchema>;
 

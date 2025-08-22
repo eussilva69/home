@@ -14,10 +14,11 @@ type ProductCardProps = {
 export default function ProductCard({ product }: ProductCardProps) {
   const isFurniture = product.category === 'Mobílias';
   
-  // Imagem principal: arte do quadro ou imagem do móvel
-  const mainImageUrl = (isFurniture ? product.image : product.artwork_image) || product.image || "https://placehold.co/400x500.png";
-  // Imagem de hover (ou padrão): imagem no ambiente
-  const defaultImageUrl = product.image_alt || mainImageUrl; // Usa a principal se a de ambiente não existir
+  const mainImageUrl = product.image || "https://placehold.co/400x500.png";
+  const hoverImageUrl = isFurniture 
+    ? (product.image_alt || mainImageUrl) 
+    : (product.environment_images && product.environment_images.length > 0 ? product.environment_images[0] : (product.image_alt || mainImageUrl));
+
 
   return (
     <Link href={`/product/${product.id}`} className="group block">
@@ -25,7 +26,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <CardContent className="p-0">
                 <div className="relative aspect-[4/5] bg-muted/50 transition-all duration-300">
                      <Image
-                        src={defaultImageUrl}
+                        src={hoverImageUrl}
                         alt={`${product.name} em um ambiente`}
                         data-ai-hint={product.hint_alt}
                         fill

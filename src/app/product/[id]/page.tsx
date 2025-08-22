@@ -8,7 +8,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye, FrameIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -50,13 +50,13 @@ const frames = {
     none: { label: 'Sem Moldura', color: 'transparent' }
 };
 
+type ViewMode = 'product' | 'env1' | 'env2';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const { id } = React.use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isHovering, setIsHovering] = useState(false);
-  const [activeImage, setActiveImage] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('product');
   const { addToCart } = useCart();
 
   const isFurniture = product?.category === 'Mobílias';
@@ -80,7 +80,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       if (result.success && result.data) {
         const productData = result.data as Product;
         setProduct(productData);
-        setActiveImage(productData.image || 'https://placehold.co/600x800.png');
         if (productData.category === 'Mobílias' && productData.sizes && productData.sizes.length > 0) {
             setSelectedFurnitureSize(productData.sizes[0].size);
         } else {
@@ -94,18 +93,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
     fetchProductData();
   }, [id]);
-  
-  
-  useEffect(() => {
-      if (product && !isFurniture) {
-          if (isFrameless) {
-              setActiveImage(product.artwork_image || product.image || '');
-          } else {
-              const initialImage = product.imagesByColor?.[selectedFrame] || product.image || 'https://placehold.co/600x800.png';
-              setActiveImage(initialImage);
-          }
-      }
-  }, [product, selectedFrame, isFurniture, isFrameless]);
 
   const selectedPriceInfo = isFurniture 
     ? product?.sizes?.find(s => s.size === selectedFurnitureSize)
@@ -152,22 +139,19 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     };
     addToCart(itemToAdd);
   };
-
-  const handleFrameChange = (value: string) => {
-    setSelectedFrame(value);
-    if (value === 'none') {
-        setActiveImage(product?.artwork_image || product?.image || '');
-    } else if (product && product.imagesByColor) {
-        setActiveImage(product.imagesByColor[value] || product.image || '');
-    }
+  
+  const getProductImage = () => {
+      if (!product) return "https://placehold.co/600x800.png";
+      if (isFrameless) return product.artwork_image || product.image || "https://placehold.co/600x800.png";
+      return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/600x800.png";
+  };
+  
+  const getEnvironmentImage = () => {
+      if (viewMode === 'product' || !product?.environment_images || product.environment_images.length === 0) return null;
+      if (viewMode === 'env1') return product.environment_images[0];
+      if (viewMode === 'env2' && product.environment_images.length > 1) return product.environment_images[1];
+      return product.environment_images[0]; // fallback
   }
-
-  const galleryImages = [
-      product?.image,
-      product?.image_alt,
-      ...(product?.gallery_images || [])
-  ].filter((img): img is string => !!img && img.trim() !== '');
-
 
   if (loading || !product) {
       return (
@@ -181,9 +165,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       );
   }
 
-  const mainImageUrl = isFrameless ? (product.artwork_image || activeImage) : activeImage;
-  const altImageUrl = isFrameless ? (product.artwork_image || mainImageUrl) : (product.image_alt || mainImageUrl);
-
+  const environmentImageSrc = getEnvironmentImage();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -193,45 +175,49 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {/* Image Gallery */}
           <div className="space-y-4">
               <div 
-                className="relative aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 cursor-pointer"
-                onMouseEnter={() => !isFurniture && setIsHovering(true)}
-                onMouseLeave={() => !isFurniture && setIsHovering(false)}
+                className="relative aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 flex items-center justify-center"
               >
-                 <Image
-                    key="main-image"
-                    src={mainImageUrl}
-                    alt={product.name}
-                    fill
-                    className={cn(
-                        'object-cover transition-opacity duration-300',
-                       !isFurniture && isHovering ? 'opacity-0' : 'opacity-100',
-                       isFrameless && 'object-contain p-4' // Contain for frameless art
-                    )}
-                    sizes="(max-width: 1024px) 90vw, 50vw"
-                />
-                {!isFurniture && (
+                 {environmentImageSrc ? (
+                     <>
+                        <Image
+                            key={environmentImageSrc}
+                            src={environmentImageSrc}
+                            alt="Ambiente"
+                            fill
+                            className="object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                             <Image
+                                key={`${getProductImage()}-env`}
+                                src={getProductImage()}
+                                alt={product.name}
+                                width={300}
+                                height={375}
+                                className="object-contain drop-shadow-2xl"
+                            />
+                        </div>
+                     </>
+                 ) : (
                     <Image
-                        key="alt-image"
-                        src={altImageUrl}
-                        alt={`${product.name} em ambiente`}
+                        key={getProductImage()}
+                        src={getProductImage()}
+                        alt={product.name}
                         fill
-                        className={cn(
-                            'object-cover transition-opacity duration-300',
-                            isHovering ? 'opacity-100' : 'opacity-0'
-                        )}
+                        className={cn('object-cover', isFrameless && 'object-contain p-4')}
                         sizes="(max-width: 1024px) 90vw, 50vw"
                     />
-                )}
+                 )}
               </div>
-              {isFurniture && galleryImages.length > 1 && (
-                  <div className="flex gap-2 justify-center">
-                      {galleryImages.map((img, index) => (
-                           <button key={index} onClick={() => setActiveImage(img)} className={cn("relative w-16 h-16 rounded-md overflow-hidden border-2", activeImage === img ? 'border-primary' : 'border-transparent')}>
-                               <Image src={img} alt={`Detalhe ${index+1}`} layout="fill" objectFit="cover" />
-                           </button>
-                      ))}
-                  </div>
-              )}
+              <div className="flex gap-2 justify-center">
+                <Button variant={viewMode === 'product' ? 'default' : 'outline'} size="sm" onClick={() => setViewMode('product')}>
+                    <FrameIcon className="mr-2 h-4 w-4"/> Produto
+                </Button>
+                {product.environment_images?.map((img, index) => (
+                    img && <Button key={index} variant={viewMode === `env${index + 1}` as ViewMode ? 'default' : 'outline'} size="sm" onClick={() => setViewMode(`env${index + 1}` as ViewMode)}>
+                        <Eye className="mr-2 h-4 w-4"/> Ambiente {index + 1}
+                    </Button>
+                ))}
+            </div>
           </div>
 
           {/* Product Details */}
@@ -260,7 +246,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {/* Frame Color Selector */}
                 <div className="mb-6 md:mb-8">
                   <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Palette/> Cor da Moldura</Label>
-                  <RadioGroup value={selectedFrame} onValueChange={handleFrameChange} className="flex items-center gap-3">
+                  <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
                       {Object.entries(frames).map(([key, { label, color }]) => (
                           <div key={key}>
                               <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />

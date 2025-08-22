@@ -77,10 +77,10 @@ export default function NewProductPage() {
         category: '',
         arrangement: '',
         artwork_image: '',
-        image_alt: '',
         imagesByColor: { black: '', white: '', hazel_oak: '', ebony_oak: '' },
         image_application: 'repeat',
         gallery_images: [],
+        environment_images: [],
     }
   });
 
@@ -94,7 +94,7 @@ export default function NewProductPage() {
     }
   }, [user, authLoading, router]);
   
-  const handleImageUpload = async (file: File, fieldName: keyof NewProductPayload | `gallery_images.${number}` | `imagesByColor.${string}`) => {
+  const handleImageUpload = async (file: File, fieldName: keyof NewProductPayload | `gallery_images.${number}` | `imagesByColor.${string}` | `environment_images.${number}`) => {
     const fieldId = fieldName.toString();
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
@@ -110,15 +110,7 @@ export default function NewProductPage() {
         
         if (data.success) {
             const imageUrl = data.url;
-            if (typeof fieldName === 'string' && fieldName.startsWith('gallery_images.')) {
-                const index = parseInt(fieldName.split('.')[1]);
-                const currentGallery = form.getValues('gallery_images') || [];
-                const newGallery = [...currentGallery];
-                newGallery[index] = imageUrl;
-                form.setValue('gallery_images', newGallery, { shouldValidate: true });
-            } else {
-                 form.setValue(fieldName as any, imageUrl, { shouldValidate: true });
-            }
+            form.setValue(fieldName as any, imageUrl, { shouldValidate: true });
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
         } else {
             throw new Error(data.details || "Erro desconhecido ao fazer upload.");
@@ -211,26 +203,23 @@ export default function NewProductPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Imagens da Arte e Ambiente</CardTitle>
-                        <CardDescription>Envie a imagem da arte pura e uma imagem do quadro aplicado em um ambiente.</CardDescription>
+                        <CardTitle>Imagens da Arte e Ambientes</CardTitle>
+                        <CardDescription>Envie a imagem da arte pura e as imagens de ambiente.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                          <FormField control={form.control} name="artwork_image" render={() => (
-                           <FormItem>
-                             <ImageUploadField label="Arte Pura (para mockups de moldura)" currentImageUrl={form.watch('artwork_image')} onImageUpload={(file) => handleImageUpload(file, 'artwork_image')} isUploading={isUploading['artwork_image']}/>
-                             <FormMessage />
-                           </FormItem>
+                           <FormItem><ImageUploadField label="Arte Pura (para mockups de moldura)" currentImageUrl={form.watch('artwork_image')} onImageUpload={(file) => handleImageUpload(file, 'artwork_image')} isUploading={isUploading['artwork_image']} /><FormMessage /></FormItem>
                          )} />
                          <Separator/>
-                         <FormField control={form.control} name="image_alt" render={() => (
-                           <FormItem>
-                             <ImageUploadField label="Imagem no Ambiente (para hover)" currentImageUrl={form.watch('image_alt')} onImageUpload={(file) => handleImageUpload(file, 'image_alt')} isUploading={isUploading['image_alt']}/>
-                             <FormMessage />
-                           </FormItem>
+                         <FormField control={form.control} name="environment_images.0" render={() => (
+                           <FormItem><ImageUploadField label="Imagem Ambiente 1" currentImageUrl={form.watch('environment_images.0')} onImageUpload={(file) => handleImageUpload(file, 'environment_images.0')} isUploading={isUploading['environment_images.0']}/><FormMessage /></FormItem>
+                         )} />
+                         <FormField control={form.control} name="environment_images.1" render={() => (
+                           <FormItem><ImageUploadField label="Imagem Ambiente 2" currentImageUrl={form.watch('environment_images.1')} onImageUpload={(file) => handleImageUpload(file, 'environment_images.1')} isUploading={isUploading['environment_images.1']}/><FormMessage /></FormItem>
                          )} />
                     </CardContent>
                 </Card>
-
+                
                 <Card>
                     <CardHeader>
                         <CardTitle>Imagens por Cor de Moldura</CardTitle>

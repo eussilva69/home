@@ -238,7 +238,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         'object-cover', 
                         (viewMode === 'product' && (isFrameless || customImage)) && 'object-contain p-4'
                     )}
-                    sizes="(max-width: 1024px) 90vw, 50vw"
                     priority
                 />
               </div>

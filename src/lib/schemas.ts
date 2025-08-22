@@ -178,6 +178,7 @@ export type Product = z.infer<typeof ProductSchema>;
 export const productUpdateSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres.").optional(),
   price: z.number().min(0, "O preço não pode ser negativo.").optional(),
+  category: z.string().min(1, "A categoria é obrigatória.").optional(),
   artwork_image: z.string().url("URL da arte inválida.").or(z.literal('')).optional(),
   imagesByColor: z.object({
       black: z.string().url("URL inválida").or(z.literal('')).optional(),

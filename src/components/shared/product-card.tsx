@@ -15,10 +15,15 @@ type ProductCardProps = {
 export default function ProductCard({ product }: ProductCardProps) {
   const isFurniture = product.category === 'Mobílias';
   
-  const mainImageUrl = product.image || "https://placehold.co/400x500.png";
-  const hoverImageUrl = isFurniture 
-    ? (product.image_alt || mainImageUrl) 
-    : (product.environment_images && product.environment_images.length > 0 ? product.environment_images[0] : (product.image_alt || mainImageUrl));
+  // Imagem de hover: Quadro solo com moldura preta, se existir.
+  const hoverImageUrl = product.imagesByColor?.black || product.image || "https://placehold.co/400x500.png";
+
+  // Imagem padrão: Imagem de ambiente, se existir.
+  const mainImageUrl = (isFurniture 
+    ? product.image_alt
+    : (product.environment_images && product.environment_images.length > 0 ? product.environment_images[0] : product.image_alt))
+    || product.image 
+    || "https://placehold.co/400x500.png";
 
 
   return (
@@ -27,22 +32,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             <CardContent className="p-0">
                 <div className="relative aspect-[4/5] bg-muted/50 transition-all duration-300">
                      <Image
-                        src={hoverImageUrl}
+                        src={mainImageUrl}
                         alt={`${product.name} em um ambiente`}
                         data-ai-hint={product.hint_alt}
                         fill
-                        quality={100}
                         className={cn(
                             'object-cover transition-opacity duration-300',
                             'opacity-100 group-hover:opacity-0'
                         )}
                      />
                       <Image
-                        src={mainImageUrl}
+                        src={hoverImageUrl}
                         alt={product.name}
                         data-ai-hint={product.hint}
                         fill
-                        quality={100}
                         className={cn(
                            'object-contain p-4 transition-opacity duration-300',
                            'opacity-0 group-hover:opacity-100'

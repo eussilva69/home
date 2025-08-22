@@ -21,6 +21,8 @@ import { productUpdateSchema, type ProductUpdatePayload } from '@/lib/schemas';
 import NextImage from 'next/image';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { collections } from '@/lib/mock-data';
 
 const ImageUploadField = ({
   label,
@@ -91,6 +93,7 @@ export default function EditProductPage() {
         form.reset({
           name: productData.name,
           price: productData.price,
+          category: productData.category,
           artwork_image: productData.artwork_image,
           imagesByColor: productData.imagesByColor || { black: '', white: '', hazel_oak: '', ebony_oak: '' },
           image_application: productData.image_application || 'repeat',
@@ -186,6 +189,7 @@ export default function EditProductPage() {
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nome do Produto</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Categoria</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione uma categoria" /></SelectTrigger></FormControl><SelectContent>{collections.filter(c => c.name !== 'Mobílias').map(c => <SelectItem key={c.slug} value={c.name}>{c.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Preço Base (R$)</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                      {(arrangement === 'Dupla' || arrangement === 'Trio') && (
                         <FormField

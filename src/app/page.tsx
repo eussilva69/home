@@ -88,6 +88,7 @@ export default async function Home() {
               alt="Sala de estar com quadros na parede"
               data-ai-hint="modern living room"
               fill
+              quality={100}
               className="object-cover"
               priority
            />

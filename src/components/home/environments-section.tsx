@@ -73,6 +73,7 @@ export default function EnvironmentsSection() {
                   alt={`Quadros para ${env.name}`}
                   data-ai-hint={env.hint}
                   fill
+                  quality={100}
                   style={{ objectFit: 'cover' }}
                   className="brightness-50 group-hover:brightness-60 transition-all duration-300 group-hover:scale-105"
                 />

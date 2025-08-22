@@ -18,6 +18,7 @@ const MinimalistProductCard = ({ product }: { product: Product }) => {
                             alt={product.name}
                             width={300}
                             height={400}
+                            quality={100}
                             className="object-contain h-full w-full transition-transform duration-300 group-hover:scale-105"
                         />
                     </div>

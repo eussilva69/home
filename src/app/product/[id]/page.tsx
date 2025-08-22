@@ -233,6 +233,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     src={getProductImage()}
                     alt={product.name}
                     fill
+                    quality={100}
                     className={cn(
                         'object-cover', 
                         (viewMode === 'product' && (isFrameless || customImage)) && 'object-contain p-4'

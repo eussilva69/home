@@ -24,6 +24,7 @@ export default function CollectionLink({ collection }: CollectionLinkProps) {
                 alt={collection.name}
                 data-ai-hint={collection.hint}
                 fill
+                quality={100}
                 className="object-cover"
             />
         </div>

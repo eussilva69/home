@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, use } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm, FormProvider, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/hooks/use-auth';
@@ -63,7 +63,7 @@ const ImageUploadField = ({
 export default function EditFurniturePage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const params = use(useParams());
+  const params = useParams();
   const { toast } = useToast();
   const furnitureId = params.id as string;
 

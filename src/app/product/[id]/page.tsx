@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
@@ -52,7 +52,7 @@ const frames = {
 
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const id = use(params.id);
+  const { id } = params;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isHovering, setIsHovering] = useState(false);

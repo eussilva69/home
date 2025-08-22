@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useEffect, useState, useCallback, use } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { getOrderById, requestRefund } from '@/app/actions';
@@ -29,7 +29,7 @@ interface OrderDocument extends Omit<OrderDetails, 'createdAt' | 'shippedAt'> {
 export default function OrderDetailsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const params = use(useParams());
+  const params = useParams();
   const orderId = params.id as string;
 
   const [order, setOrder] = useState<OrderDocument | null>(null);

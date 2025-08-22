@@ -349,7 +349,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <AccordionContent className="space-y-2 text-muted-foreground text-sm">
                    <div className="flex items-start gap-2">
                         <Package className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                        <p>Envio seguro para todo o Brasil. O prazo de entrega é de 5 a 10 dias úteis.</p>
+                        <p>Envio seguro para todo o Brasil. O prazo de entrega é de 7 a 15 dias úteis.</p>
                    </div>
                    <div className="flex items-start gap-2">
                         <ShieldCheck className="h-5 w-5 mt-0.5 flex-shrink-0" />

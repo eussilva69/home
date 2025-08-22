@@ -207,7 +207,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {/* Image Gallery */}
           <div className="space-y-4">
               <div 
-                className="relative aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 flex items-center justify-center"
+                className="relative group aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 flex items-center justify-center"
               >
                 <Image
                     key={getProductImage()}
@@ -215,7 +215,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     alt={product.name}
                     fill
                     className={cn(
-                        'object-cover transition-all duration-300'
+                        'object-cover transition-all duration-300 group-hover:scale-105'
                     )}
                     quality={100}
                 />

@@ -28,16 +28,13 @@ export default function ProductCard({ product }: ProductCardProps) {
     <Link href={`/product/${product.id}`} className="group block">
         <Card className="overflow-hidden border-border transition-shadow hover:shadow-lg">
             <CardContent className="p-0">
-                <div className="relative aspect-[4/5] bg-muted/50 transition-all duration-300">
+                <div className="relative aspect-[4/5] bg-muted/50">
                      <Image
                         src={mainImageUrl}
                         alt={`${product.name} em um ambiente`}
                         data-ai-hint={product.hint_alt}
                         fill
-                        className={cn(
-                            'object-cover transition-all duration-300 group-hover:scale-105',
-                            'opacity-100 group-hover:opacity-0'
-                        )}
+                        className="object-cover opacity-100 group-hover:opacity-0 transition-opacity duration-300"
                         quality={100}
                      />
                       <Image
@@ -45,10 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         alt={product.name}
                         data-ai-hint={product.hint}
                         fill
-                        className={cn(
-                           'object-cover transition-all duration-300 group-hover:scale-105',
-                           'opacity-0 group-hover:opacity-100'
-                        )}
+                        className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         quality={100}
                      />
                 </div>

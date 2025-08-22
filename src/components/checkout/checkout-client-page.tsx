@@ -257,7 +257,7 @@ export default function CheckoutClientPage() {
         transaction_amount: parseFloat(total.toFixed(2)),
         description: `Compra na Home Designer - Pedido #${saveResult.orderId.slice(0, 8)}`,
         payer: { email: formData.email, first_name: formData.firstName, last_name: formData.lastName, identification: { type: formData.docType, number: formData.docNumber, } }
-    }, saveResult.orderId);
+    });
      
     setIsProcessing(false);
 
@@ -600,7 +600,7 @@ export default function CheckoutClientPage() {
                             {cartItems.map(item => (
                                 <div key={item.id} className="flex items-center gap-4">
                                     <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
-                                        <Image src={item.image} alt={item.name} layout="fill" objectFit="cover"/>
+                                        <Image src={item.environmentImage || item.image} alt={item.name} layout="fill" objectFit="cover"/>
                                         <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center bg-gray-600 text-white">{item.quantity}</Badge>
                                     </div>
                                     <div className="flex-grow">

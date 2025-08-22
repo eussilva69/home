@@ -114,7 +114,10 @@ export default function CheckoutClientPage() {
         complement: formData.complement || "",
         details: selectedShipping,
       },
-      items: cartItems,
+      items: cartItems.map(item => ({
+        ...item,
+        options: item.options.replace(/,\s*$/, '') // Remove trailing comma and space
+      })),
       payment: {
         method: paymentMethod,
         total: total,

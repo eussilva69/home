@@ -145,13 +145,15 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           cartItemId += `-${withGlass ? 'vidro' : 'sem-vidro'}`;
         }
     }
+    
+    const imageForCart = getProductImage();
 
     const itemToAdd = {
         id: cartItemId,
         name: product.name,
         price: finalPrice,
-        image: product.image || "https://placehold.co/100x100.png",
-        environmentImage: product.environment_images?.[0] || product.image,
+        image: imageForCart,
+        environmentImage: imageForCart,
         quantity: 1,
         options: itemOptions,
         weight: (selectedPriceInfo as any).weight || 1,

@@ -10,7 +10,7 @@ export type CartItemType = {
   price: number;
   quantity: number;
   image: string;
-  environmentImage?: string; // Adicionado para a imagem de ambiente
+  environmentImage: string; // Adicionado para a imagem de ambiente
   options: string;
   weight: number; 
   width: number;

@@ -205,6 +205,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleFrameChange = (newFrame: string) => {
+      setSelectedFrame(newFrame);
+      if (viewMode !== 'product') {
+          setViewMode('product');
+      }
+  };
+
 
   if (loading || !product) {
       return (
@@ -279,7 +286,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {/* Frame Color Selector */}
                 <div className="mb-6 md:mb-8">
                   <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Palette/> Cor da Moldura</Label>
-                  <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame} className="flex items-center gap-3">
+                  <RadioGroup value={selectedFrame} onValueChange={handleFrameChange} className="flex items-center gap-3">
                       {Object.entries(frames).map(([key, { label, color }]) => (
                           <div key={key}>
                               <RadioGroupItem value={key} id={`frame-${key}`} className="sr-only" />

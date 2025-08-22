@@ -205,10 +205,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     alt={product.name}
                     fill
                     className={cn(
-                        'object-cover', 
-                        (viewMode === 'product' && (isFrameless || customImage)) && 'object-contain'
+                        'object-cover transition-all duration-300'
                     )}
-                    priority
+                    quality={100}
                 />
               </div>
               <div className="flex gap-2 justify-center">
@@ -353,3 +352,5 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
+    

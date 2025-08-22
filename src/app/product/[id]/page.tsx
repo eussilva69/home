@@ -53,7 +53,7 @@ const frames = {
 type ViewMode = 'product' | 'env1' | 'env2';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const { id } = React.use(params);
+  const { id } = use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('product');

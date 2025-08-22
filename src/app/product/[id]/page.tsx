@@ -9,7 +9,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
+import { ShoppingCart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -363,9 +363,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <Button size="lg" className="flex-1 text-base" onClick={handleAddToCart} disabled={isUploading}>
                 {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <ShoppingCart className="mr-2" />}
                 Adicionar ao Carrinho
-              </Button>
-              <Button variant="outline" size="lg" className="px-4">
-                <Heart />
               </Button>
             </div>
 

@@ -207,15 +207,24 @@ export default function NewProductPage() {
                         <CardDescription>Envie a imagem da arte pura e as imagens de ambiente.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                         <FormField control={form.control} name="artwork_image" render={() => (
-                           <FormItem><ImageUploadField label="Arte Pura (para mockups de moldura)" currentImageUrl={form.watch('artwork_image')} onImageUpload={(file) => handleImageUpload(file, 'artwork_image')} isUploading={isUploading['artwork_image']} /><FormMessage /></FormItem>
+                         <FormField control={form.control} name="artwork_image" render={({ field }) => (
+                           <FormItem>
+                            <ImageUploadField label="Arte Pura (para mockups de moldura)" currentImageUrl={field.value} onImageUpload={(file) => handleImageUpload(file, 'artwork_image')} isUploading={isUploading['artwork_image']} />
+                            <FormMessage />
+                           </FormItem>
                          )} />
                          <Separator/>
-                         <FormField control={form.control} name="environment_images.0" render={() => (
-                           <FormItem><ImageUploadField label="Imagem Ambiente 1" currentImageUrl={form.watch('environment_images.0')} onImageUpload={(file) => handleImageUpload(file, 'environment_images.0')} isUploading={isUploading['environment_images.0']}/><FormMessage /></FormItem>
+                         <FormField control={form.control} name="environment_images.0" render={({ field }) => (
+                           <FormItem>
+                             <ImageUploadField label="Imagem Ambiente 1" currentImageUrl={field.value} onImageUpload={(file) => handleImageUpload(file, 'environment_images.0')} isUploading={isUploading['environment_images.0']}/>
+                             <FormMessage />
+                           </FormItem>
                          )} />
-                         <FormField control={form.control} name="environment_images.1" render={() => (
-                           <FormItem><ImageUploadField label="Imagem Ambiente 2" currentImageUrl={form.watch('environment_images.1')} onImageUpload={(file) => handleImageUpload(file, 'environment_images.1')} isUploading={isUploading['environment_images.1']}/><FormMessage /></FormItem>
+                         <FormField control={form.control} name="environment_images.1" render={({ field }) => (
+                           <FormItem>
+                            <ImageUploadField label="Imagem Ambiente 2" currentImageUrl={field.value} onImageUpload={(file) => handleImageUpload(file, 'environment_images.1')} isUploading={isUploading['environment_images.1']}/>
+                            <FormMessage />
+                           </FormItem>
                          )} />
                     </CardContent>
                 </Card>
@@ -226,10 +235,10 @@ export default function NewProductPage() {
                         <CardDescription>Envie a imagem principal para cada cor de moldura.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField control={form.control} name="imagesByColor.black" render={() => (<FormItem><ImageUploadField label="Moldura Preta" currentImageUrl={form.watch('imagesByColor.black')} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.black')} isUploading={isUploading['imagesByColor.black']}/><FormMessage/></FormItem>)} />
-                        <FormField control={form.control} name="imagesByColor.white" render={() => (<FormItem><ImageUploadField label="Moldura Branca" currentImageUrl={form.watch('imagesByColor.white')} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.white')} isUploading={isUploading['imagesByColor.white']}/><FormMessage/></FormItem>)} />
-                        <FormField control={form.control} name="imagesByColor.hazel_oak" render={() => (<FormItem><ImageUploadField label="Moldura Carvalho Avelã" currentImageUrl={form.watch('imagesByColor.hazel_oak')} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.hazel_oak')} isUploading={isUploading['imagesByColor.hazel_oak']}/><FormMessage/></FormItem>)} />
-                        <FormField control={form.control} name="imagesByColor.ebony_oak" render={() => (<FormItem><ImageUploadField label="Moldura Carvalho Ébano" currentImageUrl={form.watch('imagesByColor.ebony_oak')} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.ebony_oak')} isUploading={isUploading['imagesByColor.ebony_oak']}/><FormMessage/></FormItem>)} />
+                        <FormField control={form.control} name="imagesByColor.black" render={({ field }) => (<FormItem><ImageUploadField label="Moldura Preta" currentImageUrl={field.value} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.black')} isUploading={isUploading['imagesByColor.black']}/><FormMessage/></FormItem>)} />
+                        <FormField control={form.control} name="imagesByColor.white" render={({ field }) => (<FormItem><ImageUploadField label="Moldura Branca" currentImageUrl={field.value} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.white')} isUploading={isUploading['imagesByColor.white']}/><FormMessage/></FormItem>)} />
+                        <FormField control={form.control} name="imagesByColor.hazel_oak" render={({ field }) => (<FormItem><ImageUploadField label="Moldura Carvalho Avelã" currentImageUrl={field.value} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.hazel_oak')} isUploading={isUploading['imagesByColor.hazel_oak']}/><FormMessage/></FormItem>)} />
+                        <FormField control={form.control} name="imagesByColor.ebony_oak" render={({ field }) => (<FormItem><ImageUploadField label="Moldura Carvalho Ébano" currentImageUrl={field.value} onImageUpload={(file) => handleImageUpload(file, 'imagesByColor.ebony_oak')} isUploading={isUploading['imagesByColor.ebony_oak']}/><FormMessage/></FormItem>)} />
                     </CardContent>
                 </Card>
 
@@ -241,9 +250,9 @@ export default function NewProductPage() {
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {[...Array(frameCount)].map((_, index) => (
-                               <FormField key={index} control={form.control} name={`gallery_images.${index}` as any} render={() => (
+                               <FormField key={index} control={form.control} name={`gallery_images.${index}` as any} render={({ field }) => (
                                   <FormItem>
-                                     <ImageUploadField label={`Imagem Quadro ${index + 1}`} currentImageUrl={form.watch(`gallery_images.${index}` as any)} onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)} isUploading={isUploading[`gallery_images.${index}`]}/>
+                                     <ImageUploadField label={`Imagem Quadro ${index + 1}`} currentImageUrl={field.value} onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)} isUploading={isUploading[`gallery_images.${index}`]}/>
                                      <FormMessage/>
                                   </FormItem>
                                )} />

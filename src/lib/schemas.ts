@@ -188,7 +188,6 @@ export const productUpdateSchema = z.object({
   image_application: z.enum(['repeat', 'split', 'individual']).optional(),
   gallery_images: z.array(z.string().url()).optional(),
   environment_images: z.array(z.string().url()).optional(),
-  sizes: z.array(ProductSizeSchema).optional(),
 });
 export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
 

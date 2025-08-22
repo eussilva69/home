@@ -50,7 +50,7 @@ const frames = {
 
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const { id } = React.use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isHovering, setIsHovering] = useState(false);

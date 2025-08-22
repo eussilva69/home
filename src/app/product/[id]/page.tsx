@@ -2,14 +2,14 @@
 
 'use client';
 
-import React, { useState, useEffect, use, useCallback, ChangeEvent } from 'react';
+import React, { useState, useEffect, use, useCallback } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette, Eye, FrameIcon, UploadCloud } from 'lucide-react';
+import { ShoppingCart, Heart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -17,8 +17,8 @@ import { useCart } from '@/hooks/use-cart';
 import { getProductById } from '@/app/actions';
 import type { Product } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 const pricingData = {
@@ -60,7 +60,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const { id } = use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>('product');
+  const [viewMode, setViewMode] = useState<ViewMode>('env1');
   const { addToCart } = useCart();
   const { toast } = useToast();
 
@@ -88,6 +88,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       if (result.success && result.data) {
         const productData = result.data as Product;
         setProduct(productData);
+
+        // Set default view mode
+        const hasEnvImages = productData.environment_images && productData.environment_images.length > 0 && productData.environment_images[0];
+        setViewMode(hasEnvImages ? 'env1' : 'product');
+
         if (productData.category === 'Mobílias' && productData.sizes && productData.sizes.length > 0) {
             setSelectedFurnitureSize(productData.sizes[0].size);
         } else {
@@ -163,15 +168,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       if (viewMode === 'env1' && product.environment_images?.[0]) return product.environment_images[0];
       if (viewMode === 'env2' && product.environment_images?.[1]) return product.environment_images[1];
       
-      // Default product view
-      if (isFrameless) return product.artwork_image || product.image || "https://placehold.co/600x800.png";
+      if (isFrameless) {
+          return product.artwork_image || product.image || "https://placehold.co/600x800.png";
+      }
       return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/600x800.png";
   };
   
-  const getProductThumbnail = () => {
+  const getProductThumbnail = (frame: string) => {
     if (!product) return "https://placehold.co/100x100.png";
-    if (isFrameless) return product.artwork_image || product.image || "https://placehold.co/100x100.png";
-    return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/100x100.png";
+    if (frame === 'none') return product.artwork_image || product.image || "https://placehold.co/100x100.png";
+    return product.imagesByColor?.[frame] || product.image || "https://placehold.co/100x100.png";
   }
 
   const handleFrameChange = (newFrame: string) => {
@@ -195,9 +201,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   }
   
   const thumbnails = [
-      { id: 'product', src: getProductThumbnail() },
+      { id: 'product', src: getProductThumbnail(selectedFrame) },
       ...(product.environment_images?.filter(img => img).map((img, index) => ({ id: `env${index + 1}` as ViewMode, src: img })) || [])
-  ];
+  ].filter(thumb => thumb.src && thumb.src !== 'https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-permanentes/cindra/imagens/sem.jpg.gif/image');
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -209,16 +216,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <div 
                 className="relative group aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 flex items-center justify-center"
               >
-                <Image
-                    key={getProductImage()}
-                    src={getProductImage()}
-                    alt={product.name}
-                    fill
-                    className={cn(
-                        'object-cover transition-all duration-300 group-hover:scale-105'
-                    )}
-                    quality={100}
-                />
+                  <AnimatePresence>
+                    <motion.div
+                        key={viewMode}
+                        className="absolute inset-0"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <Image
+                            src={getProductImage()}
+                            alt={product.name}
+                            fill
+                            className={cn('object-cover')}
+                            quality={100}
+                        />
+                    </motion.div>
+                </AnimatePresence>
               </div>
               <div className="flex gap-3 justify-center">
                 {thumbnails.map(thumb => (

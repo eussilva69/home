@@ -76,7 +76,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [withGlass, setWithGlass] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
 
-  const [customImage, setCustomImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const isFrameless = selectedFrame === 'none';
@@ -150,14 +149,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         id: cartItemId,
         name: product.name,
         price: finalPrice,
-        image: customImage || product.image || "https://placehold.co/100x100.png",
+        image: product.image || "https://placehold.co/100x100.png",
         quantity: 1,
         options: itemOptions,
         weight: (selectedPriceInfo as any).weight || 1,
         width: (selectedPriceInfo as any).width || 30,
         height: (selectedPriceInfo as any).height || 42,
         length: (selectedPriceInfo as any).length || 3,
-        customImages: customImage ? [customImage] : [],
+        customImages: [],
     };
     addToCart(itemToAdd);
   };
@@ -174,10 +173,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       return product.imagesByColor?.[selectedFrame] || product.image || "https://placehold.co/600x800.png";
   };
   
-  const getProductThumbnail = (frame: string) => {
+  const getProductThumbnail = (frameKey: string) => {
     if (!product) return "https://placehold.co/100x100.png";
-    if (frame === 'none') return product.artwork_image || product.image || "https://placehold.co/100x100.png";
-    return product.imagesByColor?.[frame] || product.image || "https://placehold.co/100x100.png";
+    if (frameKey === 'none') return product.artwork_image || product.image || "https://placehold.co/100x100.png";
+    return product.imagesByColor?.[frameKey] || product.image || "https://placehold.co/100x100.png";
   }
 
   const handleFrameChange = (newFrame: string) => {
@@ -186,6 +185,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           setViewMode('product');
       }
   };
+
+  const handleThumbnailClick = (newViewMode: ViewMode, newFrame?: string) => {
+    setViewMode(newViewMode);
+    if(newFrame){
+        setSelectedFrame(newFrame);
+    }
+  }
 
 
   if (loading || !product) {
@@ -200,9 +206,21 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       );
   }
   
-  const thumbnails = [
-      { id: 'product', src: getProductThumbnail(selectedFrame) },
-      ...(product.environment_images?.filter(img => img).map((img, index) => ({ id: `env${index + 1}` as ViewMode, src: img })) || [])
+  const thumbnailList = [
+    // Add environment images first if they exist
+    ...(product.environment_images?.filter(img => img).map((img, index) => ({ 
+        id: `env${index + 1}`, 
+        src: img,
+        type: 'env',
+        frameKey: null
+    })) || []),
+    // Then add a thumbnail for each frame color
+    ...Object.keys(frames).map(frameKey => ({
+        id: `frame-${frameKey}`,
+        src: getProductThumbnail(frameKey),
+        type: 'frame',
+        frameKey: frameKey
+    }))
   ].filter(thumb => thumb.src && thumb.src !== 'https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-permanentes/cindra/imagens/sem.jpg.gif/image');
 
 
@@ -214,11 +232,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {/* Image Gallery */}
           <div className="space-y-4">
               <div 
-                className="relative group aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 flex items-center justify-center"
+                className="relative group aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 flex items-center justify-center cursor-zoom-in"
               >
                   <AnimatePresence>
                     <motion.div
-                        key={viewMode}
+                        key={viewMode + getProductImage()}
                         className="absolute inset-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -229,25 +247,30 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             src={getProductImage()}
                             alt={product.name}
                             fill
-                            className={cn('object-cover')}
+                            className={cn('object-cover group-hover:scale-105 transition-transform duration-300', {
+                              'object-contain': isFrameless && viewMode === 'product'
+                            })}
                             quality={100}
                         />
                     </motion.div>
                 </AnimatePresence>
               </div>
-              <div className="flex gap-3 justify-center">
-                {thumbnails.map(thumb => (
-                  <button 
-                    key={thumb.id} 
-                    onClick={() => setViewMode(thumb.id as ViewMode)}
-                    className={cn(
-                      "relative w-20 h-20 rounded-md overflow-hidden border-2 transition-all",
-                      viewMode === thumb.id ? 'border-primary' : 'border-transparent'
-                    )}
-                  >
-                     <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
-                  </button>
-                ))}
+              <div className="flex gap-3 justify-center flex-wrap">
+                {thumbnailList.map(thumb => {
+                    const isSelected = (thumb.type === 'env' && viewMode === thumb.id) || (thumb.type === 'frame' && viewMode === 'product' && selectedFrame === thumb.frameKey);
+                    return (
+                        <button 
+                            key={thumb.id} 
+                            onClick={() => handleThumbnailClick(thumb.type === 'env' ? thumb.id as ViewMode : 'product', thumb.frameKey || undefined)}
+                            className={cn(
+                            "relative w-20 h-20 rounded-md overflow-hidden border-2 transition-all",
+                            isSelected ? 'border-primary' : 'border-transparent'
+                            )}
+                        >
+                            <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
+                        </button>
+                    )
+                })}
             </div>
           </div>
 

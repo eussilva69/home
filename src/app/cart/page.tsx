@@ -7,15 +7,17 @@ import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/use-cart';
+import { useClientOnly } from '@/hooks/use-client-only';
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart } = useCart();
   const router = useRouter();
+  const isClient = useClientOnly();
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -31,6 +33,18 @@ export default function CartPage() {
   const handleCheckout = () => {
       router.push('/checkout');
   };
+  
+  if (!isClient) {
+    return (
+        <div className="flex flex-col min-h-screen bg-gray-50">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
+                <Loader2 className="h-10 w-10 animate-spin" />
+            </main>
+            <Footer />
+        </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">

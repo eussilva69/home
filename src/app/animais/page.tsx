@@ -29,7 +29,6 @@ const animalSubCategories = [
     { name: 'Onça', image: 'https://placehold.co/150x150.png', hint: 'jaguar' },
     { name: 'Pássaro', image: 'https://placehold.co/150x150.png', hint: 'bird' },
     { name: 'Borboletas', image: 'https://i0.wp.com/www.portaldossabores.com.br/wp-content/uploads/2022/10/Borboleta-Colorida-PNG.png?fit=640%2C427&ssl=1', hint: 'butterflies' },
-    { name: 'Família de Leões', image: 'https://images.icon-icons.com/icons2/2388/PNG/512/lion_animal_icon_144304.png', hint: 'lion family' },
 ];
 
 const SidebarContent = ({

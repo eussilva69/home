@@ -251,9 +251,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             src={getProductImage()}
                             alt={product.name}
                             fill
-                            className={cn('object-cover group-hover:scale-105 transition-transform duration-300', {
-                              'object-contain': isFrameless && viewMode === 'product'
-                            })}
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
                             quality={100}
                         />
                     </motion.div>

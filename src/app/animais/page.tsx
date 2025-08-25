@@ -22,10 +22,10 @@ const PRODUCTS_PER_PAGE = 24;
 
 const animalSubCategories = [
     { name: 'Leão', image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg', hint: 'lion' },
-    { name: 'Cavalos', image: 'https://cdnm.westwing.com.br/img/products/quadro-cavalos-preto-e-branco-i-referencia-ax2548-p-0-323281-1-800x800.jpg', hint: 'horses' },
-    { name: 'Cachorro', image: 'https://placehold.co/150x150.png', hint: 'dog' },
-    { name: 'Tigre', image: 'https://placehold.co/150x150.png', hint: 'tiger' },
-    { name: 'Lobo', image: 'https://placehold.co/150x150.png', hint: 'wolf' },
+    { name: 'Cavalos', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6yog4vJkFRN-39qZb3ljGvSH9BZX0WnyB2UTQla_IigS4fnE3KjcV9IK3XqFqNMTQ5EA&usqp=CAU', hint: 'horses' },
+    { name: 'Cachorro', image: 'https://img.freepik.com/fotos-gratis/fotografia-vertical-de-foco-superficial-de-um-bonito-cachorro-de-golden-retriever-sentado-em-um-chao-de-grama_181624-27259.jpg?semt=ais_hybrid&w=740&q=80', hint: 'dog' },
+    { name: 'Tigre', image: 'https://images.unsplash.com/photo-1430876988766-1be68caef0e4?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFwZWwlMjBkZSUyMHBhcmVkZSUyMHRpZ3JlfGVufDB8fDB8fHww', hint: 'tiger' },
+    { name: 'Lobo', image: 'https://png.pngtree.com/thumb_back/fh260/background/20230529/pngtree-large-wolf-wallpapers-3d-download-wallpaper-3d-image_2672886.jpg', hint: 'wolf' },
     { name: 'Onça', image: 'https://placehold.co/150x150.png', hint: 'jaguar' },
     { name: 'Pássaro', image: 'https://placehold.co/150x150.png', hint: 'bird' },
     { name: 'Borboletas', image: 'https://i0.wp.com/www.portaldossabores.com.br/wp-content/uploads/2022/10/Borboleta-Colorida-PNG.png?fit=640%2C427&ssl=1', hint: 'butterflies' },
@@ -285,5 +285,3 @@ export default function AnimaisPage() {
     </div>
   );
 }
-
-    

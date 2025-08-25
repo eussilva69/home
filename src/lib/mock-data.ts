@@ -169,13 +169,7 @@ export const collections = [
   { slug: 'familia-de-leoes', name: 'Família de Leões', image: 'https://images.icon-icons.com/icons2/2388/PNG/512/lion_animal_icon_144304.png', hint: 'lion family' },
   { slug: 'dolar-e-bitcoin', name: 'Dólar & Bitcoin', image: 'https://i.ibb.co/3yCj1gq/imagem-2025-08-04-180800366.png', hint: 'dolar bitcoin' },
   { slug: 'religioso', name: 'Religioso', image: 'https://carolinarochas.com.br/wp-content/uploads/2025/03/Pintura-sacra-de-Jesus-Cristo-pintado-a-mao.jpg', hint: 'religious' },
-  { slug: 'nichos', name: 'Nichos', image: 'https://cdn.awsli.com.br/600x450/704/704022/produto/2495701475f4fcbb9fa.jpg', hint: 'niche shelf' },
-  { slug: 'prateleiras', name: 'Prateleiras', image: 'https://http2.mlstatic.com/D_NQ_NP_797177-MLB68923900924_042023-O.webp', hint: 'shelf' },
-  { slug: 'mesas', name: 'Mesas', image: 'https://www.mesamadeira.com.br/cdn/shop/files/mesamadeiramacica8lugares160x90cm.jpg?v=1700764757&width=1946', hint: 'table' },
-  { slug: 'moveis-com-metal', name: 'Móveis com Metal', image: 'https://i.pinimg.com/236x/08/9b/8d/089b8dab52d1920a0b00efe761159f0e.jpg', hint: 'metal furniture' },
-  { slug: 'espaco-kids', name: 'Espaço Kids', image: 'https://dicasmaonamassa.com.br/wp-content/uploads/2021/10/dia-das-criancas-espaco-de-brincar-9.png', hint: 'kids space' },
-  { slug: 'aparadores', name: 'Aparadores', image: 'https://images.tcdn.com.br/img/img_prod/1248747/aparador_bless_off_white_hb_moveis_113_1_3580115be2f127da57ecd71f3b4fbbfe.jpeg', hint: 'sideboard' },
-  { slug: 'cabeceiras', name: 'Cabeceiras', image: 'https://lutzhomedecor.cdn.magazord.com.br/img/2023/12/produto/740/2.jpg?ims=600x600', hint: 'headboard' }
+  { slug: 'mobilias', name: 'Mobílias', image: 'https://finger.ind.br/wp-content/uploads/2021/02/post_thumbnail-757ae398373789e34f676db879790a25.jpeg', hint: 'planned furniture'}
 ];
 
     
@@ -190,3 +184,4 @@ export const collections = [
     
 
     
+

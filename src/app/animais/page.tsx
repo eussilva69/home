@@ -1,7 +1,9 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import Image from 'next/image';
 import { getProducts } from '@/app/actions';
 import { collections } from '@/lib/mock-data';
 import Header from '@/components/layout/header';
@@ -14,12 +16,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import type { Product } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 const PRODUCTS_PER_PAGE = 24;
 
-const animalCollections = collections.filter(c => 
-    ['Leão', 'Árvore da Vida', 'Cavalos', 'Borboletas', 'Família de Leões'].includes(c.name)
-);
+const animalSubCategories = [
+    { name: 'Leão', image: 'https://i.pinimg.com/originals/2b/cc/e0/2bcce0b382a8b6e6ed22fddac8cf64ac.jpg', hint: 'lion' },
+    { name: 'Cavalos', image: 'https://cdnm.westwing.com.br/img/products/quadro-cavalos-preto-e-branco-i-referencia-ax2548-p-0-323281-1-800x800.jpg', hint: 'horses' },
+    { name: 'Cachorro', image: 'https://placehold.co/150x150.png', hint: 'dog' },
+    { name: 'Tigre', image: 'https://placehold.co/150x150.png', hint: 'tiger' },
+    { name: 'Lobo', image: 'https://placehold.co/150x150.png', hint: 'wolf' },
+    { name: 'Onça', image: 'https://placehold.co/150x150.png', hint: 'jaguar' },
+    { name: 'Pássaro', image: 'https://placehold.co/150x150.png', hint: 'bird' },
+    { name: 'Borboletas', image: 'https://i0.wp.com/www.portaldossabores.com.br/wp-content/uploads/2022/10/Borboleta-Colorida-PNG.png?fit=640%2C427&ssl=1', hint: 'butterflies' },
+    { name: 'Família de Leões', image: 'https://images.icon-icons.com/icons2/2388/PNG/512/lion_animal_icon_144304.png', hint: 'lion family' },
+];
 
 const SidebarContent = ({
   selectedSubCategory,
@@ -44,11 +55,11 @@ const SidebarContent = ({
           Todas
         </button>
       </li>
-      {animalCollections.map((cat) => {
+      {animalSubCategories.map((cat) => {
         const count = categoryCounts[cat.name] || 0;
         if (count === 0) return null;
         return (
-          <li key={cat.slug}>
+          <li key={cat.name}>
             <button
               onClick={() => onSelectSubCategory(cat.name)}
               className={cn(
@@ -81,7 +92,7 @@ export default function AnimaisPage() {
       setLoading(true);
       const products = await getProducts();
       // Filtra apenas produtos da categoria principal "Animais"
-      const animalProducts = products.filter(p => animalCollections.some(ac => ac.name === p.category));
+      const animalProducts = products.filter(p => animalSubCategories.some(ac => ac.name === p.category));
       setAllProducts(animalProducts);
       setLoading(false);
     };
@@ -171,6 +182,25 @@ export default function AnimaisPage() {
             <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Explore nossas coleções e encontre a arte que mais combina com você.</p>
         </div>
 
+        <div className="py-8">
+            <h2 className="text-2xl font-semibold text-center mb-6">Compre por Categoria</h2>
+            <div className="flex justify-center gap-4 md:gap-8 overflow-x-auto pb-4">
+                {animalSubCategories.map((cat) => (
+                    <button key={cat.name} onClick={() => setSelectedSubCategory(cat.name)} className="flex flex-col items-center gap-2 group flex-shrink-0">
+                        <div className={cn(
+                            "relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md transition-all duration-300 group-hover:scale-105",
+                            selectedSubCategory === cat.name && "ring-2 ring-primary ring-offset-4"
+                        )}>
+                            <Image src={cat.image} alt={cat.name} data-ai-hint={cat.hint} fill className="object-cover" />
+                        </div>
+                        <h3 className="font-semibold text-center text-sm md:text-base group-hover:text-primary w-24 md:w-32 break-words">{cat.name}</h3>
+                    </button>
+                ))}
+            </div>
+        </div>
+
+        <Separator className="my-8" />
+
         <div className="flex flex-col lg:flex-row gap-10">
           {/* Sidebar for Desktop */}
           <div className="hidden lg:block">
@@ -256,3 +286,5 @@ export default function AnimaisPage() {
     </div>
   );
 }
+
+    

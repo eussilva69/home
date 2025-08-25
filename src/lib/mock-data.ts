@@ -156,6 +156,11 @@ export const collections = [
   { slug: 'frases-motivacionais', name: 'Frases Motivacionais', image: 'https://i.pinimg.com/736x/56/de/96/56de96ac38decccabbbf516fb85b025a.jpg', hint: 'motivational quotes' },
   { slug: 'leao-de-juda', name: 'Leão de Judá', image: 'https://midias.jornalcruzeiro.com.br/wp-content/uploads/2021/09/leao-de-juda.jpg', hint: 'lion judah' },
   { slug: 'cavalos', name: 'Cavalos', image: 'https://cdnm.westwing.com.br/img/products/quadro-cavalos-preto-e-branco-i-referencia-ax2548-p-0-323281-1-800x800.jpg', hint: 'horses' },
+  { slug: 'cachorro', name: 'Cachorro', image: 'https://placehold.co/150x150.png', hint: 'dog' },
+  { slug: 'tigre', name: 'Tigre', image: 'https://placehold.co/150x150.png', hint: 'tiger' },
+  { slug: 'lobo', name: 'Lobo', image: 'https://placehold.co/150x150.png', hint: 'wolf' },
+  { slug: 'onca', name: 'Onça', image: 'https://placehold.co/150x150.png', hint: 'jaguar' },
+  { slug: 'passaro', name: 'Pássaro', image: 'https://placehold.co/150x150.png', hint: 'bird' },
   { slug: 'borboletas', name: 'Borboletas', image: 'https://i0.wp.com/www.portaldossabores.com.br/wp-content/uploads/2022/10/Borboleta-Colorida-PNG.png?fit=640%2C427&ssl=1', hint: 'butterflies' },
   { slug: 'mulheres', name: 'Mulheres', image: 'https://iili.io/Jqg04Gf.png', hint: 'women' },
   { slug: 'minimalista', name: 'Minimalista', image: 'https://st2.depositphotos.com/8815532/44724/v/450/depositphotos_447247498-stock-illustration-one-line-drawing-face-abstract.jpg', hint: 'minimalist' },
@@ -177,7 +182,4 @@ export const collections = [
 
     
 
-
-
-
-
+    

@@ -26,9 +26,9 @@ const animalSubCategories = [
     { name: 'Cachorro', image: 'https://img.freepik.com/fotos-gratis/fotografia-vertical-de-foco-superficial-de-um-bonito-cachorro-de-golden-retriever-sentado-em-um-chao-de-grama_181624-27259.jpg?semt=ais_hybrid&w=740&q=80', hint: 'dog' },
     { name: 'Tigre', image: 'https://images.unsplash.com/photo-1430876988766-1be68caef0e4?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFwZWwlMjBkZSUyMHBhcmVkZSUyMHRpZ3JlfGVufDB8fDB8fHww', hint: 'tiger' },
     { name: 'Lobo', image: 'https://png.pngtree.com/thumb_back/fh260/background/20230529/pngtree-large-wolf-wallpapers-3d-download-wallpaper-3d-image_2672886.jpg', hint: 'wolf' },
-    { name: 'Onça', image: 'https://placehold.co/150x150.png', hint: 'jaguar' },
-    { name: 'Pássaro', image: 'https://placehold.co/150x150.png', hint: 'bird' },
-    { name: 'Borboletas', image: 'https://i0.wp.com/www.portaldossabores.com.br/wp-content/uploads/2022/10/Borboleta-Colorida-PNG.png?fit=640%2C427&ssl=1', hint: 'butterflies' },
+    { name: 'Onça', image: 'https://t3.ftcdn.net/jpg/06/23/20/12/360_F_623201235_xm5za760r7k60FpPQTFacPexFsrPUiTr.jpg', hint: 'jaguar' },
+    { name: 'Pássaro', image: 'https://wallpapers.com/images/featured/passaros-do-amor-oc5210ad7jb4blev.jpg', hint: 'bird' },
+    { name: 'Borboletas', image: 'https://marketplace.canva.com/EAFXV-I6d8o/2/0/900w/canva-wallpaper-celular-borboleta-moderno-azul-e-preto-KT_Kikl5ahQ.jpg', hint: 'butterflies' },
 ];
 
 const SidebarContent = ({

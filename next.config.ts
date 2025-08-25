@@ -291,6 +291,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.mesamadeira.com.br',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'png.pngtree.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

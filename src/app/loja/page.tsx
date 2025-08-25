@@ -8,12 +8,13 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import ProductCard from '@/components/shared/product-card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Search, ListFilter, X } from 'lucide-react';
+import { Loader2, Search, ListFilter, X, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import type { Product } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const PRODUCTS_PER_PAGE = 24;
 
@@ -21,20 +22,29 @@ const SidebarContent = ({
   selectedCategory,
   onSelectCategory,
   categoryCounts,
+  furnitureSubCategories,
+  selectedFurnitureSubCategory,
+  onSelectFurnitureSubCategory,
 }: {
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
   categoryCounts: { [key: string]: number };
+  furnitureSubCategories: string[];
+  selectedFurnitureSubCategory: string;
+  onSelectFurnitureSubCategory: (subCategory: string) => void;
 }) => (
   <aside className="w-full lg:w-64 lg:pr-8 space-y-4">
     <h2 className="text-xl font-semibold text-primary mb-4">Categorias</h2>
     <ul className="space-y-2">
       <li>
         <button
-          onClick={() => onSelectCategory('all')}
+          onClick={() => {
+            onSelectCategory('all');
+            onSelectFurnitureSubCategory('');
+          }}
           className={cn(
             'w-full text-left p-1 rounded-md transition-colors text-muted-foreground hover:text-primary',
-            selectedCategory === 'all' ? 'text-primary font-semibold' : ''
+            selectedCategory === 'all' && !selectedFurnitureSubCategory ? 'text-primary font-semibold' : ''
           )}
         >
           Todas
@@ -42,14 +52,62 @@ const SidebarContent = ({
       </li>
       {collections.map((cat) => {
         const count = categoryCounts[cat.name] || 0;
-        if (count === 0) return null; // Não mostra categorias vazias
+        if (count === 0 && cat.name !== 'Mobílias') return null;
+
+        const isFurnitureCategory = cat.name === 'Mobílias';
+        const isSelected = selectedCategory === cat.name || (isFurnitureCategory && !!selectedFurnitureSubCategory);
+        
+        if (isFurnitureCategory) {
+            return (
+                <li key={cat.slug}>
+                    <Collapsible defaultOpen={true}>
+                        <CollapsibleTrigger className="w-full">
+                           <div
+                              className={cn(
+                                'w-full flex justify-between items-center text-left p-1 rounded-md transition-colors text-muted-foreground hover:text-primary',
+                                isSelected ? 'text-primary font-semibold' : ''
+                              )}
+                            >
+                              {cat.name} ({count})
+                              <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                            </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pl-4 pt-2">
+                            <ul className="space-y-2">
+                               {furnitureSubCategories.map(subCat => {
+                                 const subCatCount = categoryCounts[subCat] || 0;
+                                 if (subCatCount === 0) return null;
+                                 return (
+                                     <li key={subCat}>
+                                         <button
+                                             onClick={() => onSelectFurnitureSubCategory(subCat)}
+                                             className={cn(
+                                                'w-full text-left p-1 rounded-md transition-colors text-muted-foreground hover:text-primary text-sm',
+                                                selectedFurnitureSubCategory === subCat ? 'text-primary font-semibold' : ''
+                                             )}
+                                         >
+                                             {subCat} ({subCatCount})
+                                         </button>
+                                     </li>
+                                 )
+                               })}
+                            </ul>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </li>
+            )
+        }
+
         return (
           <li key={cat.slug}>
             <button
-              onClick={() => onSelectCategory(cat.name)}
+              onClick={() => {
+                onSelectCategory(cat.name);
+                onSelectFurnitureSubCategory('');
+              }}
               className={cn(
                 'w-full text-left p-1 rounded-md transition-colors text-muted-foreground hover:text-primary',
-                selectedCategory === cat.name ? 'text-primary font-semibold' : ''
+                isSelected ? 'text-primary font-semibold' : ''
               )}
             >
               {cat.name} ({count})
@@ -71,6 +129,7 @@ export default function LojaPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('relevant');
+  const [selectedFurnitureSubCategory, setSelectedFurnitureSubCategory] = useState('');
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -82,15 +141,31 @@ export default function LojaPage() {
     fetchAllProducts();
   }, []);
 
-  const categoryCounts = useMemo(() => {
+  const { categoryCounts, furnitureSubCategories } = useMemo(() => {
     const counts: { [key: string]: number } = {};
+    const subCats = new Set<string>();
+
     for (const product of allProducts) {
-        if (product.category) {
-            counts[product.category] = (counts[product.category] || 0) + 1;
+      if (product.category) {
+        counts[product.category] = (counts[product.category] || 0) + 1;
+        if (product.category === 'Mobílias' && product.arrangement) {
+          subCats.add(product.arrangement);
+          counts[product.arrangement] = (counts[product.arrangement] || 0) + 1;
         }
+      }
     }
-    return counts;
+    return { categoryCounts: counts, furnitureSubCategories: Array.from(subCats).sort() };
   }, [allProducts]);
+
+  const handleSelectCategory = (category: string) => {
+      setSelectedCategory(category);
+      setSelectedFurnitureSubCategory('');
+  };
+
+  const handleSelectFurnitureSubCategory = (subCategory: string) => {
+      setSelectedCategory('Mobílias');
+      setSelectedFurnitureSubCategory(subCategory);
+  };
 
   const filteredProducts = useMemo(() => {
     let products = [...allProducts];
@@ -100,8 +175,9 @@ export default function LojaPage() {
       products = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
-    // Filter by category
-    if (selectedCategory !== 'all') {
+    if (selectedFurnitureSubCategory) {
+      products = products.filter(p => p.category === 'Mobílias' && p.arrangement === selectedFurnitureSubCategory);
+    } else if (selectedCategory !== 'all') {
       products = products.filter((p) => p.category === selectedCategory);
     }
 
@@ -122,7 +198,7 @@ export default function LojaPage() {
     }
 
     return products;
-  }, [allProducts, searchTerm, selectedCategory, sortBy]);
+  }, [allProducts, searchTerm, selectedCategory, selectedFurnitureSubCategory, sortBy]);
   
   const hasMoreProducts = useMemo(() => displayedProducts.length < filteredProducts.length, [displayedProducts, filteredProducts]);
 
@@ -148,7 +224,6 @@ export default function LojaPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Load more when user is 500px from the bottom of the page
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
         handleLoadMore();
       }
@@ -169,8 +244,11 @@ export default function LojaPage() {
           <div className="hidden lg:block">
             <SidebarContent 
               selectedCategory={selectedCategory} 
-              onSelectCategory={setSelectedCategory} 
+              onSelectCategory={handleSelectCategory} 
               categoryCounts={categoryCounts}
+              furnitureSubCategories={furnitureSubCategories}
+              selectedFurnitureSubCategory={selectedFurnitureSubCategory}
+              onSelectFurnitureSubCategory={handleSelectFurnitureSubCategory}
             />
           </div>
 
@@ -196,9 +274,12 @@ export default function LojaPage() {
                   </SheetTrigger>
                   <SheetContent side="left" className="p-6">
                     <SidebarContent 
-                      selectedCategory={selectedCategory} 
-                      onSelectCategory={setSelectedCategory}
-                      categoryCounts={categoryCounts}
+                       selectedCategory={selectedCategory} 
+                       onSelectCategory={handleSelectCategory} 
+                       categoryCounts={categoryCounts}
+                       furnitureSubCategories={furnitureSubCategories}
+                       selectedFurnitureSubCategory={selectedFurnitureSubCategory}
+                       onSelectFurnitureSubCategory={handleSelectFurnitureSubCategory}
                     />
                   </SheetContent>
                 </Sheet>

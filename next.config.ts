@@ -222,6 +222,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'png.pngtree.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: '39124.cdn.simplo7.net',
         port: '',
         pathname: '/**',
@@ -289,12 +295,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'www.mesamadeira.com.br',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'png.pngtree.com',
         port: '',
         pathname: '/**',
       }

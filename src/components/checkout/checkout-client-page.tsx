@@ -29,6 +29,8 @@ import Link from 'next/link';
 import AddressFormDialog from '@/components/dashboard/addresses/address-form-dialog';
 import { Payment, initMercadoPago } from '@mercadopago/sdk-react';
 import { useClientOnly } from '@/hooks/use-client-only';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
 
 const MERCADO_PAGO_PUBLIC_KEY = "TEST-df7a6d8f-8512-4202-acb2-a54cd6d22d59";
 
@@ -593,36 +595,38 @@ export default function CheckoutClientPage() {
             </div>
             
             <aside className="lg:col-span-2">
-                <div className="sticky top-24 space-y-6">
-                    <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart/> Resumo do Pedido</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            {cartItems.map(item => (
-                                <div key={item.id} className="flex items-center gap-4">
-                                    <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
-                                        <Image src={item.environmentImage || item.image} alt={item.name} layout="fill" objectFit="cover"/>
-                                        <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center bg-gray-600 text-white">{item.quantity}</Badge>
+                 <ScrollArea className="h-full">
+                    <div className="sticky top-24 space-y-6">
+                        <Card>
+                            <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart/> Resumo do Pedido</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                                {cartItems.map(item => (
+                                    <div key={item.id} className="flex items-center gap-4">
+                                        <div className="relative w-16 h-20 rounded-md overflow-hidden bg-gray-100">
+                                            <Image src={item.environmentImage || item.image} alt={item.name} layout="fill" objectFit="cover"/>
+                                            <Badge variant="secondary" className="absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center bg-gray-600 text-white">{item.quantity}</Badge>
+                                        </div>
+                                        <div className="flex-grow">
+                                            <p className="font-semibold text-sm">{item.name}</p>
+                                            <p className="text-xs text-muted-foreground">{item.options}</p>
+                                        </div>
+                                        <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</p>
                                     </div>
-                                    <div className="flex-grow">
-                                        <p className="font-semibold text-sm">{item.name}</p>
-                                        <p className="text-xs text-muted-foreground">{item.options}</p>
-                                    </div>
-                                    <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2).replace('.',',')}</p>
+                                ))}
+                                <Separator />
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">R$ {subtotal.toFixed(2).replace('.', ',')}</span></div>
+                                    <div className="flex justify-between"><span>Frete</span><span className="font-medium">{selectedShipping ? `R$ ${shippingCost.toFixed(2).replace('.', ',')}` : 'A calcular'}</span></div>
                                 </div>
-                            ))}
-                            <Separator />
-                             <div className="space-y-2 text-sm">
-                                <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">R$ {subtotal.toFixed(2).replace('.', ',')}</span></div>
-                                <div className="flex justify-between"><span>Frete</span><span className="font-medium">{selectedShipping ? `R$ ${shippingCost.toFixed(2).replace('.', ',')}` : 'A calcular'}</span></div>
-                            </div>
-                            <Separator />
-                            <div className="flex justify-between font-bold text-lg">
-                                <span>Total</span>
-                                <span>R$ {total.toFixed(2).replace('.', ',')}</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                                <Separator />
+                                <div className="flex justify-between font-bold text-lg">
+                                    <span>Total</span>
+                                    <span>R$ {total.toFixed(2).replace('.', ',')}</span>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </ScrollArea>
             </aside>
         </div>
     <AddressFormDialog 
@@ -634,3 +638,5 @@ export default function CheckoutClientPage() {
     </>
   );
 }
+
+    

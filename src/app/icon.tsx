@@ -1,4 +1,3 @@
-
 import { ImageResponse } from 'next/og';
 
 // Route segment config
@@ -23,11 +22,11 @@ export default function Icon() {
           height: '100%',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#111827', // Um fundo escuro para o logo branco ter contraste
+          background: 'transparent',
           borderRadius: '100%',
         }}
       >
-        <img width="24" height="24" src="https://res.cloudinary.com/dl38o4mnk/image/upload/v1755730043/logo_branca_png_qdltt1.png" alt="Home Designer Logo" />
+        <img width="24" height="24" src="https://i.ibb.co/3m8Gg8kr/logo-preta.png" alt="Home Designer Logo" />
       </div>
     ),
     {

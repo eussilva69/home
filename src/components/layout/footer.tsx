@@ -83,8 +83,11 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="border-t border-gray-300 mt-10 pt-6 flex flex-col md:flex-row justify-center items-center text-xs text-gray-500 gap-6">
-            <p className="text-center md:text-left">Home Designer © 2022 DIREITOS RESERVADOS</p>
+          <div className="border-t border-gray-300 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 gap-6">
+            <a href="https://glcoding.online" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-500 hover:text-primary">
+                <span>Desenvolvido por</span>
+                <Image src="https://iili.io/FMvMmva.png" alt="GL Coding Logo" width={80} height={20} />
+            </a>
             <div className="flex items-center gap-4 text-black">
                 <VisaIcon className="h-6 w-auto" />
                 <PixIcon className="h-5 w-auto" />

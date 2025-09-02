@@ -153,7 +153,7 @@ export type Address = z.infer<typeof AddressSchema>;
 
 export const ProductSizeSchema = z.object({
     size: z.string().min(1, "O tamanho é obrigatório."),
-    price: z.number().min(0.01, "O preço deve ser maior que zero."),
+    price: z.number().min(0, "O preço deve ser maior que zero.").default(0),
 });
 
 export const ProductSchema = z.object({
@@ -180,6 +180,7 @@ export const productUpdateSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres.").optional(),
   price: z.number().min(0, "O preço não pode ser negativo.").optional(),
   category: z.string().min(1, "A categoria é obrigatória.").optional(),
+  description: z.string().optional(),
   artwork_image: z.string().url("URL da arte inválida.").or(z.literal('')).optional(),
   imagesByColor: z.object({
       black: z.string().url("URL inválida").or(z.literal('')).optional(),
@@ -210,7 +211,7 @@ export type RefundRequestInput = {
 
 export const newProductSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  price: z.number().min(0, "O preço não pode ser negativo."),
+  price: z.number().min(0, "O preço não pode ser negativo.").default(0),
   category: z.string().min(1, "A categoria é obrigatória."),
   arrangement: z.string().min(1, "O arranjo é obrigatório."),
   artwork_image: z.string().url("URL da arte é obrigatória.").or(z.literal('')).optional(),
@@ -229,11 +230,11 @@ export type NewProductPayload = z.infer<typeof newProductSchema>;
 
 export const newFurnitureSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  description: z.string().min(10, "A descrição é obrigatória.").optional(),
+  description: z.string().optional(),
   arrangement: z.string().min(1, "A sub-categoria (tipo) é obrigatória."),
   image: z.string().url("A imagem principal é obrigatória.").or(z.literal('')),
   image_alt: z.string().url("A imagem de ambiente é obrigatória.").or(z.literal('')),
-  gallery_images: z.array(z.string().url("URL inválida").or(z.literal(''))).optional(),
+  gallery_images: z.array(z.string().url().or(z.literal(''))).optional(),
   sizes: z.array(ProductSizeSchema).min(1, "Adicione pelo menos um tamanho."),
   price: z.number().optional(), // Price será derivado do primeiro tamanho
 });

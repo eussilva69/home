@@ -160,6 +160,7 @@ export const ProductSchema = z.object({
   id: z.string(),
   name: z.string(),
   price: z.number(),
+  description: z.string().optional(), // Adicionado campo de descrição
   sizes: z.array(ProductSizeSchema).optional(),
   artwork_image: z.string().optional(),
   image: z.string().optional(), // Imagem principal do produto (isolado)
@@ -228,6 +229,7 @@ export type NewProductPayload = z.infer<typeof newProductSchema>;
 
 export const newFurnitureSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
+  description: z.string().min(10, "A descrição é obrigatória.").optional(),
   arrangement: z.string().min(1, "A sub-categoria (tipo) é obrigatória."),
   image: z.string().url("A imagem principal é obrigatória.").or(z.literal('')).optional(),
   image_alt: z.string().url("A imagem de ambiente é obrigatória.").or(z.literal('')).optional(),

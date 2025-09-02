@@ -19,6 +19,7 @@ import type { Product } from '@/lib/schemas';
 import { newFurnitureSchema, type NewFurniturePayload } from '@/lib/schemas';
 import NextImage from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 const ImageUploadField = ({
   label,
@@ -89,6 +90,7 @@ export default function EditFurniturePage() {
         setFurniture(furnitureData);
         form.reset({
           name: furnitureData.name,
+          description: furnitureData.description,
           arrangement: furnitureData.arrangement, // Sub-category
           image: furnitureData.image,
           image_alt: furnitureData.image_alt,
@@ -188,6 +190,13 @@ export default function EditFurniturePage() {
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nome da Mobília</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="arrangement" render={({ field }) => (<FormItem><FormLabel>Sub-categoria (Tipo)</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione um tipo" /></SelectTrigger></FormControl><SelectContent>{subCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                     <FormField control={form.control} name="description" render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Descrição do Produto</FormLabel>
+                        <FormControl><Textarea {...field} placeholder="Descreva os materiais, dimensões, etc." /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
                   </CardContent>
                 </Card>
 

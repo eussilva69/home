@@ -9,7 +9,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ShoppingCart, Package, ShieldCheck, Ruler, Info, Palette } from 'lucide-react';
+import { ShoppingCart, Package, ShieldCheck, Ruler, Info, Palette, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -55,13 +55,13 @@ const frames = {
     none: { label: 'Sem Moldura', color: 'transparent' }
 };
 
-type ViewMode = 'product' | 'env1' | 'env2';
+type ViewMode = 'product' | 'env1' | 'env2' | 'gallery';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const { id } = use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>('env1');
+  
   const { addToCart } = useCart();
   const { toast } = useToast();
 
@@ -76,6 +76,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedSize, setSelectedSize] = useState(availableSizes[0]?.tamanho);
   const [withGlass, setWithGlass] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(Object.keys(frames)[0]);
+  const [viewMode, setViewMode] = useState<ViewMode>('env1');
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const [isUploading, setIsUploading] = useState(false);
 
@@ -170,6 +172,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
       if (viewMode === 'env1' && product.environment_images?.[0]) return product.environment_images[0];
       if (viewMode === 'env2' && product.environment_images?.[1]) return product.environment_images[1];
+      if (viewMode === 'gallery' && product.gallery_images?.[galleryIndex]) return product.gallery_images[galleryIndex];
       
       if (isFrameless) {
           return product.artwork_image || product.image || "https://placehold.co/600x800.png";
@@ -190,10 +193,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       }
   };
 
-  const handleThumbnailClick = (newViewMode: ViewMode, newFrame?: string) => {
+  const handleThumbnailClick = (newViewMode: ViewMode, options?: { frameKey?: string; galleryIndex?: number }) => {
     setViewMode(newViewMode);
-    if(newFrame){
-        setSelectedFrame(newFrame);
+    if(options?.frameKey){
+        setSelectedFrame(options.frameKey);
+    }
+    if (options?.galleryIndex !== undefined) {
+        setGalleryIndex(options.galleryIndex);
     }
   }
 
@@ -211,20 +217,23 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   }
   
   const thumbnailList = [
-    // Add environment images first if they exist
     ...(product.environment_images?.filter(img => img).map((img, index) => ({ 
         id: `env${index + 1}`, 
         src: img,
-        type: 'env',
-        frameKey: null
+        type: 'env' as ViewMode,
     })) || []),
-    // Then add a thumbnail for each frame color
-    ...Object.keys(frames).map(frameKey => ({
+    ...(isFurniture ? product.gallery_images?.filter(img => img).map((img, index) => ({
+        id: `gallery${index}`,
+        src: img,
+        type: 'gallery' as ViewMode,
+        galleryIndex: index,
+    })) || []),
+    ...(!isFurniture ? Object.keys(frames).map(frameKey => ({
         id: `frame-${frameKey}`,
         src: getProductThumbnail(frameKey),
-        type: 'frame',
+        type: 'product' as ViewMode,
         frameKey: frameKey
-    }))
+    })) : [])
   ].filter(thumb => thumb.src && thumb.src !== 'https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-permanentes/cindra/imagens/sem.jpg.gif/image');
 
 
@@ -240,7 +249,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               >
                   <AnimatePresence>
                     <motion.div
-                        key={viewMode + getProductImage()}
+                        key={viewMode + getProductImage() + galleryIndex}
                         className="absolute inset-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -261,17 +270,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                  <Carousel opts={{ align: "start", dragFree: true }}>
                   <CarouselContent className="-ml-2">
                     {thumbnailList.map(thumb => {
-                        const isSelected = (thumb.type === 'env' && viewMode === thumb.id) || (thumb.type === 'frame' && viewMode === 'product' && selectedFrame === thumb.frameKey);
+                        const isSelected = (thumb.type === 'env' && viewMode === thumb.id) || 
+                                         (thumb.type === 'product' && viewMode === 'product' && selectedFrame === thumb.frameKey) ||
+                                         (thumb.type === 'gallery' && viewMode === 'gallery' && galleryIndex === thumb.galleryIndex);
                         return (
                           <CarouselItem key={thumb.id} className="basis-1/4 sm:basis-1/5 md:basis-1/6 pl-2">
                             <button 
-                                onClick={() => handleThumbnailClick(thumb.type === 'env' ? thumb.id as ViewMode : 'product', thumb.frameKey || undefined)}
+                                onClick={() => handleThumbnailClick(thumb.type, { frameKey: (thumb as any).frameKey, galleryIndex: (thumb as any).galleryIndex })}
                                 className={cn(
                                 "relative w-full aspect-square rounded-md overflow-hidden border-2 transition-all",
                                 isSelected ? 'border-primary' : 'border-transparent'
                                 )}
                             >
                                 <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
+                                {thumb.type === 'gallery' && (
+                                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                     <ImageIcon className="h-6 w-6 text-white"/>
+                                   </div>
+                                )}
                             </button>
                           </CarouselItem>
                         )
@@ -379,8 +395,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <AccordionTrigger>Descrição do Produto</AccordionTrigger>
                 <AccordionContent>
                   <p className="text-muted-foreground text-sm">
-                    {isFurniture 
-                        ? 'Mobiliário de alta qualidade, feito com materiais selecionados para garantir durabilidade e um design incrível para o seu ambiente.'
+                    {product.description 
+                        ? product.description
                         : 'Eleve sua decoração com esta peça de arte vibrante. Impressa em materiais de alta qualidade com tintas resistentes ao desbotamento, esta obra é projetada para durar. Perfeita para salas de estar, quartos ou escritórios que precisam de um toque de cor e personalidade.'
                     }
                   </p>

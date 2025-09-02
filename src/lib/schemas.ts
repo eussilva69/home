@@ -231,9 +231,9 @@ export const newFurnitureSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
   description: z.string().min(10, "A descrição é obrigatória.").optional(),
   arrangement: z.string().min(1, "A sub-categoria (tipo) é obrigatória."),
-  image: z.string().url("A imagem principal é obrigatória.").or(z.literal('')).optional(),
-  image_alt: z.string().url("A imagem de ambiente é obrigatória.").or(z.literal('')).optional(),
-  gallery_images: z.array(z.string().url()).optional(),
+  image: z.string().url("A imagem principal é obrigatória.").or(z.literal('')),
+  image_alt: z.string().url("A imagem de ambiente é obrigatória.").or(z.literal('')),
+  gallery_images: z.array(z.string().url("URL inválida").or(z.literal(''))).optional(),
   sizes: z.array(ProductSizeSchema).min(1, "Adicione pelo menos um tamanho."),
   price: z.number().optional(), // Price será derivado do primeiro tamanho
 });

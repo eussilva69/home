@@ -225,7 +225,7 @@ export default function EditFurniturePage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Preço (R$)</FormLabel>
-                                        <FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl>
+                                        <FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}

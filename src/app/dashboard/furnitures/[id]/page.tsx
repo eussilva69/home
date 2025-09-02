@@ -28,7 +28,7 @@ const ImageUploadField = ({
   isUploading,
 }: {
   label: string;
-  currentImageUrl?: string;
+  currentImageUrl?: string | null;
   onImageUpload: (file: File) => void;
   isUploading: boolean;
 }) => {
@@ -83,7 +83,7 @@ export default function EditFurniturePage() {
   
   const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({
     control: form.control,
-    name: "gallery_images" as any,
+    name: "gallery_images",
   });
 
   const fetchFurniture = useCallback(async () => {
@@ -99,7 +99,7 @@ export default function EditFurniturePage() {
           arrangement: furnitureData.arrangement, // Sub-category
           image: furnitureData.image,
           image_alt: furnitureData.image_alt,
-          gallery_images: furnitureData.gallery_images || [],
+          gallery_images: furnitureData.gallery_images?.map(url => ({ url })) || [],
           sizes: furnitureData.sizes && furnitureData.sizes.length > 0 ? furnitureData.sizes : [{ size: '', price: 0 }]
         });
       } else {
@@ -135,7 +135,7 @@ export default function EditFurniturePage() {
                 const index = parseInt(fieldName.split('.')[1]);
                 const currentGallery = form.getValues('gallery_images') || [];
                 const newGallery = [...currentGallery];
-                newGallery[index] = imageUrl;
+                newGallery[index].url = imageUrl;
                 form.setValue('gallery_images', newGallery, { shouldValidate: true });
             } else {
                 form.setValue(fieldName as any, imageUrl, { shouldValidate: true });
@@ -153,7 +153,13 @@ export default function EditFurniturePage() {
 
   const onSubmit = async (data: NewFurniturePayload) => {
     const price = data.sizes && data.sizes.length > 0 ? data.sizes[0].price : 0;
-    const result = await updateProduct(furnitureId, { ...data, price });
+    const finalPayload = {
+      ...data,
+      gallery_images: data.gallery_images?.map(g => g.url).filter(Boolean),
+      price
+    };
+
+    const result = await updateProduct(furnitureId, finalPayload);
     if (result.success) {
       toast({ title: 'Sucesso!', description: result.message });
       router.push('/dashboard/furnitures');
@@ -230,7 +236,7 @@ export default function EditFurniturePage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Preço (R$)</FormLabel>
-                                        <FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl>
+                                        <FormControl><Input type="number" step="0.01" {...field} value={field.value || ''} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -276,7 +282,7 @@ export default function EditFurniturePage() {
                               <FormItem className="flex-grow">
                                 <ImageUploadField
                                   label={`Imagem de Detalhe ${index + 1}`}
-                                  currentImageUrl={form.watch(`gallery_images.${index}` as any)}
+                                  currentImageUrl={form.watch(`gallery_images.${index}.url`)}
                                   onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
                                   isUploading={isUploading[`gallery_images.${index}`]}
                                 />

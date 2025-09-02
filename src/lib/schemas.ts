@@ -234,7 +234,7 @@ export const newFurnitureSchema = z.object({
   arrangement: z.string().min(1, "A sub-categoria (tipo) é obrigatória."),
   image: z.string().url("A imagem principal é obrigatória.").or(z.literal('')),
   image_alt: z.string().url("A imagem de ambiente é obrigatória.").or(z.literal('')),
-  gallery_images: z.array(z.string().url().or(z.literal(''))).optional(),
+  gallery_images: z.array(z.string()).optional(),
   sizes: z.array(ProductSizeSchema).min(1, "Adicione pelo menos um tamanho."),
   price: z.number().optional(), // Price será derivado do primeiro tamanho
 });

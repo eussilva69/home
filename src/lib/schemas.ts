@@ -153,7 +153,7 @@ export type Address = z.infer<typeof AddressSchema>;
 
 export const ProductSizeSchema = z.object({
     size: z.string().min(1, "O tamanho é obrigatório."),
-    price: z.number().min(0, "O preço deve ser maior que zero.").default(0),
+    price: z.number().min(0, "O preço deve ser maior ou igual a zero.").default(0),
 });
 
 export const ProductSchema = z.object({

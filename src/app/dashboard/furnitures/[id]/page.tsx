@@ -80,6 +80,11 @@ export default function EditFurniturePage() {
     control: form.control,
     name: "sizes",
   });
+  
+  const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({
+    control: form.control,
+    name: "gallery_images" as any,
+  });
 
   const fetchFurniture = useCallback(async () => {
     if (furnitureId) {
@@ -259,14 +264,34 @@ export default function EditFurniturePage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Galeria de Imagens de Detalhe</CardTitle>
-                    <CardDescription>Adicione até 4 imagens extras que serão exibidas na página do produto.</CardDescription>
+                    <CardDescription>Adicione imagens extras que serão exibidas na página do produto.</CardDescription>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     {[0, 1, 2, 3].map(index => (
-                        <FormField key={index} control={form.control} name={`gallery_images.${index}` as any} render={() => (
-                          <FormItem><ImageUploadField label={`Imagem de Detalhe ${index + 1}`} currentImageUrl={form.watch(`gallery_images.${index}` as any)} onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)} isUploading={isUploading[`gallery_images.${index}`]} /><FormMessage/></FormItem>
-                       )} />
+                  <CardContent className="space-y-4">
+                     {galleryFields.map((field, index) => (
+                        <div key={field.id} className="flex items-end gap-4 p-4 border rounded-lg">
+                           <FormField
+                            control={form.control}
+                            name={`gallery_images.${index}`}
+                            render={() => (
+                              <FormItem className="flex-grow">
+                                <ImageUploadField
+                                  label={`Imagem de Detalhe ${index + 1}`}
+                                  currentImageUrl={form.watch(`gallery_images.${index}` as any)}
+                                  onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
+                                  isUploading={isUploading[`gallery_images.${index}`]}
+                                />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button type="button" variant="destructive" size="icon" onClick={() => removeGallery(index)}>
+                              <Trash2 className="h-4 w-4"/>
+                          </Button>
+                        </div>
                      ))}
+                     <Button type="button" variant="outline" onClick={() => appendGallery({ url: '' })}>
+                        <PlusCircle className="mr-2 h-4 w-4"/> Adicionar Imagem de Detalhe
+                     </Button>
                   </CardContent>
                 </Card>
                 

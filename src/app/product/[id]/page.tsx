@@ -284,7 +284,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             >
                                 <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
                                 {thumb.type === 'gallery' && (
-                                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                      <ImageIcon className="h-6 w-6 text-white"/>
                                    </div>
                                 )}

@@ -227,7 +227,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         src: img,
         type: 'gallery' as ViewMode,
         galleryIndex: index,
-    })) || []),
+    })) : []),
     ...(!isFurniture ? Object.keys(frames).map(frameKey => ({
         id: `frame-${frameKey}`,
         src: getProductThumbnail(frameKey),

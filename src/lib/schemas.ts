@@ -157,23 +157,28 @@ export const ProductSizeSchema = z.object({
     price: z.number().min(0, "O preço deve ser maior ou igual a zero.").default(0),
 });
 
+export const ProductColorSchema = z.object({
+    name: z.string().min(1, "O nome da cor é obrigatório."),
+});
+
 export const ProductSchema = z.object({
   id: z.string(),
   name: z.string(),
   price: z.number(),
-  description: z.string().optional(), // Adicionado campo de descrição
+  description: z.string().optional(),
   sizes: z.array(ProductSizeSchema).optional(),
+  colors: z.array(ProductColorSchema).optional(),
   artwork_image: z.string().optional(),
-  image: z.string().optional(), // Imagem principal do produto (isolado)
+  image: z.string().optional(), 
   imagesByColor: z.record(z.string()).optional(),
-  environment_images: z.array(z.string()).optional(), // Múltiplas imagens de ambiente
+  environment_images: z.array(z.string()).optional(),
   category: z.string(),
   arrangement: z.string(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional().default('repeat'),
   gallery_images: z.array(z.string()).optional(),
   hint: z.string().optional(),
   hint_alt: z.string().optional(),
-  image_alt: z.string().optional(), // Legado, manter por compatibilidade mas usar environment_images
+  image_alt: z.string().optional(),
 });
 export type Product = z.infer<typeof ProductSchema>;
 
@@ -190,7 +195,7 @@ export const productUpdateSchema = z.object({
       ebony_oak: z.string().url("URL inválida").or(z.literal('')).optional(),
   }).optional(),
   image_application: z.enum(['repeat', 'split', 'individual']).optional(),
-  gallery_images: z.array(z.string().url()).optional(),
+  gallery_images: z.array(z.string()).optional(),
   environment_images: z.array(z.string().url()).optional(),
 });
 export type ProductUpdatePayload = z.infer<typeof productUpdateSchema>;
@@ -237,6 +242,7 @@ export const newFurnitureSchema = z.object({
   image_alt: z.string().url("A imagem de ambiente é obrigatória.").or(z.literal('')),
   gallery_images: z.array(z.string()).optional(),
   sizes: z.array(ProductSizeSchema).min(1, "Adicione pelo menos um tamanho."),
+  colors: z.array(ProductColorSchema).min(1, "Adicione pelo menos uma cor."),
   price: z.number().optional(), // Price será derivado do primeiro tamanho
 });
 export type NewFurniturePayload = z.infer<typeof newFurnitureSchema>;

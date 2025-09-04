@@ -78,14 +78,18 @@ export default function NewFurniturePage() {
         image_alt: '',
         gallery_images: [],
         sizes: [{ size: '', price: 0 }],
+        colors: [{ name: '' }],
     }
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields: sizeFields, append: appendSize, remove: removeSize } = useFieldArray({
     control: form.control,
     name: "sizes",
   });
-  
+  const { fields: colorFields, append: appendColor, remove: removeColor } = useFieldArray({
+    control: form.control,
+    name: "colors",
+  });
   const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({
     control: form.control,
     name: "gallery_images",
@@ -97,7 +101,7 @@ export default function NewFurniturePage() {
     }
   }, [user, authLoading, router]);
   
-  const handleImageUpload = async (file: File, fieldName: `gallery_images.${number}` | keyof Omit<NewFurniturePayload, 'gallery_images' | 'sizes'>) => {
+  const handleImageUpload = async (file: File, fieldName: `gallery_images.${number}` | keyof Omit<NewFurniturePayload, 'gallery_images' | 'sizes' | 'colors'>) => {
     const fieldId = fieldName.toString();
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
@@ -135,7 +139,6 @@ export default function NewFurniturePage() {
     const price = data.sizes && data.sizes.length > 0 ? data.sizes[0].price : 0;
     const fullPayload = {
       ...data,
-      gallery_images: data.gallery_images?.filter(Boolean),
       price: price,
       category: 'Mobílias', // Categoria fixa
       // Campos não aplicáveis para mobílias
@@ -204,7 +207,7 @@ export default function NewFurniturePage() {
                         <CardDescription>Adicione um ou mais tamanhos e seus respectivos preços.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {fields.map((field, index) => (
+                        {sizeFields.map((field, index) => (
                           <div key={field.id} className="flex items-end gap-4 p-4 border rounded-lg">
                              <FormField
                                 control={form.control}
@@ -228,13 +231,43 @@ export default function NewFurniturePage() {
                                     </FormItem>
                                 )}
                               />
-                              <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={fields.length <= 1}>
+                              <Button type="button" variant="destructive" size="icon" onClick={() => removeSize(index)} disabled={sizeFields.length <= 1}>
                                   <Trash2 className="h-4 w-4"/>
                               </Button>
                           </div>
                         ))}
-                        <Button type="button" variant="outline" onClick={() => append({ size: '', price: 0 })}>
+                        <Button type="button" variant="outline" onClick={() => appendSize({ size: '', price: 0 })}>
                             <PlusCircle className="mr-2 h-4 w-4"/> Adicionar Tamanho
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Cores</CardTitle>
+                        <CardDescription>Adicione as opções de cores para esta mobília.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {colorFields.map((field, index) => (
+                          <div key={field.id} className="flex items-end gap-4 p-4 border rounded-lg">
+                             <FormField
+                                control={form.control}
+                                name={`colors.${index}.name`}
+                                render={({ field }) => (
+                                    <FormItem className="flex-grow">
+                                        <FormLabel>Nome da Cor (ex: Branco, Preto, Carvalho)</FormLabel>
+                                        <FormControl><Input {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                              />
+                              <Button type="button" variant="destructive" size="icon" onClick={() => removeColor(index)} disabled={colorFields.length <= 1}>
+                                  <Trash2 className="h-4 w-4"/>
+                              </Button>
+                          </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => appendColor({ name: '' })}>
+                            <PlusCircle className="mr-2 h-4 w-4"/> Adicionar Cor
                         </Button>
                     </CardContent>
                 </Card>

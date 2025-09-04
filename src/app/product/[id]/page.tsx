@@ -69,6 +69,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   
   // State for furniture
   const [selectedFurnitureSize, setSelectedFurnitureSize] = useState<string | null>(null);
+  const [selectedFurnitureColor, setSelectedFurnitureColor] = useState<string | null>(null);
   
   // State for frames
   const arrangementKey = product?.arrangement as keyof typeof pricingData || 'Solo';
@@ -95,8 +96,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         const hasEnvImages = productData.environment_images && productData.environment_images.length > 0 && productData.environment_images[0];
         setViewMode(hasEnvImages ? 'env1' : 'product');
 
-        if (productData.category === 'Mobílias' && productData.sizes && productData.sizes.length > 0) {
+        if (productData.category === 'Mobílias') {
+          if (productData.sizes && productData.sizes.length > 0) {
             setSelectedFurnitureSize(productData.sizes[0].size);
+          }
+          if (productData.colors && productData.colors.length > 0) {
+            setSelectedFurnitureColor(productData.colors[0].name);
+          }
         } else {
              const newAvailableSizes = pricingData[productData.arrangement as keyof typeof pricingData] || pricingData['Solo'];
              setSelectedSize(newAvailableSizes[0].tamanho);
@@ -135,8 +141,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     let cartItemId = product.id;
 
     if (isFurniture) {
-        itemOptions = selectedFurnitureSize || '';
-        cartItemId += `-${itemOptions.replace(/\s/g, '')}`;
+        itemOptions = `${selectedFurnitureColor || ''}, ${selectedFurnitureSize || ''}`;
+        cartItemId += `-${selectedFurnitureColor?.replace(/\s/g, '')}-${selectedFurnitureSize?.replace(/\s/g, '')}`;
     } else {
         itemOptions = `${selectedSize}, ${frames[selectedFrame as keyof typeof frames].label}`;
         if (!isFrameless) {
@@ -220,7 +226,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     ...(product.environment_images?.filter(img => img).map((img, index) => ({ 
         id: `env${index + 1}`, 
         src: img,
-        type: 'env' as ViewMode,
+        type: 'env1' as ViewMode,
     })) || []),
     ...(isFurniture ? product.gallery_images?.filter(img => img).map((img, index) => ({
         id: `gallery${index}`,
@@ -270,7 +276,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                  <Carousel opts={{ align: "start", dragFree: true }}>
                   <CarouselContent className="-ml-2">
                     {thumbnailList.map(thumb => {
-                        const isSelected = (thumb.type === 'env' && viewMode === thumb.id) || 
+                        const isSelected = (thumb.type === 'env1' && viewMode === thumb.id) || 
                                          (thumb.type === 'product' && viewMode === 'product' && selectedFrame === thumb.frameKey) ||
                                          (thumb.type === 'gallery' && viewMode === 'gallery' && galleryIndex === thumb.galleryIndex);
                         return (
@@ -283,10 +289,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                                 )}
                             >
                                 <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
-                                {thumb.type === 'gallery' && (
-                                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                   </div>
-                                )}
                             </button>
                           </CarouselItem>
                         )
@@ -303,21 +305,40 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {finalPrice ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'Selecione uma opção'}
             </p>
             
-            {isFurniture && product.sizes && product.sizes.length > 0 ? (
-                <div className="mb-6 md:mb-8">
-                    <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Ruler/> Tamanho</Label>
-                     <RadioGroup value={selectedFurnitureSize || ''} onValueChange={setSelectedFurnitureSize} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {product.sizes?.map(({ size }) => (
-                            <div key={size}>
-                                <RadioGroupItem value={size} id={`size-${size}`} className="sr-only" />
-                                <Label htmlFor={`size-${size}`} className={cn("flex h-16 items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center text-sm font-semibold transition-all", selectedFurnitureSize === size ? 'border-primary bg-primary/5' : 'border-border bg-background')}>
-                                {size}
-                                </Label>
-                            </div>
-                        ))}
-                    </RadioGroup>
-                </div>
-            ) : !isFurniture ? (
+            {isFurniture ? (
+                <>
+                {product.colors && product.colors.length > 0 && (
+                     <div className="mb-6 md:mb-8">
+                        <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Palette/> Cor</Label>
+                        <RadioGroup value={selectedFurnitureColor || ''} onValueChange={setSelectedFurnitureColor} className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                            {product.colors?.map(({ name }) => (
+                                <div key={name}>
+                                    <RadioGroupItem value={name} id={`color-${name}`} className="sr-only" />
+                                    <Label htmlFor={`color-${name}`} className={cn("flex h-12 items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center text-sm font-semibold transition-all", selectedFurnitureColor === name ? 'border-primary bg-primary/5' : 'border-border bg-background')}>
+                                    {name}
+                                    </Label>
+                                </div>
+                            ))}
+                        </RadioGroup>
+                    </div>
+                )}
+                {product.sizes && product.sizes.length > 0 && (
+                    <div className="mb-6 md:mb-8">
+                        <Label className="text-base md:text-lg font-medium mb-3 flex items-center gap-2"><Ruler/> Tamanho</Label>
+                        <RadioGroup value={selectedFurnitureSize || ''} onValueChange={setSelectedFurnitureSize} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {product.sizes?.map(({ size }) => (
+                                <div key={size}>
+                                    <RadioGroupItem value={size} id={`size-${size}`} className="sr-only" />
+                                    <Label htmlFor={`size-${size}`} className={cn("flex h-16 items-center justify-center cursor-pointer rounded-lg border-2 p-3 text-center text-sm font-semibold transition-all", selectedFurnitureSize === size ? 'border-primary bg-primary/5' : 'border-border bg-background')}>
+                                    {size}
+                                    </Label>
+                                </div>
+                            ))}
+                        </RadioGroup>
+                    </div>
+                )}
+                </>
+            ) : (
               <>
                 {/* Frame Color Selector */}
                 <div className="mb-6 md:mb-8">
@@ -377,7 +398,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   </div>
                 )}
               </>
-            ) : null}
+            )}
 
 
             {/* Action Buttons */}

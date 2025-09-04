@@ -114,10 +114,7 @@ export default function NewFurniturePage() {
             const imageUrl = data.url;
             if (fieldName.startsWith('gallery_images.')) {
                 const index = parseInt(fieldName.split('.')[1]);
-                const currentGallery = form.getValues('gallery_images') || [];
-                const newGallery = [...currentGallery];
-                newGallery[index].url = imageUrl;
-                form.setValue('gallery_images', newGallery, { shouldValidate: true });
+                form.setValue(`gallery_images.${index}.url`, imageUrl, { shouldValidate: true });
             } else {
                 form.setValue(fieldName, imageUrl, { shouldValidate: true });
             }
@@ -272,12 +269,12 @@ export default function NewFurniturePage() {
                         <div key={field.id} className="flex items-end gap-4 p-4 border rounded-lg">
                            <FormField
                             control={form.control}
-                            name={`gallery_images.${index}`}
-                            render={() => (
+                            name={`gallery_images.${index}.url`}
+                            render={({ field }) => (
                               <FormItem className="flex-grow">
                                 <ImageUploadField
                                   label={`Imagem de Detalhe ${index + 1}`}
-                                  currentImageUrl={form.watch(`gallery_images.${index}.url`)}
+                                  currentImageUrl={field.value}
                                   onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
                                   isUploading={isUploading[`gallery_images.${index}`]}
                                 />

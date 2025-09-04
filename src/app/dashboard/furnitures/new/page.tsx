@@ -115,9 +115,9 @@ export default function NewFurniturePage() {
             const imageUrl = data.url;
             if (fieldName.startsWith('gallery_images.')) {
                 const index = parseInt(fieldName.split('.')[1]);
-                form.setValue(`gallery_images.${index}.url`, imageUrl, { shouldValidate: true });
+                form.setValue(`gallery_images.${index}`, imageUrl, { shouldValidate: true });
             } else {
-                form.setValue(fieldName, imageUrl, { shouldValidate: true });
+                form.setValue(fieldName as any, imageUrl, { shouldValidate: true });
             }
             toast({ title: 'Sucesso', description: 'Imagem enviada com sucesso.' });
         } else {
@@ -135,7 +135,7 @@ export default function NewFurniturePage() {
     const price = data.sizes && data.sizes.length > 0 ? data.sizes[0].price : 0;
     const fullPayload = {
       ...data,
-      gallery_images: data.gallery_images?.map(g => g.url).filter(Boolean),
+      gallery_images: data.gallery_images?.filter(Boolean),
       price: price,
       category: 'Mobílias', // Categoria fixa
       // Campos não aplicáveis para mobílias
@@ -270,7 +270,7 @@ export default function NewFurniturePage() {
                         <div key={field.id} className="flex items-end gap-4 p-4 border rounded-lg">
                            <FormField
                             control={form.control}
-                            name={`gallery_images.${index}.url`}
+                            name={`gallery_images.${index}`}
                             render={({ field: formField }) => (
                               <FormItem className="flex-grow">
                                 <ImageUploadField
@@ -288,7 +288,7 @@ export default function NewFurniturePage() {
                           </Button>
                         </div>
                      ))}
-                     <Button type="button" variant="outline" onClick={() => appendGallery({ url: '' })}>
+                     <Button type="button" variant="outline" onClick={() => appendGallery("")}>
                         <PlusCircle className="mr-2 h-4 w-4"/> Adicionar Imagem de Detalhe
                      </Button>
                   </CardContent>

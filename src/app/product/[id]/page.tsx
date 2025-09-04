@@ -251,12 +251,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {/* Image Gallery */}
           <div className="space-y-4">
               <div 
-                className="relative group aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-gray-100 flex items-center justify-center cursor-zoom-in"
+                className="relative group aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-[#F7F7F7] flex items-center justify-center cursor-zoom-in"
               >
                   <AnimatePresence>
                     <motion.div
                         key={viewMode + getProductImage() + galleryIndex}
-                        className="absolute inset-0"
+                        className="absolute inset-0 p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -266,7 +266,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             src={getProductImage()}
                             alt={product.name}
                             fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="object-contain group-hover:scale-105 transition-transform duration-300"
                             quality={100}
                         />
                     </motion.div>
@@ -284,11 +284,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             <button 
                                 onClick={() => handleThumbnailClick(thumb.type, { frameKey: (thumb as any).frameKey, galleryIndex: (thumb as any).galleryIndex })}
                                 className={cn(
-                                "relative w-full aspect-square rounded-md overflow-hidden border-2 transition-all",
+                                "relative w-full aspect-square rounded-md overflow-hidden border-2 transition-all bg-[#F7F7F7]",
                                 isSelected ? 'border-primary' : 'border-transparent'
                                 )}
                             >
-                                <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
+                                <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-contain p-1" />
                             </button>
                           </CarouselItem>
                         )

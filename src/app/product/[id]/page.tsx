@@ -251,12 +251,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {/* Image Gallery */}
           <div className="space-y-4">
               <div 
-                className="relative group aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden rounded-lg shadow-lg bg-[#F7F7F7] flex items-center justify-center cursor-zoom-in"
+                className="relative group aspect-[4/5] w-full max-w-[600px] mx-auto overflow-hidden"
               >
                   <AnimatePresence>
                     <motion.div
                         key={viewMode + getProductImage() + galleryIndex}
-                        className="absolute inset-0 p-4"
+                        className="absolute inset-0"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

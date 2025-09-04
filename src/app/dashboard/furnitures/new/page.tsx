@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -270,11 +271,11 @@ export default function NewFurniturePage() {
                            <FormField
                             control={form.control}
                             name={`gallery_images.${index}.url`}
-                            render={({ field }) => (
+                            render={({ field: formField }) => (
                               <FormItem className="flex-grow">
                                 <ImageUploadField
                                   label={`Imagem de Detalhe ${index + 1}`}
-                                  currentImageUrl={field.value}
+                                  currentImageUrl={formField.value || null}
                                   onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
                                   isUploading={isUploading[`gallery_images.${index}`]}
                                 />

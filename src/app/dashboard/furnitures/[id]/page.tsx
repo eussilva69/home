@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -118,7 +119,7 @@ export default function EditFurniturePage() {
     }
   }, [user, authLoading, router, fetchFurniture]);
 
-  const handleImageUpload = async (file: File, fieldName: keyof NewFurniturePayload | `gallery_images.${number}`) => {
+  const handleImageUpload = async (file: File, fieldName: `gallery_images.${number}` | keyof Omit<NewFurniturePayload, 'gallery_images' | 'sizes'>) => {
     const fieldId = fieldName.toString();
     setIsUploading(prev => ({...prev, [fieldId]: true}));
     
@@ -131,11 +132,11 @@ export default function EditFurniturePage() {
         
         if (data.success) {
             const imageUrl = data.url;
-            if (typeof fieldName === 'string' && fieldName.startsWith('gallery_images.')) {
+            if (fieldName.startsWith('gallery_images.')) {
                 const index = parseInt(fieldName.split('.')[1]);
                 form.setValue(`gallery_images.${index}.url`, imageUrl, { shouldValidate: true });
             } else {
-                form.setValue(fieldName as any, imageUrl, { shouldValidate: true });
+                form.setValue(fieldName, imageUrl, { shouldValidate: true });
             }
             toast({ title: 'Sucesso', description: 'Imagem enviada.' });
         } else {
@@ -275,11 +276,11 @@ export default function EditFurniturePage() {
                            <FormField
                             control={form.control}
                             name={`gallery_images.${index}.url`}
-                            render={({ field }) => (
+                            render={({ field: formField }) => (
                               <FormItem className="flex-grow">
                                 <ImageUploadField
                                   label={`Imagem de Detalhe ${index + 1}`}
-                                  currentImageUrl={field.value}
+                                  currentImageUrl={formField.value || null}
                                   onImageUpload={(file) => handleImageUpload(file, `gallery_images.${index}`)}
                                   isUploading={isUploading[`gallery_images.${index}`]}
                                 />

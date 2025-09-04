@@ -285,7 +285,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                                 <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
                                 {thumb.type === 'gallery' && (
                                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                     <ImageIcon className="h-6 w-6 text-white"/>
                                    </div>
                                 )}
                             </button>
@@ -394,7 +393,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <AccordionItem value="description">
                 <AccordionTrigger>Descrição do Produto</AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-sm whitespace-pre-wrap">
                     {product.description 
                         ? product.description
                         : 'Eleve sua decoração com esta peça de arte vibrante. Impressa em materiais de alta qualidade com tintas resistentes ao desbotamento, esta obra é projetada para durar. Perfeita para salas de estar, quartos ou escritórios que precisam de um toque de cor e personalidade.'

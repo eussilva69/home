@@ -199,13 +199,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       }
   };
 
-  const handleThumbnailClick = (newViewMode: ViewMode, options?: { frameKey?: string; galleryIndex?: number }) => {
-    setViewMode(newViewMode);
-    if(options?.frameKey){
-        setSelectedFrame(options.frameKey);
+  const handleThumbnailClick = (thumb: any) => {
+    setViewMode(thumb.type);
+    if(thumb.frameKey){
+        setSelectedFrame(thumb.frameKey);
     }
-    if (options?.galleryIndex !== undefined) {
-        setGalleryIndex(options.galleryIndex);
+    if (thumb.galleryIndex !== undefined) {
+        setGalleryIndex(thumb.galleryIndex);
     }
   }
 
@@ -226,7 +226,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     ...(product.environment_images?.filter(img => img).map((img, index) => ({ 
         id: `env${index + 1}`, 
         src: img,
-        type: 'env1' as ViewMode,
+        type: `env${index + 1}` as ViewMode,
     })) || []),
     ...(isFurniture ? product.gallery_images?.filter(img => img).map((img, index) => ({
         id: `gallery${index}`,
@@ -276,13 +276,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                  <Carousel opts={{ align: "start", dragFree: true }}>
                   <CarouselContent className="-ml-2">
                     {thumbnailList.map(thumb => {
-                        const isSelected = (thumb.type === 'env1' && viewMode === thumb.id) || 
+                        const isSelected = (thumb.type === viewMode) || 
                                          (thumb.type === 'product' && viewMode === 'product' && selectedFrame === thumb.frameKey) ||
                                          (thumb.type === 'gallery' && viewMode === 'gallery' && galleryIndex === thumb.galleryIndex);
                         return (
                           <CarouselItem key={thumb.id} className="basis-1/4 sm:basis-1/5 md:basis-1/6 pl-2">
                             <button 
-                                onClick={() => handleThumbnailClick(thumb.type, { frameKey: (thumb as any).frameKey, galleryIndex: (thumb as any).galleryIndex })}
+                                onClick={() => handleThumbnailClick(thumb)}
                                 className={cn(
                                 "relative w-full aspect-square rounded-md overflow-hidden border-2 transition-all bg-[#F7F7F7]",
                                 isSelected ? 'border-primary' : 'border-transparent'

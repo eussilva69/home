@@ -34,7 +34,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         alt={`${product.name} em um ambiente`}
                         data-ai-hint={product.hint_alt}
                         fill
-                        className="object-contain opacity-100 group-hover:opacity-0 transition-opacity duration-300 p-4"
+                        className="object-cover opacity-100 group-hover:opacity-0 transition-opacity duration-300"
                         quality={100}
                      />
                       <Image
@@ -42,7 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         alt={product.name}
                         data-ai-hint={product.hint}
                         fill
-                        className="object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4"
+                        className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         quality={100}
                      />
                 </div>

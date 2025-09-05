@@ -150,7 +150,6 @@ export const collections = [
   { slug: 'abstratos-e-geometricos', name: 'Abstratos & Geométricos', image: 'https://i.pinimg.com/736x/4f/13/cd/4f13cda7e1e13ccead88339e789ca3a3.jpg', hint: 'abstract geometric' },
   { slug: 'praia', name: 'Praia', image: 'https://wallpapers.com/images/hd/1920x1080-hd-beach-e4w5syi4hm156qt3.jpg', hint: 'beach' },
   { slug: 'por-do-sol', name: 'Pôr do Sol', image: 'https://img.freepik.com/fotos-gratis/renderizacao-3d-de-uma-arvore-contra-um-ceu-por-do-sol_1048-4191.jpg?semt=ais_hybrid&w=740&q=80', hint: 'sunset' },
-  { slug: 'carros', name: 'Carros', image: 'https://cdn.wallpapersafari.com/81/42/2fIAvh.jpg', hint: 'car' },
   { slug: 'flores', name: 'Flores', image: 'https://i.pinimg.com/736x/ac/73/7f/ac737f5e65fe48384c7856b5abc83ade.jpg', hint: 'flowers' },
   { slug: 'pintura-e-aquarela', name: 'Pintura & Aquarela', image: 'https://i.pinimg.com/736x/21/2e/0f/212e0f854615e45a0a38f3223f05b0c7.jpg', hint: 'watercolor painting' },
   { slug: 'frases-motivacionais', name: 'Frases Motivacionais', image: 'https://i.pinimg.com/736x/56/de/96/56de96ac38decccabbbf516fb85b025a.jpg', hint: 'motivational quotes' },
@@ -184,4 +183,5 @@ export const collections = [
     
 
     
+
 

@@ -151,22 +151,15 @@ export const collections = [
   { slug: 'praia', name: 'Praia', image: 'https://wallpapers.com/images/hd/1920x1080-hd-beach-e4w5syi4hm156qt3.jpg', hint: 'beach' },
   { slug: 'por-do-sol', name: 'Pôr do Sol', image: 'https://img.freepik.com/fotos-gratis/renderizacao-3d-de-uma-arvore-contra-um-ceu-por-do-sol_1048-4191.jpg?semt=ais_hybrid&w=740&q=80', hint: 'sunset' },
   { slug: 'flores', name: 'Flores', image: 'https://i.pinimg.com/736x/ac/73/7f/ac737f5e65fe48384c7856b5abc83ade.jpg', hint: 'flowers' },
-  { slug: 'pintura-e-aquarela', name: 'Pintura & Aquarela', image: 'https://i.pinimg.com/736x/21/2e/0f/212e0f854615e45a0a38f3223f05b0c7.jpg', hint: 'watercolor painting' },
   { slug: 'frases-motivacionais', name: 'Frases Motivacionais', image: 'https://i.pinimg.com/736x/56/de/96/56de96ac38decccabbbf516fb85b025a.jpg', hint: 'motivational quotes' },
-  { slug: 'leao-de-juda', name: 'Leão de Judá', image: 'https://midias.jornalcruzeiro.com.br/wp-content/uploads/2021/09/leao-de-juda.jpg', hint: 'lion judah' },
   { slug: 'cavalos', name: 'Cavalos', image: 'https://cdnm.westwing.com.br/img/products/quadro-cavalos-preto-e-branco-i-referencia-ax2548-p-0-323281-1-800x800.jpg', hint: 'horses' },
   { slug: 'cachorro', name: 'Cachorro', image: 'https://placehold.co/150x150.png', hint: 'dog' },
   { slug: 'tigre', name: 'Tigre', image: 'https://placehold.co/150x150.png', hint: 'tiger' },
   { slug: 'lobo', name: 'Lobo', image: 'https://placehold.co/150x150.png', hint: 'wolf' },
   { slug: 'onca', name: 'Onça', image: 'https://placehold.co/150x150.png', hint: 'jaguar' },
   { slug: 'passaro', name: 'Pássaro', image: 'https://placehold.co/150x150.png', hint: 'bird' },
-  { slug: 'borboletas', name: 'Borboletas', image: 'https://i0.wp.com/www.portaldossabores.com.br/wp-content/uploads/2022/10/Borboleta-Colorida-PNG.png?fit=640%2C427&ssl=1', hint: 'butterflies' },
-  { slug: 'mulheres', name: 'Mulheres', image: 'https://iili.io/Jqg04Gf.png', hint: 'women' },
   { slug: 'minimalista', name: 'Minimalista', image: 'https://st2.depositphotos.com/8815532/44724/v/450/depositphotos_447247498-stock-illustration-one-line-drawing-face-abstract.jpg', hint: 'minimalist' },
-  { slug: 'arte-urbana', name: 'Arte Urbana', image: 'https://acdn.mitiendanube.com/stores/001/838/087/products/hpx2-06-031-6e11e0f065360a0a5216345826649392-1024-1024.jpg', hint: 'urban art' },
   { slug: 'paisagens', name: 'Paisagens', image: 'https://img.panoramasistemas.com.br/img.php?img=aHR0cHM6Ly93d3cucGFub3JhbWFzaXN0ZW1hcy5jb20uYnIvaW1nL25vdGljaWFzLzIwMTkvMDcvMTkvMTUwNjA1XzM1MTU2NTgxNTc0NjYzNF8yNzk2OTIzODRfbi5qcGc=&w=720&h=480', hint: 'landscapes' },
-  { slug: 'familia-de-leoes', name: 'Família de Leões', image: 'https://images.icon-icons.com/icons2/2388/PNG/512/lion_animal_icon_144304.png', hint: 'lion family' },
-  { slug: 'dolar-e-bitcoin', name: 'Dólar & Bitcoin', image: 'https://i.ibb.co/3yCj1gq/imagem-2025-08-04-180800366.png', hint: 'dolar bitcoin' },
   { slug: 'religioso', name: 'Religioso', image: 'https://carolinarochas.com.br/wp-content/uploads/2025/03/Pintura-sacra-de-Jesus-Cristo-pintado-a-mao.jpg', hint: 'religious' },
   { slug: 'mobilias', name: 'Mobílias', image: 'https://finger.ind.br/wp-content/uploads/2021/02/post_thumbnail-757ae398373789e34f676db879790a25.jpeg', hint: 'planned furniture'}
 ];
@@ -183,5 +176,6 @@ export const collections = [
     
 
     
+
 
 

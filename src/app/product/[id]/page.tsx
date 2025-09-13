@@ -200,12 +200,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   };
 
   const handleThumbnailClick = (thumb: any) => {
-    setViewMode(thumb.type);
-    if(thumb.frameKey){
-        setSelectedFrame(thumb.frameKey);
-    }
-    if (thumb.galleryIndex !== undefined) {
+    if (thumb.type.startsWith('env')) {
+        setViewMode(thumb.type as ViewMode);
+    } else if (thumb.type === 'gallery') {
+        setViewMode('gallery');
         setGalleryIndex(thumb.galleryIndex);
+    } else if (thumb.type === 'product' && thumb.frameKey) {
+        setViewMode('product');
+        setSelectedFrame(thumb.frameKey);
     }
   }
 
@@ -266,7 +268,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                             src={getProductImage()}
                             alt={product.name}
                             fill
-                            className="object-contain group-hover:scale-105 transition-transform duration-300"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
                             quality={100}
                         />
                     </motion.div>
@@ -276,9 +278,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                  <Carousel opts={{ align: "start", dragFree: true }}>
                   <CarouselContent className="-ml-2">
                     {thumbnailList.map(thumb => {
-                        const isSelected = (thumb.type === viewMode) || 
-                                         (thumb.type === 'product' && viewMode === 'product' && selectedFrame === thumb.frameKey) ||
-                                         (thumb.type === 'gallery' && viewMode === 'gallery' && galleryIndex === thumb.galleryIndex);
+                        const isSelected = (thumb.type === viewMode && (thumb.type !== 'product' && thumb.type !== 'gallery')) || 
+                                         (viewMode === 'product' && thumb.type === 'product' && selectedFrame === thumb.frameKey) ||
+                                         (viewMode === 'gallery' && thumb.type === 'gallery' && galleryIndex === thumb.galleryIndex);
                         return (
                           <CarouselItem key={thumb.id} className="basis-1/4 sm:basis-1/5 md:basis-1/6 pl-2">
                             <button 
@@ -288,7 +290,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                                 isSelected ? 'border-primary' : 'border-transparent'
                                 )}
                             >
-                                <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-contain p-1" />
+                                <Image src={thumb.src} alt={`Visão ${thumb.id}`} fill className="object-cover" />
                             </button>
                           </CarouselItem>
                         )
